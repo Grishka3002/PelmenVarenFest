@@ -19,6 +19,10 @@ const QUIZ_RESULTS = {
     title: "Ты гёдза",
     text: "Быстрый, острый и современный. Тебе нужен ритм, контраст и немного фестивального авантюризма.",
   },
+  momo: {
+    title: "Ты Ваня Ненашев или Момо",
+    text: "Высокий, добрый и смешнявый",
+  },
 };
 
 const ticketForm = document.querySelector("#ticket-form");
@@ -427,3 +431,4 @@ if (checkinForm) {
 window.addEventListener("beforeunload", () => {
   if (scannerState.active) stopScanner();
 });
+

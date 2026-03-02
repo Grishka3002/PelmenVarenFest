@@ -1,0 +1,55 @@
+﻿<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Костровье | контроль входа</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+SC:wght@500;600;700&family=Golos+Text:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <main class="checkin-page">
+    <a class="button button--ghost" href="index.html">Назад к лендингу</a>
+    <section class="section">
+      <div class="section-heading">
+        <p class="eyebrow">Входной контроль</p>
+        <h1 class="checkin-title">Модуль сканирования QR и фиксации входа.</h1>
+      </div>
+      <article class="checkin-panel ornament-card">
+        <p class="checkin-note">Сканер поддерживает два режима: камера устройства через `BarcodeDetector` и ручной ввод строки из QR или номера билета. Повторное сканирование покажет сообщение, что билет уже использован.</p>
+        <form id="checkin-form" class="checkin-form">
+          <input type="text" name="code" placeholder="Например, PF26-ABC123 или строка из QR" autofocus required>
+          <button class="button" type="submit">Проверить билет</button>
+        </form>
+        <div id="checkin-result" class="checkin-result">
+          <strong>Ожидание сканирования.</strong><br>После проверки здесь появится статус прохода.
+        </div>
+
+        <div class="scanner-shell">
+          <div class="scanner-grid">
+            <div>
+              <video id="scanner-video" class="scanner-video" playsinline muted></video>
+            </div>
+            <div>
+              <p class="eyebrow">Камера</p>
+              <p id="camera-status" class="camera-status">Камера не запущена.</p>
+              <div class="camera-actions">
+                <button id="start-scan" class="button" type="button">Запустить сканер</button>
+                <button id="stop-scan" class="button button--secondary" type="button">Остановить</button>
+              </div>
+              <p class="muted">Если устройство или браузер не поддерживают распознавание QR через камеру, используйте обычный проводной QR-сканер или ручной ввод.</p>
+            </div>
+          </div>
+        </div>
+      </article>
+      <article class="checkin-log ornament-card">
+        <p class="eyebrow">Журнал проходов</p>
+        <ul id="checkin-log-list" class="log-list"></ul>
+      </article>
+    </section>
+  </main>
+  <script src="script.js"></script>
+</body>
+</html>

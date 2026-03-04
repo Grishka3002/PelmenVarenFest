@@ -1,0 +1,14 @@
+diff --git a/c:\Users\PVN-LP7\Desktop\Bot\SitePelmen\.dockerignore b/c:\Users\PVN-LP7\Desktop\Bot\SitePelmen\.dockerignore
+new file mode 100644
+--- /dev/null
++++ b/c:\Users\PVN-LP7\Desktop\Bot\SitePelmen\.dockerignore
+@@ -0,0 +1,9 @@
++.git
++.gitignore
++.qodo
++node_modules
++.env
++.env.*
++festival.sqlite
++festival.sqlite-shm
++festival.sqlite-wal

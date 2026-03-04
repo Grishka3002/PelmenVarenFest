@@ -1,0 +1,9 @@
+node_modules/
+.env
+.env.*
+
+festival.sqlite
+festival.sqlite-shm
+festival.sqlite-wal
+
+*.log

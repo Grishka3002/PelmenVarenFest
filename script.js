@@ -1,5 +1,4 @@
-﻿const STORAGE_KEY = "kostrovie-tickets";
-const TICKET_PRICE = 2500;
+﻿const TICKET_PRICE = 2500;
 const QR_ENDPOINT = "https://api.qrserver.com/v1/create-qr-code/?size=320x320&data=";
 const TEAMS = ["Команда Северный пар", "Команда Жар-печь", "Команда Морской дым"];
 const QUIZ_RESULTS = {
@@ -11,14 +10,280 @@ const QUIZ_RESULTS = {
     title: "Ты хинкали",
     text: "Масштабный, громкий и харизматичный. Тебя невозможно не заметить, а любая сцена рядом с тобой становится главной.",
   },
-  varenik: {
+  momo: {
     title: "Ты момо",
+    text: "Лёгкий, любознательный и открытый новому. Ты любишь необычные сочетания, быстро находишь скрытые жемчужины и умеешь увлекать за собой.",
+  },
+  varenik: {
+    title: "Ты вареник",
     text: "Мягкий, домашний и тёплый. Ты создаёшь атмосферу, в которой хочется задержаться надолго.",
   },
   gyoza: {
     title: "Ты гёдза",
     text: "Быстрый, острый и современный. Тебе нужен ритм, контраст и немного фестивального авантюризма.",
   },
+};
+const DEFAULT_CONTENT = {
+  seoTitle: "Костровье | фестиваль ремесла, музыки и северной кухни",
+  seoDescription: "Лендинг фестиваля в русско-славянском стиле: программа, карта, галерея, билеты, голосование, тест и вход по QR-коду.",
+  ogTitle: "Костровье | фестиваль ремесла, музыки и северной кухни",
+  ogDescription: "Лендинг фестиваля в русско-славянском стиле: программа, карта, галерея, билеты, голосование, тест и вход по QR-коду.",
+  ogImage: "",
+  canonicalUrl: "",
+  heroEyebrow: "18 июля 2026 • Владивосток • этнопарк «Берег Сварога»",
+  heroTitle: "Лендинг фестиваля в русско-славянском духе с билетом и входом по QR.",
+  heroLead: "Музыка у костра, ремесленные дворы, ярмарка, северная кухня, игры, хороводы и вечерний огненный круг на берегу.",
+  heroSideLabel: "Главный день",
+  heroSideDate: "18.07",
+  heroSideSchedule: "Сбор гостей с 11:00<br>Открытие в 12:00<br>Огненный финал в 21:30",
+  heroSideNote: "После оплаты гость получает персональные билеты с уникальными кодами и QR, которые сканируются на входе.",
+  countdownEyebrow: "До открытия фестиваля",
+  countdownNote: "Счётчик идёт до официального старта фестивального дня.",
+  festivalStartAt: "2026-07-18T11:00:00+10:00",
+  aboutEyebrow: "О фестивале",
+  aboutTitle: "Тёплый, плотный, ремесленный визуальный образ вместо шаблонного промо-сайта.",
+  aboutCard1Title: "Живая традиция",
+  aboutCard1Text: "Песни, пляс, гусли, барабаны, ремесленные мастерские и семейные обряды без музейной пыли.",
+  aboutCard2Title: "Еда и ярмарка",
+  aboutCard2Text: "Печи, травяные сборы, фермерские продукты, авторская керамика, ткани, дерево и кузнечное дело.",
+  aboutCard3Title: "Современный вход",
+  aboutCard3Text: "Оплата, персональные QR-билеты, сканирование на входе, голосование по номеру билета и развлекательные механики на странице.",
+  locationEyebrow: "Где и когда",
+  locationTitle: "Вся практическая информация на одной странице.",
+  dateLabel: "Дата",
+  dateMain: "Суббота, 18 июля 2026 года",
+  dateNote: "Вход гостей с 11:00. Первая сцена запускается в 12:00.",
+  placeLabel: "Место",
+  placeMain: "Этнопарк «Берег Сварога», Владивосток",
+  placeNote: "Лесная поляна, ремесленный двор, береговая сцена, фуд-корт и детская зона.",
+  routeLabel: "Как добраться",
+  routeMain: "Фестивальный шаттл от центра города каждые 40 минут.",
+  routeNote: "Парковка ограничена, гостям рекомендуем трансфер или такси.",
+  mapLat: "43.1155",
+  mapLon: "131.8855",
+  mapZoom: "12",
+  locationCta: "Купить билет",
+  programEyebrow: "Программа",
+  programTitle: "День разбит по крупным событиям, чтобы гостю было легко спланировать маршрут.",
+  programItem1Time: "12:00",
+  programItem1Title: "Открытие круга",
+  programItem1Text: "Общий сбор, приветствие ведущих, хор, гусли и первый хоровод у главной сцены.",
+  programItem2Time: "14:00",
+  programItem2Title: "Ремесленные дворы",
+  programItem2Text: "Кузнечное шоу, резьба по дереву, ткачество, роспись и мастер-классы для семей.",
+  programItem3Time: "17:30",
+  programItem3Title: "Большой концерт",
+  programItem3Text: "Фолк-группы, этно-электроника, северные барабаны, народный вокал и танцевальный блок.",
+  programItem4Time: "21:30",
+  programItem4Title: "Огненный финал",
+  programItem4Text: "Огненное шоу на берегу, световые инсталляции и закрывающий круг у костра.",
+  galleryEyebrow: "Фотоальбом",
+  galleryTitle: "Блок можно наполнить реальными кадрами без изменения структуры страницы.",
+  galleryCap1: "Береговая сцена",
+  galleryCap2: "Ремесленный двор",
+  galleryCap3: "Огненный круг",
+  galleryCap4: "Ярмарка мастеров",
+  galleryCap5: "Семейные мастер-классы",
+  galleryImage1: "",
+  galleryImage2: "",
+  galleryImage3: "",
+  galleryImage4: "",
+  galleryImage5: "",
+  ticketsEyebrow: "Билеты",
+  ticketsTitle: "Оплата, персональные QR-коды и готовность к контролю на входе.",
+  ticketPriceLabel: "Стандарт",
+  ticketPriceValue: "2 500 ₽",
+  ticketPriceText: "Доступ на все площадки фестиваля, концерт и вечерний огненный круг.",
+  ticketFeature1: "Каждый билет получает собственный код и QR",
+  ticketFeature2: "После оплаты билет сразу доступен на странице",
+  ticketFeature3: "После сканирования билет можно использовать для голосования",
+  ticketNote: "Оплата реализована как клиентский checkout внутри проекта. Для боевого запуска потребуется подключение настоящего эквайринга и серверной базы билетов.",
+  voteEyebrow: "Голосование",
+  voteTitle: "Проголосовать может только гость, чей билет уже отсканирован на входе.",
+  voteTicketLabel: "Номер билета",
+  voteButton: "Отдать голос",
+  voteScoreboard: "Таблица голосов",
+  team1Name: "Команда Северный пар",
+  team1Desc: "Сибирские пельмени и таёжные травы",
+  team2Name: "Команда Жар-печь",
+  team2Desc: "Огонь, дымок и авторская подача",
+  team3Name: "Команда Морской дым",
+  team3Desc: "Дальний Восток и северный берег",
+  quizEyebrow: "Тест",
+  quizTitle: "Какой ты пельмень?",
+  quizQ1Title: "1. Какой ритм дня тебе ближе?",
+  quizQ1A1: "Собранный и прямой",
+  quizQ1A2: "Громкий и харизматичный",
+  quizQ1A3: "Спокойный и тёплый",
+  quizQ1A4: "Быстрый и дерзкий",
+  quizQ1A5: "Любознательный и лёгкий на подъём",
+  quizQ2Title: "2. Что берёшь на фестивале первым?",
+  quizQ2A1: "Самую шумную сцену",
+  quizQ2A2: "Уличную еду и движ",
+  quizQ2A3: "Лужайку и плед",
+  quizQ2A4: "Ярмарку и ремесло",
+  quizQ2A5: "Необычную локальную закуску",
+  quizQ3Title: "3. Что для тебя идеальная компания?",
+  quizQ3A1: "Близкие люди и душевный разговор",
+  quizQ3A2: "Надёжные друзья без лишнего шума",
+  quizQ3A3: "Те, кто готовы к спонтанности",
+  quizQ3A4: "Яркие лидеры и артисты",
+  quizQ3A5: "Путешественники и исследователи вкусов",
+  quizQ4Title: "4. Какой вкус ты выбираешь?",
+  quizQ4A1: "Острый и хрустящий",
+  quizQ4A2: "Классический и насыщенный",
+  quizQ4A3: "Пряный и мощный",
+  quizQ4A4: "Нежный и домашний",
+  quizQ4A5: "Воздушный и неожиданно тонкий",
+  quizQ5Title: "5. Какая роль тебе ближе на фестивале?",
+  quizQ5A1: "Опора компании и человек-план",
+  quizQ5A2: "Главный за настроение и эффектный вход",
+  quizQ5A3: "Открывать новое и вести всех в неожиданные точки",
+  quizQ5A4: "Создавать уют и собирать людей рядом",
+  quizQ5A5: "Добавлять драйв, скорость и немного хаоса",
+  quizButton: "Узнать результат",
+  quizResultLabel: "Результат",
+  quizResultTitle: "Твой пельмень ждёт тебя.",
+  quizResultText: "Ответь на четыре вопроса, и блок покажет твой гастро-характер.",
+  showCountdown: "true",
+  showAbout: "true",
+  showLocation: "true",
+  showProgram: "true",
+  showGallery: "true",
+  showTickets: "true",
+  showVote: "true",
+  showQuiz: "true",
+  showContacts: "true",
+  contactsEyebrow: "Контакты",
+  contactsTitle: "Блок для связи с гостями, партнёрами и прессой.",
+  contactOrgTitle: "Организаторы",
+  contactOrgPhone: "+7 (999) 000-12-34",
+  contactOrgEmail: "hello@kostroviefest.ru",
+  contactPressTitle: "Партнёры и медиа",
+  contactPressEmail: "press@kostroviefest.ru",
+  contactPressSocial: "@kostrovie_fest",
+  contactTicketTitle: "Вопросы по билетам",
+  contactTicketEmail: "tickets@kostroviefest.ru",
+  contactTicketNote: "Входной контроль доступен по отдельной закрытой ссылке.",
+};
+const CONTENT_BINDINGS = {
+  heroEyebrow: { id: "content-hero-eyebrow", html: false },
+  heroTitle: { id: "content-hero-title", html: false },
+  heroLead: { id: "content-hero-lead", html: false },
+  heroSideLabel: { id: "content-hero-side-label", html: false },
+  heroSideDate: { id: "content-hero-side-date", html: false },
+  heroSideSchedule: { id: "content-hero-side-schedule", html: true },
+  heroSideNote: { id: "content-hero-side-note", html: false },
+  countdownEyebrow: { id: "content-countdown-eyebrow", html: false },
+  countdownNote: { id: "content-countdown-note", html: false },
+  aboutEyebrow: { id: "content-about-eyebrow", html: false },
+  aboutTitle: { id: "content-about-title", html: false },
+  aboutCard1Title: { id: "content-about-card1-title", html: false },
+  aboutCard1Text: { id: "content-about-card1-text", html: false },
+  aboutCard2Title: { id: "content-about-card2-title", html: false },
+  aboutCard2Text: { id: "content-about-card2-text", html: false },
+  aboutCard3Title: { id: "content-about-card3-title", html: false },
+  aboutCard3Text: { id: "content-about-card3-text", html: false },
+  locationEyebrow: { id: "content-location-eyebrow", html: false },
+  locationTitle: { id: "content-location-title", html: false },
+  dateLabel: { id: "content-date-label", html: false },
+  dateMain: { id: "content-date-main", html: false },
+  dateNote: { id: "content-date-note", html: false },
+  placeLabel: { id: "content-place-label", html: false },
+  placeMain: { id: "content-place-main", html: false },
+  placeNote: { id: "content-place-note", html: false },
+  routeLabel: { id: "content-route-label", html: false },
+  routeMain: { id: "content-route-main", html: false },
+  routeNote: { id: "content-route-note", html: false },
+  locationCta: { id: "content-location-cta", html: false },
+  programEyebrow: { id: "content-program-eyebrow", html: false },
+  programTitle: { id: "content-program-title", html: false },
+  programItem1Time: { id: "content-program-item1-time", html: false },
+  programItem1Title: { id: "content-program-item1-title", html: false },
+  programItem1Text: { id: "content-program-item1-text", html: false },
+  programItem2Time: { id: "content-program-item2-time", html: false },
+  programItem2Title: { id: "content-program-item2-title", html: false },
+  programItem2Text: { id: "content-program-item2-text", html: false },
+  programItem3Time: { id: "content-program-item3-time", html: false },
+  programItem3Title: { id: "content-program-item3-title", html: false },
+  programItem3Text: { id: "content-program-item3-text", html: false },
+  programItem4Time: { id: "content-program-item4-time", html: false },
+  programItem4Title: { id: "content-program-item4-title", html: false },
+  programItem4Text: { id: "content-program-item4-text", html: false },
+  galleryEyebrow: { id: "content-gallery-eyebrow", html: false },
+  galleryTitle: { id: "content-gallery-title", html: false },
+  galleryCap1: { id: "content-gallery-cap1", html: false },
+  galleryCap2: { id: "content-gallery-cap2", html: false },
+  galleryCap3: { id: "content-gallery-cap3", html: false },
+  galleryCap4: { id: "content-gallery-cap4", html: false },
+  galleryCap5: { id: "content-gallery-cap5", html: false },
+  ticketsEyebrow: { id: "content-tickets-eyebrow", html: false },
+  ticketsTitle: { id: "content-tickets-title", html: false },
+  ticketPriceLabel: { id: "content-ticket-price-label", html: false },
+  ticketPriceValue: { id: "content-ticket-price-value", html: false },
+  ticketPriceText: { id: "content-ticket-price-text", html: false },
+  ticketFeature1: { id: "content-ticket-feature1", html: false },
+  ticketFeature2: { id: "content-ticket-feature2", html: false },
+  ticketFeature3: { id: "content-ticket-feature3", html: false },
+  ticketNote: { id: "content-ticket-note", html: false },
+  voteEyebrow: { id: "content-vote-eyebrow", html: false },
+  voteTitle: { id: "content-vote-title", html: false },
+  voteTicketLabel: { id: "content-vote-ticket-label", html: false },
+  voteButton: { id: "content-vote-button", html: false },
+  voteScoreboard: { id: "content-vote-scoreboard", html: false },
+  team1Name: { id: "content-team1-name", html: false },
+  team1Desc: { id: "content-team1-desc", html: false },
+  team2Name: { id: "content-team2-name", html: false },
+  team2Desc: { id: "content-team2-desc", html: false },
+  team3Name: { id: "content-team3-name", html: false },
+  team3Desc: { id: "content-team3-desc", html: false },
+  quizEyebrow: { id: "content-quiz-eyebrow", html: false },
+  quizTitle: { id: "content-quiz-title", html: false },
+  quizQ1Title: { id: "content-quiz-q1-title", html: false },
+  quizQ1A1: { id: "content-quiz-q1-a1", html: false },
+  quizQ1A2: { id: "content-quiz-q1-a2", html: false },
+  quizQ1A3: { id: "content-quiz-q1-a3", html: false },
+  quizQ1A4: { id: "content-quiz-q1-a4", html: false },
+  quizQ1A5: { id: "content-quiz-q1-a5", html: false },
+  quizQ2Title: { id: "content-quiz-q2-title", html: false },
+  quizQ2A1: { id: "content-quiz-q2-a1", html: false },
+  quizQ2A2: { id: "content-quiz-q2-a2", html: false },
+  quizQ2A3: { id: "content-quiz-q2-a3", html: false },
+  quizQ2A4: { id: "content-quiz-q2-a4", html: false },
+  quizQ2A5: { id: "content-quiz-q2-a5", html: false },
+  quizQ3Title: { id: "content-quiz-q3-title", html: false },
+  quizQ3A1: { id: "content-quiz-q3-a1", html: false },
+  quizQ3A2: { id: "content-quiz-q3-a2", html: false },
+  quizQ3A3: { id: "content-quiz-q3-a3", html: false },
+  quizQ3A4: { id: "content-quiz-q3-a4", html: false },
+  quizQ3A5: { id: "content-quiz-q3-a5", html: false },
+  quizQ4Title: { id: "content-quiz-q4-title", html: false },
+  quizQ4A1: { id: "content-quiz-q4-a1", html: false },
+  quizQ4A2: { id: "content-quiz-q4-a2", html: false },
+  quizQ4A3: { id: "content-quiz-q4-a3", html: false },
+  quizQ4A4: { id: "content-quiz-q4-a4", html: false },
+  quizQ4A5: { id: "content-quiz-q4-a5", html: false },
+  quizQ5Title: { id: "content-quiz-q5-title", html: false },
+  quizQ5A1: { id: "content-quiz-q5-a1", html: false },
+  quizQ5A2: { id: "content-quiz-q5-a2", html: false },
+  quizQ5A3: { id: "content-quiz-q5-a3", html: false },
+  quizQ5A4: { id: "content-quiz-q5-a4", html: false },
+  quizQ5A5: { id: "content-quiz-q5-a5", html: false },
+  quizButton: { id: "content-quiz-button", html: false },
+  quizResultLabel: { id: "content-quiz-result-label", html: false },
+  quizResultTitle: { id: "content-quiz-result-title", html: false },
+  quizResultText: { id: "content-quiz-result-text", html: false },
+  contactsEyebrow: { id: "content-contacts-eyebrow", html: false },
+  contactsTitle: { id: "content-contacts-title", html: false },
+  contactOrgTitle: { id: "content-contact-org-title", html: false },
+  contactOrgPhone: { id: "content-contact-org-phone", html: false },
+  contactOrgEmail: { id: "content-contact-org-email", html: false },
+  contactPressTitle: { id: "content-contact-press-title", html: false },
+  contactPressEmail: { id: "content-contact-press-email", html: false },
+  contactPressSocial: { id: "content-contact-press-social", html: false },
+  contactTicketTitle: { id: "content-contact-ticket-title", html: false },
+  contactTicketEmail: { id: "content-contact-ticket-email", html: false },
+  contactTicketNote: { id: "content-contact-ticket-note", html: false },
 };
 
 const ticketForm = document.querySelector("#ticket-form");
@@ -36,6 +301,13 @@ const quizResult = document.querySelector("#quiz-result");
 const orderStepLabel = document.querySelector("#order-step-label");
 const paymentStepLabel = document.querySelector("#payment-step-label");
 const ticketsStepLabel = document.querySelector("#tickets-step-label");
+const countdownNodes = {
+  block: document.querySelector("#countdown-block"),
+  days: document.querySelector("#countdown-days"),
+  hours: document.querySelector("#countdown-hours"),
+  minutes: document.querySelector("#countdown-minutes"),
+  seconds: document.querySelector("#countdown-seconds"),
+};
 
 const checkinForm = document.querySelector("#checkin-form");
 const checkinResult = document.querySelector("#checkin-result");
@@ -45,7 +317,39 @@ const startScanButton = document.querySelector("#start-scan");
 const stopScanButton = document.querySelector("#stop-scan");
 const cameraStatus = document.querySelector("#camera-status");
 
+const adminContentForm = document.querySelector("#admin-content-form");
+const adminMessage = document.querySelector("#admin-message");
+const adminResetButton = document.querySelector("#admin-reset-content");
+const adminRefreshButton = document.querySelector("#admin-refresh-stats");
+const adminExportQuizButton = document.querySelector("#admin-export-quiz");
+const adminExportTicketsButton = document.querySelector("#admin-export-tickets");
+const adminResetTicketsButton = document.querySelector("#admin-reset-tickets");
+const adminResetQuizButton = document.querySelector("#admin-reset-quiz");
+const adminUserForm = document.querySelector("#admin-user-form");
+const adminUserMessage = document.querySelector("#admin-user-message");
+const adminUsersList = document.querySelector("#admin-users-list");
+const adminTabs = document.querySelectorAll("[data-tab-target]");
+const adminTabPanels = document.querySelectorAll("[data-tab-panel]");
+const authForm = document.querySelector("#auth-form");
+const authMessage = document.querySelector("#auth-message");
+const authScreen = document.querySelector("#auth-screen");
+const protectedApp = document.querySelector("#protected-app");
+const logoutButton = document.querySelector("#logout-button");
+const protectedRole = document.body.dataset.protectedRole || "";
+const adminStats = {
+  ticketsSold: document.querySelector("#stat-tickets-sold"),
+  ticketsScanned: document.querySelector("#stat-tickets-scanned"),
+  votesCast: document.querySelector("#stat-votes-cast"),
+  quizTotal: document.querySelector("#stat-quiz-total"),
+  votesList: document.querySelector("#admin-vote-results"),
+  quizList: document.querySelector("#admin-quiz-results"),
+  recentTickets: document.querySelector("#admin-recent-tickets"),
+};
+
 let pendingOrder = null;
+let lastCreatedOrderTickets = [];
+let protectedModulesInitialized = false;
+let countdownTimerId = null;
 let scannerState = {
   stream: null,
   detector: null,
@@ -55,37 +359,157 @@ let scannerState = {
   lastDetectedAt: 0,
 };
 
-function loadTickets() {
-  return JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]");
+async function requestJson(url, options = {}) {
+  const response = await fetch(url, {
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...(options.headers || {}),
+    },
+  });
+
+  const payload = await response.json().catch(() => ({}));
+  if (!response.ok) {
+    throw new Error(payload.error || "Ошибка запроса.");
+  }
+  return payload;
 }
 
-function saveTickets(tickets) {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(tickets));
+async function downloadFile(url, fallbackName) {
+  const response = await fetch(url, { credentials: "same-origin" });
+  if (!response.ok) {
+    const payload = await response.json().catch(() => ({}));
+    throw new Error(payload.error || "Не удалось скачать файл.");
+  }
+
+  const blob = await response.blob();
+  const objectUrl = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  const disposition = response.headers.get("Content-Disposition") || "";
+  const matchedName = disposition.match(/filename=\"?([^\";]+)\"?/i);
+
+  link.href = objectUrl;
+  link.download = matchedName?.[1] || fallbackName;
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+  URL.revokeObjectURL(objectUrl);
 }
 
-function getLastOrderTickets() {
-  const tickets = loadTickets();
-  const latest = tickets.at(-1);
-  if (!latest) return [];
-  return tickets.filter((ticket) => ticket.orderId === latest.orderId);
-}
-
-function generateCode(existingCodes) {
-  let code = "";
-  do {
-    code = `PF26-${Math.random().toString(36).slice(2, 8).toUpperCase()}`;
-  } while (existingCodes.has(code));
-  existingCodes.add(code);
-  return code;
-}
-
-function formatPrice(value) {
-  return `${value.toLocaleString("ru-RU")} ₽`;
-}
+const api = {
+  login: async (role, username, password) => requestJson("/api/auth/login", { method: "POST", body: JSON.stringify({ role, username, password }) }),
+  logout: async () => requestJson("/api/auth/logout", { method: "POST", body: JSON.stringify({}) }),
+  authStatus: async (role) => requestJson(`/api/auth/status?role=${encodeURIComponent(role)}`),
+  getContent: async () => (await requestJson("/api/content")).content,
+  saveContent: async (content) => (await requestJson("/api/content", { method: "PUT", body: JSON.stringify({ content }) })).content,
+  resetContent: async () => (await requestJson("/api/content", { method: "DELETE" })).content,
+  getTickets: async () => (await requestJson("/api/tickets")).tickets,
+  createOrder: async (order) => requestJson("/api/orders", { method: "POST", body: JSON.stringify(order) }),
+  checkin: async (code) => requestJson("/api/checkin", { method: "POST", body: JSON.stringify({ code }) }),
+  vote: async (code, team) => requestJson("/api/vote", { method: "POST", body: JSON.stringify({ code, team }) }),
+  recordQuiz: async (type) => requestJson("/api/quiz", { method: "POST", body: JSON.stringify({ type }) }),
+  resetTickets: async () => requestJson("/api/reset/tickets", { method: "POST", body: JSON.stringify({}) }),
+  resetQuiz: async () => requestJson("/api/reset/quiz", { method: "POST", body: JSON.stringify({}) }),
+  getPublicStats: async () => requestJson("/api/public-stats"),
+  getStats: async () => (await requestJson("/api/stats")).stats,
+  getUsers: async () => (await requestJson("/api/admin/users")).users,
+  createUser: async (payload) => (await requestJson("/api/admin/users", { method: "POST", body: JSON.stringify(payload) })).user,
+  updateUserPassword: async (userId, password) => (await requestJson(`/api/admin/users/${encodeURIComponent(userId)}/password`, { method: "PATCH", body: JSON.stringify({ password }) })).user,
+};
 
 function buildQrUrl(ticket) {
   const payload = encodeURIComponent(`KOSTROVIE:${ticket.code}`);
   return `${QR_ENDPOINT}${payload}`;
+}
+
+function buildMapUrl(content) {
+  const lat = Number.parseFloat(content.mapLat);
+  const lon = Number.parseFloat(content.mapLon);
+  const zoom = Number.parseInt(content.mapZoom, 10);
+  const safeLat = Number.isFinite(lat) ? lat : 43.1155;
+  const safeLon = Number.isFinite(lon) ? lon : 131.8855;
+  const safeZoom = Number.isFinite(zoom) ? zoom : 12;
+  return `https://yandex.ru/map-widget/v1/?ll=${encodeURIComponent(`${safeLon},${safeLat}`)}&z=${safeZoom}&pt=${encodeURIComponent(`${safeLon},${safeLat},pm2rdm`)}`;
+}
+
+function isEnabled(value, fallback = true) {
+  if (value === undefined || value === null || value === "") return fallback;
+  return String(value).trim().toLowerCase() === "true";
+}
+
+function applySectionVisibility(content) {
+  const visibility = {
+    countdown: isEnabled(content.showCountdown, true),
+    about: isEnabled(content.showAbout, true),
+    location: isEnabled(content.showLocation, true),
+    program: isEnabled(content.showProgram, true),
+    gallery: isEnabled(content.showGallery, true),
+    tickets: isEnabled(content.showTickets, true),
+    vote: isEnabled(content.showVote, true),
+    quiz: isEnabled(content.showQuiz, true),
+    contacts: isEnabled(content.showContacts, true),
+  };
+
+  document.querySelectorAll("[data-section-key]").forEach((node) => {
+    node.hidden = !visibility[node.dataset.sectionKey];
+  });
+
+  document.querySelectorAll("[data-nav-key]").forEach((node) => {
+    node.hidden = !visibility[node.dataset.navKey];
+  });
+}
+
+function sanitizeAssetPath(value) {
+  const trimmed = String(value || "").trim();
+  if (!trimmed) return "";
+  return trimmed.replace(/\\/g, "/");
+}
+
+function startCountdown(content) {
+  if (countdownTimerId) {
+    clearInterval(countdownTimerId);
+    countdownTimerId = null;
+  }
+  if (!countdownNodes.block) return;
+
+  const targetDate = new Date(String(content.festivalStartAt || DEFAULT_CONTENT.festivalStartAt));
+  if (Number.isNaN(targetDate.getTime())) {
+    countdownNodes.block.hidden = true;
+    return;
+  }
+
+  const update = () => {
+    const diffMs = targetDate.getTime() - Date.now();
+    const safeDiff = Math.max(diffMs, 0);
+    const totalSeconds = Math.floor(safeDiff / 1000);
+    const days = Math.floor(totalSeconds / 86400);
+    const hours = Math.floor((totalSeconds % 86400) / 3600);
+    const minutes = Math.floor((totalSeconds % 3600) / 60);
+    const seconds = totalSeconds % 60;
+
+    countdownNodes.days.textContent = String(days);
+    countdownNodes.hours.textContent = String(hours).padStart(2, "0");
+    countdownNodes.minutes.textContent = String(minutes).padStart(2, "0");
+    countdownNodes.seconds.textContent = String(seconds).padStart(2, "0");
+  };
+
+  update();
+  countdownTimerId = window.setInterval(update, 1000);
+}
+
+function applyGalleryImages(content) {
+  for (let index = 1; index <= 5; index += 1) {
+    const card = document.querySelector(`[data-gallery-slot="${index}"]`);
+    if (!card) continue;
+    const path = sanitizeAssetPath(content[`galleryImage${index}`]);
+    if (path) {
+      card.style.backgroundImage = `linear-gradient(180deg, transparent, rgba(36, 22, 14, 0.58)), url("${path.replace(/"/g, "%22")}")`;
+      card.classList.add("gallery-card--with-image");
+    } else {
+      card.style.backgroundImage = "";
+      card.classList.remove("gallery-card--with-image");
+    }
+  }
 }
 
 function normalizeTicketInput(value) {
@@ -99,6 +523,10 @@ function normalizeTicketInput(value) {
   return trimmed;
 }
 
+function formatPrice(value) {
+  return `${Number(value).toLocaleString("ru-RU")} ₽`;
+}
+
 function setStep(step) {
   if (!orderStepLabel || !paymentStepLabel || !ticketsStepLabel) return;
   orderStepLabel.classList.toggle("checkout-step--active", step === "order");
@@ -107,65 +535,76 @@ function setStep(step) {
 }
 
 function validatePaymentData(data) {
-  const cleanNumber = data.cardNumber.replace(/\s+/g, "");
-  return cleanNumber.length >= 16 && /^\d{2}\/\d{2}$/.test(data.expiry) && /^\d{3}$/.test(data.cvv) && data.cardHolder.trim().length >= 4;
+  const cleanNumber = String(data.cardNumber || "").replace(/\s+/g, "");
+  return cleanNumber.length >= 16 && /^\d{2}\/\d{2}$/.test(data.expiry) && /^\d{3}$/.test(data.cvv) && String(data.cardHolder || "").trim().length >= 4;
 }
 
-function createPaidTickets(orderData) {
-  const tickets = loadTickets();
-  const existingCodes = new Set(tickets.map((ticket) => ticket.code));
-  const orderId = crypto.randomUUID();
-  const quantity = Number(orderData.quantity);
-  const orderTotal = quantity * TICKET_PRICE;
-  const createdAt = new Date().toISOString();
-  const cardLast4 = orderData.cardNumber.replace(/\s+/g, "").slice(-4);
+function setVoteMessage(message, mode) {
+  if (!voteMessage) return;
+  voteMessage.className = `info-message ${mode ? `checkin-result--${mode}` : ""}`.trim();
+  voteMessage.innerHTML = message;
+}
 
-  const newTickets = Array.from({ length: quantity }, (_, index) => ({
-    id: crypto.randomUUID(),
-    orderId,
-    code: generateCode(existingCodes),
-    name: orderData.name.trim(),
-    email: orderData.email.trim(),
-    phone: orderData.phone.trim(),
-    quantityInOrder: quantity,
-    orderIndex: index + 1,
-    price: TICKET_PRICE,
-    orderTotal,
-    paymentStatus: "paid",
-    accessStatus: "new",
-    voteTeam: null,
-    paidAt: createdAt,
-    createdAt,
-    paymentReference: `**** **** **** ${cardLast4}`,
-  }));
+function setCheckinMessage(message, mode) {
+  if (!checkinResult) return;
+  checkinResult.className = `checkin-result ${mode ? `checkin-result--${mode}` : ""}`.trim();
+  checkinResult.innerHTML = message;
+}
 
-  saveTickets([...tickets, ...newTickets]);
-  return newTickets;
+function setAdminMessage(text, mode) {
+  if (!adminMessage) return;
+  adminMessage.className = `info-message ${mode ? `checkin-result--${mode}` : ""}`.trim();
+  adminMessage.innerHTML = text;
+}
+
+function setAdminUserMessage(text, mode) {
+  if (!adminUserMessage) return;
+  adminUserMessage.className = `info-message ${mode ? `checkin-result--${mode}` : ""}`.trim();
+  adminUserMessage.innerHTML = text;
+}
+
+function setAuthMessage(text, mode) {
+  if (!authMessage) return;
+  authMessage.className = `info-message ${mode ? `checkin-result--${mode}` : ""}`.trim();
+  authMessage.innerHTML = text;
+}
+
+function setProtectedVisibility(authenticated) {
+  if (authScreen) authScreen.hidden = authenticated;
+  if (protectedApp) protectedApp.hidden = !authenticated;
+}
+
+function renderQuizResult(type) {
+  if (!quizResult) return;
+  const result = QUIZ_RESULTS[type];
+  quizResult.innerHTML = `
+    <p class="eyebrow">Результат</p>
+    <h3>${result.title}</h3>
+    <p>${result.text}</p>
+  `;
 }
 
 function renderOrderTickets(orderTickets) {
   if (!resultCard || !ticketList || !orderTickets.length) return;
+  const first = orderTickets[0];
+  document.querySelector("#ticket-order-title").textContent = `Заказ ${first.orderId.slice(0, 8).toUpperCase()}`;
+  document.querySelector("#ticket-order-subtitle").textContent = `${first.name}, оплачено ${formatPrice(first.orderTotal)}. Ниже все билеты из заказа.`;
 
-  document.querySelector("#ticket-order-title").textContent = `Заказ ${orderTickets[0].orderId.slice(0, 8).toUpperCase()}`;
-  document.querySelector("#ticket-order-subtitle").textContent = `${orderTickets[0].name}, оплачено ${formatPrice(orderTickets[0].orderTotal)}. Ниже все билеты из заказа.`;
-
-  ticketList.innerHTML = orderTickets
-    .map((ticket) => `
-      <article class="ticket-card">
-        <img class="ticket-card__qr" src="${buildQrUrl(ticket)}" alt="QR-код билета ${ticket.code}">
-        <div class="ticket-card__meta">
-          <div>
-            <p class="eyebrow">Билет ${ticket.orderIndex} из ${ticket.quantityInOrder}</p>
-            <h3>${ticket.code}</h3>
-          </div>
-          <p><strong>Статус:</strong> ${ticket.accessStatus === "used" ? "Отсканирован" : "Ожидает входа"}</p>
-          <p><strong>Оплата:</strong> ${ticket.paymentReference}</p>
-          <p><strong>Стоимость:</strong> ${formatPrice(ticket.price)}</p>
-          <a class="button button--secondary" target="_blank" rel="noreferrer" href="${buildQrUrl(ticket)}">Открыть QR</a>
+  ticketList.innerHTML = orderTickets.map((ticket) => `
+    <article class="ticket-card">
+      <img class="ticket-card__qr" src="${buildQrUrl(ticket)}" alt="QR-код билета ${ticket.code}">
+      <div class="ticket-card__meta">
+        <div>
+          <p class="eyebrow">Билет ${ticket.orderIndex} из ${ticket.quantityInOrder}</p>
+          <h3>${ticket.code}</h3>
         </div>
-      </article>
-    `)
-    .join("");
+        <p><strong>Статус:</strong> ${ticket.accessStatus === "used" ? "Отсканирован" : "Ожидает входа"}</p>
+        <p><strong>Оплата:</strong> ${ticket.paymentReference}</p>
+        <p><strong>Стоимость:</strong> ${formatPrice(ticket.price)}</p>
+        <a class="button button--secondary" target="_blank" rel="noreferrer" href="${buildQrUrl(ticket)}">Открыть QR</a>
+      </div>
+    </article>
+  `).join("");
 
   resultCard.hidden = false;
   setStep("tickets");
@@ -181,39 +620,75 @@ function renderPaymentSummary(order) {
   `;
 }
 
-function renderVoteResults() {
-  if (!voteResults) return;
-  const tickets = loadTickets();
-  const totals = TEAMS.map((team) => ({
-    team,
-    votes: tickets.filter((ticket) => ticket.voteTeam === team).length,
-  })).sort((a, b) => b.votes - a.votes);
+function applyContent(content) {
+  const merged = { ...DEFAULT_CONTENT, ...(content || {}) };
+  document.title = merged.seoTitle || DEFAULT_CONTENT.seoTitle;
+  const metaDescription = document.querySelector('meta[name="description"]');
+  if (metaDescription) {
+    metaDescription.setAttribute("content", merged.seoDescription || DEFAULT_CONTENT.seoDescription);
+  }
+  const ogTitle = document.querySelector('meta[property="og:title"]');
+  if (ogTitle) {
+    ogTitle.setAttribute("content", merged.ogTitle || merged.seoTitle || DEFAULT_CONTENT.ogTitle);
+  }
+  const ogDescription = document.querySelector('meta[property="og:description"]');
+  if (ogDescription) {
+    ogDescription.setAttribute("content", merged.ogDescription || merged.seoDescription || DEFAULT_CONTENT.ogDescription);
+  }
+  const ogImage = document.querySelector('meta[property="og:image"]');
+  if (ogImage) {
+    ogImage.setAttribute("content", merged.ogImage || DEFAULT_CONTENT.ogImage);
+  }
+  const canonicalLink = document.querySelector('link[rel="canonical"]');
+  if (canonicalLink) {
+    canonicalLink.setAttribute("href", merged.canonicalUrl || DEFAULT_CONTENT.canonicalUrl);
+  }
+  Object.entries(CONTENT_BINDINGS).forEach(([key, binding]) => {
+    const node = document.querySelector(`#${binding.id}`);
+    if (!node) return;
+    if (binding.html) {
+      node.innerHTML = merged[key];
+    } else {
+      node.textContent = merged[key];
+    }
+  });
+  const mapFrame = document.querySelector("#content-map-frame");
+  if (mapFrame) mapFrame.src = buildMapUrl(merged);
+  applySectionVisibility(merged);
+  applyGalleryImages(merged);
+  startCountdown(merged);
+  const teamInputs = document.querySelectorAll('#vote-form input[name="team"]');
+  if (teamInputs[0]) teamInputs[0].value = merged.team1Name;
+  if (teamInputs[1]) teamInputs[1].value = merged.team2Name;
+  if (teamInputs[2]) teamInputs[2].value = merged.team3Name;
+}
 
-  voteResults.innerHTML = totals
+function fillAdminContentForm(content) {
+  if (!adminContentForm) return;
+  const merged = { ...DEFAULT_CONTENT, ...(content || {}) };
+  Object.entries(merged).forEach(([key, value]) => {
+    const field = adminContentForm.elements.namedItem(key);
+    if (!field || field instanceof RadioNodeList) return;
+    if (field.type === "checkbox") {
+      field.checked = isEnabled(value, true);
+      return;
+    }
+    field.value = String(value).replace(/<br\s*\/?>/g, "\n");
+  });
+}
+
+async function renderVoteResults() {
+  if (!voteResults) return;
+  const payload = await api.getPublicStats();
+  voteResults.innerHTML = payload.voteResults
     .map((item) => `<li><strong>${item.team}</strong><span>${item.votes} голосов</span></li>`)
     .join("");
 }
 
-function setVoteMessage(message, mode) {
-  if (!voteMessage) return;
-  voteMessage.className = `info-message ${mode ? `checkin-result--${mode}` : ""}`.trim();
-  voteMessage.innerHTML = message;
-}
-
-function renderQuizResult(type) {
-  if (!quizResult) return;
-  const result = QUIZ_RESULTS[type];
-  quizResult.innerHTML = `
-    <p class="eyebrow">Результат</p>
-    <h3>${result.title}</h3>
-    <p>${result.text}</p>
-  `;
-}
-
-function renderCheckinLog() {
+async function renderCheckinLog() {
   if (!logList) return;
-
-  const usedTickets = loadTickets()
+  const tickets = await api.getTickets();
+  const usedTickets = tickets
     .filter((ticket) => ticket.accessStatus === "used")
     .sort((a, b) => new Date(b.usedAt) - new Date(a.usedAt));
 
@@ -222,34 +697,92 @@ function renderCheckinLog() {
     : "<li><strong>Пока нет отметок</strong><span>После первого прохода журнал появится здесь.</span></li>";
 }
 
-function setCheckinMessage(message, mode) {
-  if (!checkinResult) return;
-  checkinResult.className = `checkin-result ${mode ? `checkin-result--${mode}` : ""}`.trim();
-  checkinResult.innerHTML = message;
+async function renderAdminStats() {
+  if (!adminStats.ticketsSold) return;
+  const stats = await api.getStats();
+
+  adminStats.ticketsSold.textContent = String(stats.ticketsSold);
+  adminStats.ticketsScanned.textContent = String(stats.ticketsScanned);
+  adminStats.votesCast.textContent = String(stats.votesCast);
+  adminStats.quizTotal.textContent = String(stats.quizTotal);
+
+  if (adminStats.votesList) {
+    adminStats.votesList.innerHTML = stats.voteResults
+      .map((item) => `<li><strong>${item.team}</strong><span>${item.votes} голосов</span></li>`)
+      .join("");
+  }
+
+  if (adminStats.quizList) {
+    adminStats.quizList.innerHTML = stats.quizResults
+      .map((item) => `<li><strong>${item.title}</strong><span>${item.total} результатов</span></li>`)
+      .join("");
+  }
+
+  if (adminStats.recentTickets) {
+    adminStats.recentTickets.innerHTML = stats.recentTickets.length
+      ? stats.recentTickets.map((ticket) => `<li><strong>${ticket.code}</strong><span>${ticket.name} • ${ticket.accessStatus === "used" ? "вошёл" : "не вошёл"}</span></li>`).join("")
+      : "<li><strong>Пока пусто</strong><span>После первых продаж билеты появятся здесь.</span></li>";
+  }
 }
 
-function processCheckin(rawCode) {
+async function renderAdminUsers() {
+  if (!adminUsersList) return;
+  const users = await api.getUsers();
+
+  adminUsersList.innerHTML = users.length
+    ? users.map((user) => `
+      <article class="admin-user-card">
+        <div class="admin-user-card__header">
+          <div>
+            <p class="eyebrow">${user.role === "admin" ? "Администратор" : "Входной контроль"}</p>
+            <h3>${user.username}</h3>
+          </div>
+          <p class="muted">Создан: ${new Date(user.createdAt).toLocaleString("ru-RU")}</p>
+        </div>
+        <form class="admin-user-password-form" data-user-id="${user.id}">
+          <label>
+            Новый пароль
+            <input type="password" name="password" placeholder="Минимум 8 символов" minlength="8" required>
+          </label>
+          <button class="button button--secondary" type="submit">Сменить пароль</button>
+        </form>
+      </article>
+    `).join("")
+    : "<p class=\"muted\">Пользователей пока нет.</p>";
+
+  adminUsersList.querySelectorAll(".admin-user-password-form").forEach((form) => {
+    form.addEventListener("submit", async (event) => {
+      event.preventDefault();
+      const userId = form.dataset.userId;
+      const password = String(new FormData(form).get("password") || "");
+      try {
+        await api.updateUserPassword(userId, password);
+        form.reset();
+        setAdminUserMessage("<strong>Пароль обновлён.</strong><br>Новая учётная запись может использовать его сразу.", "ok");
+        await renderAdminUsers();
+      } catch (error) {
+        setAdminUserMessage(`<strong>Ошибка.</strong><br>${error.message}`, "warn");
+      }
+    });
+  });
+}
+
+async function processCheckin(rawCode) {
   const code = normalizeTicketInput(rawCode);
-  const tickets = loadTickets();
-  const ticket = tickets.find((item) => item.code === code);
-
-  if (!ticket) {
-    setCheckinMessage("<strong>Билет не найден.</strong><br>Проверьте код или QR.", "warn");
+  try {
+    const response = await api.checkin(code);
+    const { ticket } = response;
+    await renderCheckinLog();
+    await renderAdminStats();
+    setCheckinMessage(`<strong>Проход разрешён.</strong><br>${ticket.name} • ${ticket.code}<br>Время: ${new Date(ticket.usedAt).toLocaleString("ru-RU")}`, "ok");
+    return true;
+  } catch (error) {
+    const message = error.message.includes("отсканирован")
+      ? `<strong>${code}</strong><br>${error.message}`
+      : `<strong>Ошибка.</strong><br>${error.message}`;
+    setCheckinMessage(message, "warn");
     return false;
   }
-
-  if (ticket.accessStatus === "used") {
-    setCheckinMessage(`<strong>${ticket.code}</strong><br>Данный билет уже был отсканирован.`, "warn");
-    return false;
-  }
-
-  ticket.accessStatus = "used";
-  ticket.usedAt = new Date().toISOString();
-  saveTickets(tickets);
-  renderCheckinLog();
-
-  setCheckinMessage(`<strong>Проход разрешён.</strong><br>${ticket.name} • ${ticket.code}<br>Время: ${new Date(ticket.usedAt).toLocaleString("ru-RU")}`, "ok");
-  return true;
 }
 
 async function scanFrame() {
@@ -266,7 +799,7 @@ async function scanFrame() {
         scannerState.lastDetectedAt = now;
         const field = checkinForm?.querySelector("input");
         if (field) field.value = normalizeTicketInput(barcode.rawValue);
-        processCheckin(barcode.rawValue);
+        await processCheckin(barcode.rawValue);
       }
     }
   } catch (error) {
@@ -278,7 +811,6 @@ async function scanFrame() {
 
 async function startScanner() {
   if (!scannerVideo || !cameraStatus) return;
-
   if (!("BarcodeDetector" in window)) {
     cameraStatus.textContent = "В этом браузере нет BarcodeDetector. Используйте ручной ввод или USB-сканер.";
     return;
@@ -299,9 +831,7 @@ async function startScanner() {
 
 function stopScanner() {
   if (scannerState.frameId) cancelAnimationFrame(scannerState.frameId);
-  if (scannerState.stream) {
-    scannerState.stream.getTracks().forEach((track) => track.stop());
-  }
+  if (scannerState.stream) scannerState.stream.getTracks().forEach((track) => track.stop());
   scannerState = {
     stream: null,
     detector: null,
@@ -314,9 +844,10 @@ function stopScanner() {
   if (cameraStatus) cameraStatus.textContent = "Камера остановлена.";
 }
 
-if (ticketForm && paymentForm) {
-  const latestOrderTickets = getLastOrderTickets();
-  if (latestOrderTickets.length) renderOrderTickets(latestOrderTickets);
+function initTicketFlow() {
+  if (!ticketForm || !paymentForm) return;
+
+  if (lastCreatedOrderTickets.length) renderOrderTickets(lastCreatedOrderTickets);
 
   ticketForm.addEventListener("submit", (event) => {
     event.preventDefault();
@@ -328,7 +859,7 @@ if (ticketForm && paymentForm) {
     setStep("payment");
   });
 
-  paymentForm.addEventListener("submit", (event) => {
+  paymentForm.addEventListener("submit", async (event) => {
     event.preventDefault();
     const paymentData = Object.fromEntries(new FormData(paymentForm).entries());
     if (!pendingOrder || !validatePaymentData(paymentData)) {
@@ -340,18 +871,27 @@ if (ticketForm && paymentForm) {
       return;
     }
 
-    payButton.textContent = "Оплата выполнена";
-    const orderTickets = createPaidTickets({ ...pendingOrder, ...paymentData });
-    renderOrderTickets(orderTickets);
-    paymentForm.hidden = true;
-    ticketForm.hidden = false;
-    paymentForm.reset();
-    ticketForm.reset();
-    pendingOrder = null;
-    renderVoteResults();
-    setTimeout(() => {
+    try {
+      payButton.textContent = "Оплата выполняется";
+      const response = await api.createOrder({ ...pendingOrder, ...paymentData });
+      lastCreatedOrderTickets = response.tickets;
+      renderOrderTickets(lastCreatedOrderTickets);
+      paymentForm.hidden = true;
+      ticketForm.hidden = false;
+      paymentForm.reset();
+      ticketForm.reset();
+      pendingOrder = null;
+      await renderVoteResults();
+      await renderAdminStats();
+    } catch (error) {
+      renderPaymentSummary({
+        name: "Ошибка оплаты",
+        quantity: pendingOrder?.quantity || 1,
+        email: error.message,
+      });
+    } finally {
       if (payButton) payButton.textContent = "Оплатить";
-    }, 1200);
+    }
   });
 
   backToOrderButton?.addEventListener("click", () => {
@@ -362,61 +902,59 @@ if (ticketForm && paymentForm) {
   });
 }
 
-if (voteForm) {
-  renderVoteResults();
+function initVoteFlow() {
+  if (!voteForm) return;
 
-  voteForm.addEventListener("submit", (event) => {
+  voteForm.addEventListener("submit", async (event) => {
     event.preventDefault();
     const data = Object.fromEntries(new FormData(voteForm).entries());
     const code = normalizeTicketInput(data.ticketCode);
-    const tickets = loadTickets();
-    const ticket = tickets.find((item) => item.code === code);
 
-    if (!ticket) {
-      setVoteMessage("<strong>Билет не найден.</strong><br>Проверьте номер и попробуйте ещё раз.", "warn");
-      return;
+    try {
+      const response = await api.vote(code, data.team);
+      setVoteMessage(`<strong>Голос принят.</strong><br>Билет ${response.ticket.code} проголосовал за «${response.ticket.voteTeam}».`, "ok");
+      await renderVoteResults();
+      await renderAdminStats();
+      voteForm.reset();
+    } catch (error) {
+      setVoteMessage(`<strong>Ошибка.</strong><br>${error.message}`, "warn");
     }
-
-    if (ticket.accessStatus !== "used") {
-      setVoteMessage("<strong>Голос недоступен.</strong><br>Сначала этот билет должен быть отсканирован на входе.", "warn");
-      return;
-    }
-
-    if (ticket.voteTeam) {
-      setVoteMessage(`<strong>Голос уже засчитан.</strong><br>Билет ${ticket.code} уже голосовал за команду «${ticket.voteTeam}».`, "warn");
-      return;
-    }
-
-    ticket.voteTeam = data.team;
-    ticket.votedAt = new Date().toISOString();
-    saveTickets(tickets);
-    setVoteMessage(`<strong>Голос принят.</strong><br>Билет ${ticket.code} проголосовал за «${ticket.voteTeam}».`, "ok");
-    renderVoteResults();
-    voteForm.reset();
   });
 }
 
-if (quizForm) {
-  quizForm.addEventListener("submit", (event) => {
+function initQuizFlow() {
+  if (!quizForm) return;
+
+  quizForm.addEventListener("submit", async (event) => {
     event.preventDefault();
     const data = Object.fromEntries(new FormData(quizForm).entries());
     const scores = Object.values(data).reduce((acc, value) => {
       acc[value] = (acc[value] || 0) + 1;
       return acc;
     }, {});
+    const priority = ["momo", "pelmeni", "khinkali", "varenik", "gyoza"];
+    const winner = Object.entries(scores)
+      .sort((a, b) => b[1] - a[1] || priority.indexOf(a[0]) - priority.indexOf(b[0]))[0]?.[0] || "pelmeni";
 
-    const winner = Object.entries(scores).sort((a, b) => b[1] - a[1])[0]?.[0] || "pelmeni";
-    renderQuizResult(winner);
+    try {
+      await api.recordQuiz(winner);
+      renderQuizResult(winner);
+      await renderAdminStats();
+    } catch (error) {
+      if (quizResult) {
+        quizResult.innerHTML = `<p class="eyebrow">Ошибка</p><h3>Результат не сохранён</h3><p>${error.message}</p>`;
+      }
+    }
   });
 }
 
-if (checkinForm) {
-  renderCheckinLog();
+function initCheckinFlow() {
+  if (!checkinForm) return;
 
-  checkinForm.addEventListener("submit", (event) => {
+  checkinForm.addEventListener("submit", async (event) => {
     event.preventDefault();
     const field = checkinForm.querySelector("input");
-    processCheckin(field.value);
+    await processCheckin(field.value);
     field.select();
   });
 
@@ -424,8 +962,215 @@ if (checkinForm) {
   stopScanButton?.addEventListener("click", stopScanner);
 }
 
+function initAdminPanel() {
+  if (!adminContentForm) return;
+
+  adminContentForm.addEventListener("submit", async (event) => {
+    event.preventDefault();
+    const formData = new FormData(adminContentForm);
+    const content = { ...DEFAULT_CONTENT };
+
+    Object.keys(DEFAULT_CONTENT).forEach((key) => {
+      const field = adminContentForm.elements.namedItem(key);
+      if (field && !(field instanceof RadioNodeList) && field.type === "checkbox") {
+        content[key] = field.checked ? "true" : "false";
+        return;
+      }
+      const value = String(formData.get(key) || "").trim();
+      content[key] = key === "heroSideSchedule" ? value.replace(/\n/g, "<br>") : value;
+    });
+
+    try {
+      const saved = await api.saveContent(content);
+      applyContent(saved);
+      setAdminMessage("<strong>Контент обновлён.</strong><br>Изменения сохранены на сервере и доступны всем устройствам.", "ok");
+    } catch (error) {
+      setAdminMessage(`<strong>Ошибка.</strong><br>${error.message}`, "warn");
+    }
+  });
+
+  adminResetButton?.addEventListener("click", async () => {
+    try {
+      const content = await api.resetContent();
+      fillAdminContentForm(content);
+      setAdminMessage("<strong>Контент сброшен.</strong><br>Исходные тексты восстановлены на сервере.", "ok");
+    } catch (error) {
+      setAdminMessage(`<strong>Ошибка.</strong><br>${error.message}`, "warn");
+    }
+  });
+
+  adminRefreshButton?.addEventListener("click", async () => {
+    try {
+      await renderAdminStats();
+      setAdminMessage("<strong>Статистика обновлена.</strong>", "ok");
+    } catch (error) {
+      setAdminMessage(`<strong>Ошибка.</strong><br>${error.message}`, "warn");
+    }
+  });
+
+  adminExportQuizButton?.addEventListener("click", async () => {
+    try {
+      await downloadFile("/api/export/quiz.csv", "quiz-results.csv");
+      setAdminMessage("<strong>Экспорт готов.</strong><br>Файл с результатами теста скачан.", "ok");
+    } catch (error) {
+      setAdminMessage(`<strong>Ошибка экспорта.</strong><br>${error.message}`, "warn");
+    }
+  });
+
+  adminExportTicketsButton?.addEventListener("click", async () => {
+    try {
+      await downloadFile("/api/export/tickets.csv", "tickets-report.csv");
+      setAdminMessage("<strong>Экспорт готов.</strong><br>Файл со статистикой билетов скачан.", "ok");
+    } catch (error) {
+      setAdminMessage(`<strong>Ошибка экспорта.</strong><br>${error.message}`, "warn");
+    }
+  });
+
+  adminResetTicketsButton?.addEventListener("click", async () => {
+    try {
+      await api.resetTickets();
+      await renderAdminStats();
+      setAdminMessage("<strong>Билеты сброшены.</strong><br>Продажи, проходы и голоса по билетам очищены.", "ok");
+    } catch (error) {
+      setAdminMessage(`<strong>Ошибка сброса.</strong><br>${error.message}`, "warn");
+    }
+  });
+
+  adminResetQuizButton?.addEventListener("click", async () => {
+    try {
+      await api.resetQuiz();
+      await renderAdminStats();
+      setAdminMessage("<strong>Тест сброшен.</strong><br>История прохождений очищена.", "ok");
+    } catch (error) {
+      setAdminMessage(`<strong>Ошибка сброса.</strong><br>${error.message}`, "warn");
+    }
+  });
+
+  adminUserForm?.addEventListener("submit", async (event) => {
+    event.preventDefault();
+    const payload = Object.fromEntries(new FormData(adminUserForm).entries());
+    try {
+      const user = await api.createUser(payload);
+      adminUserForm.reset();
+      setAdminUserMessage(`<strong>Пользователь создан.</strong><br>${user.username} получил роль «${user.role === "admin" ? "Администратор" : "Входной контроль"}».`, "ok");
+      await renderAdminUsers();
+    } catch (error) {
+      setAdminUserMessage(`<strong>Ошибка.</strong><br>${error.message}`, "warn");
+    }
+  });
+}
+
+function initAdminTabs() {
+  if (!adminTabs.length || !adminTabPanels.length) return;
+
+  adminTabs.forEach((tab) => {
+    tab.addEventListener("click", () => {
+      const target = tab.dataset.tabTarget;
+      adminTabs.forEach((item) => item.classList.toggle("admin-tab--active", item === tab));
+      adminTabPanels.forEach((panel) => panel.classList.toggle("admin-tab-panel--active", panel.dataset.tabPanel === target));
+    });
+  });
+}
+
+function initProtectedModules() {
+  if (protectedModulesInitialized) return;
+  if (protectedRole === "admin") {
+    initAdminTabs();
+    initAdminPanel();
+  }
+  if (protectedRole === "checkin") initCheckinFlow();
+  protectedModulesInitialized = true;
+}
+
+function initProtectedAuth() {
+  if (!protectedRole || !authForm) return Promise.resolve(false);
+
+  logoutButton?.addEventListener("click", async () => {
+    try {
+      await api.logout();
+    } finally {
+      if (scannerState.active) stopScanner();
+      setProtectedVisibility(false);
+      setAuthMessage("Сессия завершена. Введите пароль снова.", "ok");
+    }
+  });
+
+  authForm.addEventListener("submit", async (event) => {
+    event.preventDefault();
+    const formData = new FormData(authForm);
+    const username = String(formData.get("username") || "").trim();
+    const password = String(formData.get("password") || "");
+
+    try {
+      await api.login(protectedRole, username, password);
+      setProtectedVisibility(true);
+      setAuthMessage("Авторизация выполнена.", "ok");
+      initProtectedModules();
+      if (protectedRole === "admin") {
+        const content = await api.getContent();
+        fillAdminContentForm(content);
+        await renderAdminStats();
+        await renderAdminUsers();
+      }
+      if (protectedRole === "checkin") {
+        await renderCheckinLog();
+      }
+      authForm.reset();
+    } catch (error) {
+      setProtectedVisibility(false);
+      setAuthMessage(`<strong>Ошибка.</strong><br>${error.message}`, "warn");
+    }
+  });
+
+  return api.authStatus(protectedRole)
+    .then(async (status) => {
+      setProtectedVisibility(status.authenticated);
+      if (status.authenticated) {
+        initProtectedModules();
+        if (protectedRole === "admin") {
+          const content = await api.getContent();
+          fillAdminContentForm(content);
+          await renderAdminStats();
+          await renderAdminUsers();
+        }
+        if (protectedRole === "checkin") {
+          await renderCheckinLog();
+        }
+      }
+      return status.authenticated;
+    })
+    .catch(() => {
+      setProtectedVisibility(false);
+      return false;
+    });
+}
+
+async function init() {
+  setProtectedVisibility(!protectedRole);
+  try {
+    const content = await api.getContent();
+    applyContent(content);
+    if (adminContentForm) fillAdminContentForm(content);
+  } catch (error) {
+    applyContent(DEFAULT_CONTENT);
+  }
+
+  initTicketFlow();
+  initVoteFlow();
+  initQuizFlow();
+  const authenticated = await initProtectedAuth();
+  if (!protectedRole || authenticated) initProtectedModules();
+
+  const tasks = [];
+  if (voteResults) tasks.push(renderVoteResults());
+  if (logList && (!protectedRole || authenticated)) tasks.push(renderCheckinLog());
+  if (adminStats.ticketsSold && (!protectedRole || authenticated)) tasks.push(renderAdminStats());
+  await Promise.all(tasks);
+}
+
+init();
+
 window.addEventListener("beforeunload", () => {
   if (scannerState.active) stopScanner();
+  if (countdownTimerId) clearInterval(countdownTimerId);
 });
-
-

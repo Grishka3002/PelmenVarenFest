@@ -9,13 +9,37 @@
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+SC:wght@500;600;700&family=Golos+Text:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="styles.css">
 </head>
-<body>
+<body data-protected-role="checkin">
   <main class="checkin-page">
-    <a class="button button--ghost" href="index.html">Назад к лендингу</a>
+    <section id="auth-screen" class="section auth-screen">
+      <article class="admin-panel ornament-card auth-card">
+        <div class="section-heading">
+          <p class="eyebrow">Закрытый доступ</p>
+          <h1 class="checkin-title">Вход во входной контроль.</h1>
+        </div>
+        <form id="auth-form" class="ticket-form">
+          <label>
+            Логин сотрудника
+            <input type="text" name="username" placeholder="Например, checkin" autocomplete="username" required>
+          </label>
+          <label>
+            Пароль входного контроля
+            <input type="password" name="password" placeholder="Введите пароль" autocomplete="current-password" required>
+          </label>
+          <button class="button" type="submit">Войти</button>
+        </form>
+        <div id="auth-message" class="info-message">Эта страница доступна только сотрудникам площадки с отдельным паролем.</div>
+      </article>
+    </section>
+
+    <div id="protected-app" hidden>
     <section class="section">
       <div class="section-heading">
         <p class="eyebrow">Входной контроль</p>
         <h1 class="checkin-title">Модуль сканирования QR и фиксации входа.</h1>
+      </div>
+      <div class="payment-actions">
+        <button id="logout-button" class="button button--secondary" type="button">Выйти</button>
       </div>
       <article class="checkin-panel ornament-card">
         <p class="checkin-note">Сканер поддерживает два режима: камера устройства через `BarcodeDetector` и ручной ввод строки из QR или номера билета. Повторное сканирование покажет сообщение, что билет уже использован.</p>
@@ -49,6 +73,7 @@
         <ul id="checkin-log-list" class="log-list"></ul>
       </article>
     </section>
+    </div>
   </main>
   <script src="script.js"></script>
 </body>

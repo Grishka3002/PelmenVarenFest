@@ -1,0 +1,515 @@
+﻿<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Костровье | админ-панель</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+SC:wght@500;600;700&family=Golos+Text:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body data-protected-role="admin">
+  <main class="admin-page">
+    <section id="auth-screen" class="section auth-screen">
+      <article class="admin-panel ornament-card auth-card">
+        <div class="section-heading">
+          <p class="eyebrow">Закрытый доступ</p>
+          <h1 class="checkin-title">Вход в админ-панель.</h1>
+        </div>
+        <form id="auth-form" class="ticket-form">
+          <label>
+            Логин администратора
+            <input type="text" name="username" placeholder="Например, admin" autocomplete="username" required>
+          </label>
+          <label>
+            Пароль администратора
+            <input type="password" name="password" placeholder="Введите пароль" autocomplete="current-password" required>
+          </label>
+          <button class="button" type="submit">Войти</button>
+        </form>
+        <div id="auth-message" class="info-message">Доступ к управлению контентом и статистикой открыт только авторизованным пользователям.</div>
+      </article>
+    </section>
+
+    <div id="protected-app" hidden>
+    <section class="section">
+      <div class="section-heading">
+        <p class="eyebrow">Админ-панель</p>
+        <h1 class="checkin-title">Управление контентом и статистикой фестиваля.</h1>
+      </div>
+      <div class="payment-actions">
+        <button id="logout-button" class="button button--secondary" type="button">Выйти</button>
+      </div>
+
+      <div class="admin-stats">
+        <article class="admin-stat-card">
+          <p class="eyebrow">Билеты</p>
+          <strong id="stat-tickets-sold">0</strong>
+          <p class="muted">Куплено всего</p>
+        </article>
+        <article class="admin-stat-card">
+          <p class="eyebrow">Проход</p>
+          <strong id="stat-tickets-scanned">0</strong>
+          <p class="muted">Отсканировано</p>
+        </article>
+        <article class="admin-stat-card">
+          <p class="eyebrow">Голоса</p>
+          <strong id="stat-votes-cast">0</strong>
+          <p class="muted">Принято голосов</p>
+        </article>
+        <article class="admin-stat-card">
+          <p class="eyebrow">Тест</p>
+          <strong id="stat-quiz-total">0</strong>
+          <p class="muted">Всего результатов</p>
+        </article>
+      </div>
+
+      <div id="admin-message" class="info-message">Изменения сохраняются на сервере и применяются для всех пользователей сайта.</div>
+
+      <div class="admin-layout">
+        <article class="admin-panel ornament-card">
+          <div class="section-heading">
+            <p class="eyebrow">Контент сайта</p>
+            <h2>Редактирование лендинга по блокам.</h2>
+          </div>
+          <div class="admin-tabs" id="admin-tabs">
+            <button class="admin-tab admin-tab--active" type="button" data-tab-target="seo">SEO</button>
+            <button class="admin-tab" type="button" data-tab-target="hero">Hero</button>
+            <button class="admin-tab" type="button" data-tab-target="about">О фестивале</button>
+            <button class="admin-tab" type="button" data-tab-target="location">Локация</button>
+            <button class="admin-tab" type="button" data-tab-target="program">Программа</button>
+            <button class="admin-tab" type="button" data-tab-target="gallery">Галерея</button>
+            <button class="admin-tab" type="button" data-tab-target="tickets">Билеты</button>
+            <button class="admin-tab" type="button" data-tab-target="vote">Голосование</button>
+            <button class="admin-tab" type="button" data-tab-target="quiz">Тест</button>
+            <button class="admin-tab" type="button" data-tab-target="contacts">Контакты</button>
+            <button class="admin-tab" type="button" data-tab-target="visibility">Видимость</button>
+          </div>
+          <form id="admin-content-form" class="admin-content-grid">
+            <section class="admin-tab-panel admin-tab-panel--active admin-wide" data-tab-panel="seo">
+            <div class="admin-wide">
+              <p class="eyebrow">SEO</p>
+            </div>
+            <label class="admin-wide">
+              SEO: title
+              <input type="text" name="seoTitle" placeholder="Костровье | фестиваль ремесла, музыки и северной кухни">
+            </label>
+            <label class="admin-wide">
+              SEO: meta description
+              <textarea name="seoDescription" placeholder="Краткое описание страницы для поисковых систем и превью ссылок."></textarea>
+            </label>
+            <label class="admin-wide">
+              SEO: og:title
+              <input type="text" name="ogTitle" placeholder="Заголовок для Telegram, VK и других соцсетей">
+            </label>
+            <label class="admin-wide">
+              SEO: og:description
+              <textarea name="ogDescription" placeholder="Описание для превью ссылки в соцсетях и мессенджерах."></textarea>
+            </label>
+            <label class="admin-wide">
+              SEO: og:image
+              <input type="text" name="ogImage" placeholder="https://example.com/images/cover.jpg">
+            </label>
+            <label class="admin-wide">
+              SEO: canonical URL
+              <input type="text" name="canonicalUrl" placeholder="https://festival.example.com/">
+            </label>
+            </section>
+            <section class="admin-tab-panel admin-wide" data-tab-panel="hero">
+            <div class="admin-wide">
+              <p class="eyebrow">Hero</p>
+            </div>
+            <label>
+              Hero: строка над заголовком
+              <input type="text" name="heroEyebrow">
+            </label>
+            <label>
+              Hero: заголовок
+              <textarea name="heroTitle"></textarea>
+            </label>
+            <label class="admin-wide">
+              Hero: описание
+              <textarea name="heroLead"></textarea>
+            </label>
+            <label>
+              Правая карточка: метка
+              <input type="text" name="heroSideLabel">
+            </label>
+            <label>
+              Правая карточка: дата
+              <input type="text" name="heroSideDate">
+            </label>
+            <label class="admin-wide">
+              Правая карточка: расписание
+              <textarea name="heroSideSchedule"></textarea>
+            </label>
+            <label class="admin-wide">
+              Правая карточка: пояснение
+              <textarea name="heroSideNote"></textarea>
+            </label>
+            <label>
+              Отсчёт: заголовок
+              <input type="text" name="countdownEyebrow">
+            </label>
+            <label class="admin-wide">
+              Отсчёт: пояснение
+              <textarea name="countdownNote"></textarea>
+            </label>
+            <label class="admin-wide">
+              Отсчёт: дата старта в ISO
+              <input type="text" name="festivalStartAt" placeholder="2026-07-18T11:00:00+10:00">
+            </label>
+            </section>
+            <section class="admin-tab-panel admin-wide" data-tab-panel="about">
+            <div class="admin-wide">
+              <p class="eyebrow">О фестивале</p>
+            </div>
+            <label>
+              Заголовок секции
+              <input type="text" name="aboutEyebrow">
+            </label>
+            <label class="admin-wide">
+              Подзаголовок секции
+              <textarea name="aboutTitle"></textarea>
+            </label>
+            <label>
+              Карточка 1: заголовок
+              <input type="text" name="aboutCard1Title">
+            </label>
+            <label>
+              Карточка 1: текст
+              <textarea name="aboutCard1Text"></textarea>
+            </label>
+            <label>
+              Карточка 2: заголовок
+              <input type="text" name="aboutCard2Title">
+            </label>
+            <label>
+              Карточка 2: текст
+              <textarea name="aboutCard2Text"></textarea>
+            </label>
+            <label>
+              Карточка 3: заголовок
+              <input type="text" name="aboutCard3Title">
+            </label>
+            <label>
+              Карточка 3: текст
+              <textarea name="aboutCard3Text"></textarea>
+            </label>
+            </section>
+            <section class="admin-tab-panel admin-wide" data-tab-panel="location">
+            <div class="admin-wide">
+              <p class="eyebrow">Где и когда</p>
+            </div>
+            <label>
+              Заголовок секции
+              <input type="text" name="locationEyebrow">
+            </label>
+            <label class="admin-wide">
+              Подзаголовок секции
+              <textarea name="locationTitle"></textarea>
+            </label>
+            <label>
+              Карточка даты: label
+              <input type="text" name="dateLabel">
+            </label>
+            <label>
+              Карточка даты: дата
+              <input type="text" name="dateMain">
+            </label>
+            <label>
+              Где и когда: примечание к дате
+              <textarea name="dateNote"></textarea>
+            </label>
+            <label>
+              Карточка места: label
+              <input type="text" name="placeLabel">
+            </label>
+            <label>
+              Карточка места: место
+              <input type="text" name="placeMain">
+            </label>
+            <label>
+              Где и когда: примечание к месту
+              <textarea name="placeNote"></textarea>
+            </label>
+            <label>
+              Карточка маршрута: label
+              <input type="text" name="routeLabel">
+            </label>
+            <label>
+              Карточка маршрута: как добраться
+              <input type="text" name="routeMain">
+            </label>
+            <label>
+              Где и когда: примечание к маршруту
+              <textarea name="routeNote"></textarea>
+            </label>
+            <label>
+              Карта: широта
+              <input type="text" name="mapLat">
+            </label>
+            <label>
+              Карта: долгота
+              <input type="text" name="mapLon">
+            </label>
+            <label>
+              Карта: zoom
+              <input type="text" name="mapZoom">
+            </label>
+            <label>
+              Кнопка под картой
+              <input type="text" name="locationCta">
+            </label>
+            </section>
+            <section class="admin-tab-panel admin-wide" data-tab-panel="program">
+            <div class="admin-wide">
+              <p class="eyebrow">Программа</p>
+            </div>
+            <label>
+              Заголовок секции
+              <input type="text" name="programEyebrow">
+            </label>
+            <label class="admin-wide">
+              Подзаголовок секции
+              <textarea name="programTitle"></textarea>
+            </label>
+            <label><input type="text" name="programItem1Time" placeholder="12:00"></label>
+            <label><input type="text" name="programItem1Title" placeholder="Событие 1"></label>
+            <label class="admin-wide"><textarea name="programItem1Text" placeholder="Описание события 1"></textarea></label>
+            <label><input type="text" name="programItem2Time" placeholder="14:00"></label>
+            <label><input type="text" name="programItem2Title" placeholder="Событие 2"></label>
+            <label class="admin-wide"><textarea name="programItem2Text" placeholder="Описание события 2"></textarea></label>
+            <label><input type="text" name="programItem3Time" placeholder="17:30"></label>
+            <label><input type="text" name="programItem3Title" placeholder="Событие 3"></label>
+            <label class="admin-wide"><textarea name="programItem3Text" placeholder="Описание события 3"></textarea></label>
+            <label><input type="text" name="programItem4Time" placeholder="21:30"></label>
+            <label><input type="text" name="programItem4Title" placeholder="Событие 4"></label>
+            <label class="admin-wide"><textarea name="programItem4Text" placeholder="Описание события 4"></textarea></label>
+            </section>
+            <section class="admin-tab-panel admin-wide" data-tab-panel="gallery">
+            <div class="admin-wide">
+              <p class="eyebrow">Фотоальбом</p>
+            </div>
+            <label>
+              Заголовок секции
+              <input type="text" name="galleryEyebrow">
+            </label>
+            <label class="admin-wide">
+              Подзаголовок секции
+              <textarea name="galleryTitle"></textarea>
+            </label>
+            <label><input type="text" name="galleryCap1" placeholder="Подпись 1"></label>
+            <label><input type="text" name="galleryCap2" placeholder="Подпись 2"></label>
+            <label><input type="text" name="galleryCap3" placeholder="Подпись 3"></label>
+            <label><input type="text" name="galleryCap4" placeholder="Подпись 4"></label>
+            <label class="admin-wide"><input type="text" name="galleryCap5" placeholder="Подпись 5"></label>
+            <label><input type="text" name="galleryImage1" placeholder="Путь к фото 1, например images/gallery-1.jpg"></label>
+            <label><input type="text" name="galleryImage2" placeholder="Путь к фото 2, например images/gallery-2.jpg"></label>
+            <label><input type="text" name="galleryImage3" placeholder="Путь к фото 3, например images/gallery-3.jpg"></label>
+            <label><input type="text" name="galleryImage4" placeholder="Путь к фото 4, например images/gallery-4.jpg"></label>
+            <label class="admin-wide"><input type="text" name="galleryImage5" placeholder="Путь к фото 5, например images/gallery-5.jpg"></label>
+            </section>
+            <section class="admin-tab-panel admin-wide" data-tab-panel="tickets">
+            <div class="admin-wide">
+              <p class="eyebrow">Билеты</p>
+            </div>
+            <label><input type="text" name="ticketsEyebrow" placeholder="Заголовок секции"></label>
+            <label class="admin-wide"><textarea name="ticketsTitle" placeholder="Подзаголовок секции"></textarea></label>
+            <label><input type="text" name="ticketPriceLabel" placeholder="Label цены"></label>
+            <label><input type="text" name="ticketPriceValue" placeholder="Цена"></label>
+            <label class="admin-wide"><textarea name="ticketPriceText" placeholder="Описание тарифа"></textarea></label>
+            <label><input type="text" name="ticketFeature1" placeholder="Преимущество 1"></label>
+            <label><input type="text" name="ticketFeature2" placeholder="Преимущество 2"></label>
+            <label><input type="text" name="ticketFeature3" placeholder="Преимущество 3"></label>
+            <label class="admin-wide"><textarea name="ticketNote" placeholder="Пояснение к оплате"></textarea></label>
+            </section>
+            <section class="admin-tab-panel admin-wide" data-tab-panel="vote">
+            <div class="admin-wide">
+              <p class="eyebrow">Голосование</p>
+            </div>
+            <label><input type="text" name="voteEyebrow" placeholder="Заголовок секции"></label>
+            <label class="admin-wide"><textarea name="voteTitle" placeholder="Подзаголовок секции"></textarea></label>
+            <label><input type="text" name="voteTicketLabel" placeholder="Подпись поля билета"></label>
+            <label><input type="text" name="voteButton" placeholder="Текст кнопки"></label>
+            <label><input type="text" name="voteScoreboard" placeholder="Заголовок таблицы"></label>
+            <label><input type="text" name="team1Name" placeholder="Команда 1"></label>
+            <label><textarea name="team1Desc" placeholder="Описание команды 1"></textarea></label>
+            <label><input type="text" name="team2Name" placeholder="Команда 2"></label>
+            <label><textarea name="team2Desc" placeholder="Описание команды 2"></textarea></label>
+            <label><input type="text" name="team3Name" placeholder="Команда 3"></label>
+            <label><textarea name="team3Desc" placeholder="Описание команды 3"></textarea></label>
+            </section>
+            <section class="admin-tab-panel admin-wide" data-tab-panel="quiz">
+            <div class="admin-wide">
+              <p class="eyebrow">Тест</p>
+            </div>
+            <label><input type="text" name="quizEyebrow" placeholder="Заголовок секции"></label>
+            <label class="admin-wide"><input type="text" name="quizTitle" placeholder="Подзаголовок секции"></label>
+            <label><input type="text" name="quizQ1Title" placeholder="Вопрос 1"></label>
+            <label><input type="text" name="quizQ1A1" placeholder="Ответ 1.1"></label>
+            <label><input type="text" name="quizQ1A2" placeholder="Ответ 1.2"></label>
+            <label><input type="text" name="quizQ1A3" placeholder="Ответ 1.3"></label>
+            <label><input type="text" name="quizQ1A4" placeholder="Ответ 1.4"></label>
+            <label><input type="text" name="quizQ1A5" placeholder="Ответ 1.5"></label>
+            <label><input type="text" name="quizQ2Title" placeholder="Вопрос 2"></label>
+            <label><input type="text" name="quizQ2A1" placeholder="Ответ 2.1"></label>
+            <label><input type="text" name="quizQ2A2" placeholder="Ответ 2.2"></label>
+            <label><input type="text" name="quizQ2A3" placeholder="Ответ 2.3"></label>
+            <label><input type="text" name="quizQ2A4" placeholder="Ответ 2.4"></label>
+            <label><input type="text" name="quizQ2A5" placeholder="Ответ 2.5"></label>
+            <label><input type="text" name="quizQ3Title" placeholder="Вопрос 3"></label>
+            <label><input type="text" name="quizQ3A1" placeholder="Ответ 3.1"></label>
+            <label><input type="text" name="quizQ3A2" placeholder="Ответ 3.2"></label>
+            <label><input type="text" name="quizQ3A3" placeholder="Ответ 3.3"></label>
+            <label><input type="text" name="quizQ3A4" placeholder="Ответ 3.4"></label>
+            <label><input type="text" name="quizQ3A5" placeholder="Ответ 3.5"></label>
+            <label><input type="text" name="quizQ4Title" placeholder="Вопрос 4"></label>
+            <label><input type="text" name="quizQ4A1" placeholder="Ответ 4.1"></label>
+            <label><input type="text" name="quizQ4A2" placeholder="Ответ 4.2"></label>
+            <label><input type="text" name="quizQ4A3" placeholder="Ответ 4.3"></label>
+            <label><input type="text" name="quizQ4A4" placeholder="Ответ 4.4"></label>
+            <label><input type="text" name="quizQ4A5" placeholder="Ответ 4.5"></label>
+            <label><input type="text" name="quizQ5Title" placeholder="Вопрос 5"></label>
+            <label><input type="text" name="quizQ5A1" placeholder="Ответ 5.1"></label>
+            <label><input type="text" name="quizQ5A2" placeholder="Ответ 5.2"></label>
+            <label><input type="text" name="quizQ5A3" placeholder="Ответ 5.3"></label>
+            <label><input type="text" name="quizQ5A4" placeholder="Ответ 5.4"></label>
+            <label><input type="text" name="quizQ5A5" placeholder="Ответ 5.5"></label>
+            <label><input type="text" name="quizButton" placeholder="Кнопка теста"></label>
+            <label><input type="text" name="quizResultLabel" placeholder="Label результата"></label>
+            <label><input type="text" name="quizResultTitle" placeholder="Заголовок результата"></label>
+            <label class="admin-wide"><textarea name="quizResultText" placeholder="Описание результата по умолчанию"></textarea></label>
+            </section>
+            <section class="admin-tab-panel admin-wide" data-tab-panel="contacts">
+            <div class="admin-wide">
+              <p class="eyebrow">Контакты</p>
+            </div>
+            <label><input type="text" name="contactsEyebrow" placeholder="Заголовок секции"></label>
+            <label class="admin-wide"><textarea name="contactsTitle" placeholder="Подзаголовок секции"></textarea></label>
+            <label><input type="text" name="contactOrgTitle" placeholder="Заголовок карточки 1"></label>
+            <label>
+              Контакты: телефон организаторов
+              <input type="text" name="contactOrgPhone">
+            </label>
+            <label>
+              Контакты: email организаторов
+              <input type="text" name="contactOrgEmail">
+            </label>
+            <label><input type="text" name="contactPressTitle" placeholder="Заголовок карточки 2"></label>
+            <label>
+              Контакты: email медиа
+              <input type="text" name="contactPressEmail">
+            </label>
+            <label>
+              Контакты: соцсети
+              <input type="text" name="contactPressSocial">
+            </label>
+            <label><input type="text" name="contactTicketTitle" placeholder="Заголовок карточки 3"></label>
+            <label>
+              Контакты: email по билетам
+              <input type="text" name="contactTicketEmail">
+            </label>
+            <label>
+              Контакты: пояснение по входному контролю
+              <textarea name="contactTicketNote"></textarea>
+            </label>
+            </section>
+            <section class="admin-tab-panel admin-wide" data-tab-panel="visibility">
+            <div class="admin-wide">
+              <p class="eyebrow">Видимость блоков</p>
+            </div>
+            <label class="admin-toggle"><input type="checkbox" name="showCountdown"> <span>Показывать отсчёт до начала фестиваля</span></label>
+            <label class="admin-toggle"><input type="checkbox" name="showAbout"> <span>Показывать блок «О фестивале»</span></label>
+            <label class="admin-toggle"><input type="checkbox" name="showLocation"> <span>Показывать блок «Где и когда»</span></label>
+            <label class="admin-toggle"><input type="checkbox" name="showProgram"> <span>Показывать блок «Программа»</span></label>
+            <label class="admin-toggle"><input type="checkbox" name="showGallery"> <span>Показывать блок «Фотоальбом»</span></label>
+            <label class="admin-toggle"><input type="checkbox" name="showTickets"> <span>Показывать блок «Билеты»</span></label>
+            <label class="admin-toggle"><input type="checkbox" name="showVote"> <span>Показывать блок «Голосование»</span></label>
+            <label class="admin-toggle"><input type="checkbox" name="showQuiz"> <span>Показывать блок «Тест»</span></label>
+            <label class="admin-toggle"><input type="checkbox" name="showContacts"> <span>Показывать блок «Контакты»</span></label>
+            </section>
+            <div class="admin-wide payment-actions">
+              <button class="button" type="submit">Сохранить контент</button>
+              <button class="button button--secondary" id="admin-reset-content" type="button">Сбросить к исходному</button>
+            </div>
+          </form>
+        </article>
+
+        <div class="admin-layout" style="grid-template-columns: 1fr; gap: 24px;">
+        <article class="admin-panel ornament-card">
+          <div class="section-heading">
+            <p class="eyebrow">Доступ</p>
+            <h2>Учётные записи админки и входного контроля.</h2>
+          </div>
+          <form id="admin-user-form" class="admin-user-form">
+            <label>
+              Роль
+              <select name="role" required>
+                <option value="checkin">Входной контроль</option>
+                <option value="admin">Администратор</option>
+              </select>
+            </label>
+            <label>
+              Логин
+              <input type="text" name="username" placeholder="Например, control-1" required>
+            </label>
+            <label>
+              Пароль
+              <input type="password" name="password" placeholder="Минимум 8 символов" required>
+            </label>
+            <button class="button" type="submit">Создать пользователя</button>
+          </form>
+          <div id="admin-user-message" class="info-message">Создавайте отдельные логины для админки и входного контроля. Пароли можно менять без доступа к коду.</div>
+          <div id="admin-users-list" class="admin-users-list"></div>
+        </article>
+
+        <article class="admin-panel ornament-card">
+          <div class="section-heading">
+            <p class="eyebrow">Голосование</p>
+            <h2>Результаты по командам.</h2>
+            </div>
+            <ul id="admin-vote-results" class="score-list"></ul>
+          </article>
+
+          <article class="admin-panel ornament-card">
+            <div class="section-heading">
+              <p class="eyebrow">Тест</p>
+              <h2>Статистика «Какой ты пельмень?»</h2>
+            </div>
+            <ul id="admin-quiz-results" class="score-list"></ul>
+          </article>
+
+          <article class="admin-panel ornament-card">
+            <div class="section-heading">
+              <p class="eyebrow">Последние билеты</p>
+              <h2>Свежие продажи и статусы входа.</h2>
+            </div>
+            <ul id="admin-recent-tickets" class="score-list"></ul>
+            <div class="payment-actions">
+              <button class="button button--secondary" id="admin-refresh-stats" type="button">Обновить статистику</button>
+            </div>
+          </article>
+
+          <article class="admin-panel ornament-card">
+            <div class="section-heading">
+              <p class="eyebrow">Экспорт</p>
+              <h2>Скачать отчёты по тесту и билетам.</h2>
+            </div>
+            <div class="payment-actions admin-actions admin-actions--stacked">
+              <button class="button" id="admin-export-quiz" type="button">Скачать тест CSV</button>
+              <button class="button button--secondary" id="admin-export-tickets" type="button">Скачать билеты CSV</button>
+              <button class="button button--secondary" id="admin-reset-tickets" type="button">Сбросить билеты</button>
+              <button class="button button--secondary" id="admin-reset-quiz" type="button">Сбросить тест</button>
+            </div>
+            <p class="muted">Тест: время прохождения и результат. Билеты: время покупки, статус, номер, ФИО, количество и стоимость.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+    </div>
+  </main>
+  <script src="script.js"></script>
+</body>
+</html>

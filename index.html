@@ -5,6 +5,10 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Костровье | фестиваль ремесла, музыки и северной кухни</title>
   <meta name="description" content="Лендинг фестиваля в русско-славянском стиле: программа, карта, галерея, билеты, голосование, тест и вход по QR-коду.">
+  <meta property="og:title" content="Костровье | фестиваль ремесла, музыки и северной кухни">
+  <meta property="og:description" content="Лендинг фестиваля в русско-славянском стиле: программа, карта, галерея, билеты, голосование, тест и вход по QR-коду.">
+  <meta property="og:image" content="">
+  <link rel="canonical" href="">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+SC:wght@500;600;700&family=Golos+Text:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -21,26 +25,36 @@
         </span>
       </a>
       <nav class="site-nav">
-        <a href="#about">О фестивале</a>
-        <a href="#location">Где и когда</a>
-        <a href="#program">Программа</a>
-        <a href="#gallery">Фотоальбом</a>
-        <a href="#tickets">Билеты</a>
-        <a href="#vote">Голосование</a>
-        <a href="#pelmen-quiz">Тест</a>
-        <a href="#contacts">Контакты</a>
+        <a href="#about" data-nav-key="about">О фестивале</a>
+        <a href="#location" data-nav-key="location">Где и когда</a>
+        <a href="#program" data-nav-key="program">Программа</a>
+        <a href="#gallery" data-nav-key="gallery">Фотоальбом</a>
+        <a href="#tickets" data-nav-key="tickets">Билеты</a>
+        <a href="#vote" data-nav-key="vote">Голосование</a>
+        <a href="#pelmen-quiz" data-nav-key="quiz">Тест</a>
+        <a href="#contacts" data-nav-key="contacts">Контакты</a>
       </nav>
     </header>
 
     <main>
       <section class="hero" id="hero">
         <div class="hero__content">
-          <p class="eyebrow">18 июля 2026 • Владивосток • этнопарк «Берег Сварога»</p>
-          <h1>Лендинг фестиваля в русско-славянском духе с билетом и входом по QR.</h1>
-          <p class="hero__lead">Музыка у костра, ремесленные дворы, ярмарка, северная кухня, игры, хороводы и вечерний огненный круг на берегу.</p>
+          <p class="eyebrow" id="content-hero-eyebrow">18 июля 2026 • Владивосток • этнопарк «Берег Сварога»</p>
+          <h1 id="content-hero-title">Лендинг фестиваля в русско-славянском духе с билетом и входом по QR.</h1>
+          <p class="hero__lead" id="content-hero-lead">Музыка у костра, ремесленные дворы, ярмарка, северная кухня, игры, хороводы и вечерний огненный круг на берегу.</p>
           <div class="hero__actions">
             <a class="button button--ticket" href="#tickets">Купить билет</a>
             <a class="button button--secondary" href="#program">Смотреть программу</a>
+          </div>
+          <div class="countdown-card ornament-card" id="countdown-block" data-section-key="countdown">
+            <p class="eyebrow" id="content-countdown-eyebrow">До открытия фестиваля</p>
+            <div class="countdown-grid">
+              <div><strong id="countdown-days">0</strong><span>дней</span></div>
+              <div><strong id="countdown-hours">0</strong><span>часов</span></div>
+              <div><strong id="countdown-minutes">0</strong><span>минут</span></div>
+              <div><strong id="countdown-seconds">0</strong><span>секунд</span></div>
+            </div>
+            <p class="muted" id="content-countdown-note">Счётчик идёт до официального старта фестивального дня.</p>
           </div>
           <ul class="hero__stats">
             <li><strong>12+</strong><span>часов программы</span></li>
@@ -49,134 +63,134 @@
           </ul>
         </div>
         <aside class="hero__panel ornament-card">
-          <p class="ornament-card__label">Главный день</p>
-          <div class="ornament-card__date">18.07</div>
-          <p>Сбор гостей с 11:00<br>Открытие в 12:00<br>Огненный финал в 21:30</p>
+          <p class="ornament-card__label" id="content-hero-side-label">Главный день</p>
+          <div class="ornament-card__date" id="content-hero-side-date">18.07</div>
+          <p id="content-hero-side-schedule">Сбор гостей с 11:00<br>Открытие в 12:00<br>Огненный финал в 21:30</p>
           <div class="hero__panel-line"></div>
-          <p>После оплаты гость получает персональные билеты с уникальными кодами и QR, которые сканируются на входе.</p>
+          <p id="content-hero-side-note">После оплаты гость получает персональные билеты с уникальными кодами и QR, которые сканируются на входе.</p>
         </aside>
       </section>
 
-      <section class="section" id="about">
+      <section class="section" id="about" data-section-key="about">
         <div class="section-heading">
-          <p class="eyebrow">О фестивале</p>
-          <h2>Тёплый, плотный, ремесленный визуальный образ вместо шаблонного промо-сайта.</h2>
+          <p class="eyebrow" id="content-about-eyebrow">О фестивале</p>
+          <h2 id="content-about-title">Тёплый, плотный, ремесленный визуальный образ вместо шаблонного промо-сайта.</h2>
         </div>
         <div class="about-grid">
           <article class="info-card">
-            <h3>Живая традиция</h3>
-            <p>Песни, пляс, гусли, барабаны, ремесленные мастерские и семейные обряды без музейной пыли.</p>
+            <h3 id="content-about-card1-title">Живая традиция</h3>
+            <p id="content-about-card1-text">Песни, пляс, гусли, барабаны, ремесленные мастерские и семейные обряды без музейной пыли.</p>
           </article>
           <article class="info-card">
-            <h3>Еда и ярмарка</h3>
-            <p>Печи, травяные сборы, фермерские продукты, авторская керамика, ткани, дерево и кузнечное дело.</p>
+            <h3 id="content-about-card2-title">Еда и ярмарка</h3>
+            <p id="content-about-card2-text">Печи, травяные сборы, фермерские продукты, авторская керамика, ткани, дерево и кузнечное дело.</p>
           </article>
           <article class="info-card">
-            <h3>Современный вход</h3>
-            <p>Оплата, персональные QR-билеты, сканирование на входе, голосование по номеру билета и развлекательные механики на странице.</p>
+            <h3 id="content-about-card3-title">Современный вход</h3>
+            <p id="content-about-card3-text">Оплата, персональные QR-билеты, сканирование на входе, голосование по номеру билета и развлекательные механики на странице.</p>
           </article>
         </div>
       </section>
 
-      <section class="section section--accent" id="location">
+      <section class="section section--accent" id="location" data-section-key="location">
         <div class="section-heading">
-          <p class="eyebrow">Где и когда</p>
-          <h2>Вся практическая информация на одной странице.</h2>
+          <p class="eyebrow" id="content-location-eyebrow">Где и когда</p>
+          <h2 id="content-location-title">Вся практическая информация на одной странице.</h2>
         </div>
         <div class="details-grid">
           <article class="detail-block">
-            <h3>Дата</h3>
-            <p>Суббота, 18 июля 2026 года</p>
-            <p class="muted">Вход гостей с 11:00. Первая сцена запускается в 12:00.</p>
+            <h3 id="content-date-label">Дата</h3>
+            <p id="content-date-main">Суббота, 18 июля 2026 года</p>
+            <p class="muted" id="content-date-note">Вход гостей с 11:00. Первая сцена запускается в 12:00.</p>
           </article>
           <article class="detail-block">
-            <h3>Место</h3>
-            <p>Этнопарк «Берег Сварога», Владивосток</p>
-            <p class="muted">Лесная поляна, ремесленный двор, береговая сцена, фуд-корт и детская зона.</p>
+            <h3 id="content-place-label">Место</h3>
+            <p id="content-place-main">Этнопарк «Берег Сварога», Владивосток</p>
+            <p class="muted" id="content-place-note">Лесная поляна, ремесленный двор, береговая сцена, фуд-корт и детская зона.</p>
           </article>
           <article class="detail-block">
-            <h3>Как добраться</h3>
-            <p>Фестивальный шаттл от центра города каждые 40 минут.</p>
-            <p class="muted">Парковка ограничена, гостям рекомендуем трансфер или такси.</p>
+            <h3 id="content-route-label">Как добраться</h3>
+            <p id="content-route-main">Фестивальный шаттл от центра города каждые 40 минут.</p>
+            <p class="muted" id="content-route-note">Парковка ограничена, гостям рекомендуем трансфер или такси.</p>
           </article>
         </div>
         <div class="map-frame">
-          <iframe title="Карта фестиваля" src="https://yandex.ru/map-widget/v1/?um=constructor%3A0d14d5c4524ee08a7d89df6118a0aa52aa6e9cc24d9ed3cb6ef4691d4f856cc0&amp;source=constructor" loading="lazy"></iframe>
+          <iframe id="content-map-frame" title="Карта фестиваля" src="https://yandex.ru/map-widget/v1/?um=constructor%3A0d14d5c4524ee08a7d89df6118a0aa52aa6e9cc24d9ed3cb6ef4691d4f856cc0&amp;source=constructor" loading="lazy"></iframe>
         </div>
         <div class="section-cta">
-          <a class="button button--ticket" href="#tickets">Купить билет</a>
+          <a class="button button--ticket" href="#tickets" id="content-location-cta">Купить билет</a>
         </div>
       </section>
 
-      <section class="section" id="program">
+      <section class="section" id="program" data-section-key="program">
         <div class="section-heading">
-          <p class="eyebrow">Программа</p>
-          <h2>День разбит по крупным событиям, чтобы гостю было легко спланировать маршрут.</h2>
+          <p class="eyebrow" id="content-program-eyebrow">Программа</p>
+          <h2 id="content-program-title">День разбит по крупным событиям, чтобы гостю было легко спланировать маршрут.</h2>
         </div>
         <div class="timeline">
           <article class="timeline-item">
-            <span>12:00</span>
+            <span id="content-program-item1-time">12:00</span>
             <div>
-              <h3>Открытие круга</h3>
-              <p>Общий сбор, приветствие ведущих, хор, гусли и первый хоровод у главной сцены.</p>
+              <h3 id="content-program-item1-title">Открытие круга</h3>
+              <p id="content-program-item1-text">Общий сбор, приветствие ведущих, хор, гусли и первый хоровод у главной сцены.</p>
             </div>
           </article>
           <article class="timeline-item">
-            <span>14:00</span>
+            <span id="content-program-item2-time">14:00</span>
             <div>
-              <h3>Ремесленные дворы</h3>
-              <p>Кузнечное шоу, резьба по дереву, ткачество, роспись и мастер-классы для семей.</p>
+              <h3 id="content-program-item2-title">Ремесленные дворы</h3>
+              <p id="content-program-item2-text">Кузнечное шоу, резьба по дереву, ткачество, роспись и мастер-классы для семей.</p>
             </div>
           </article>
           <article class="timeline-item">
-            <span>17:30</span>
+            <span id="content-program-item3-time">17:30</span>
             <div>
-              <h3>Большой концерт</h3>
-              <p>Фолк-группы, этно-электроника, северные барабаны, народный вокал и танцевальный блок.</p>
+              <h3 id="content-program-item3-title">Большой концерт</h3>
+              <p id="content-program-item3-text">Фолк-группы, этно-электроника, северные барабаны, народный вокал и танцевальный блок.</p>
             </div>
           </article>
           <article class="timeline-item">
-            <span>21:30</span>
+            <span id="content-program-item4-time">21:30</span>
             <div>
-              <h3>Огненный финал</h3>
-              <p>Огненное шоу на берегу, световые инсталляции и закрывающий круг у костра.</p>
+              <h3 id="content-program-item4-title">Огненный финал</h3>
+              <p id="content-program-item4-text">Огненное шоу на берегу, световые инсталляции и закрывающий круг у костра.</p>
             </div>
           </article>
         </div>
       </section>
 
-      <section class="section section--gallery" id="gallery">
+      <section class="section section--gallery" id="gallery" data-section-key="gallery">
         <div class="section-heading">
-          <p class="eyebrow">Фотоальбом</p>
-          <h2>Блок можно наполнить реальными кадрами без изменения структуры страницы.</h2>
+          <p class="eyebrow" id="content-gallery-eyebrow">Фотоальбом</p>
+          <h2 id="content-gallery-title">Блок можно наполнить реальными кадрами без изменения структуры страницы.</h2>
         </div>
         <div class="gallery-grid">
-          <figure class="gallery-card gallery-card--tall"><figcaption>Береговая сцена</figcaption></figure>
-          <figure class="gallery-card"><figcaption>Ремесленный двор</figcaption></figure>
-          <figure class="gallery-card"><figcaption>Огненный круг</figcaption></figure>
-          <figure class="gallery-card"><figcaption>Ярмарка мастеров</figcaption></figure>
-          <figure class="gallery-card gallery-card--wide"><figcaption>Семейные мастер-классы</figcaption></figure>
+          <figure class="gallery-card gallery-card--tall" data-gallery-slot="1"><figcaption id="content-gallery-cap1">Береговая сцена</figcaption></figure>
+          <figure class="gallery-card" data-gallery-slot="2"><figcaption id="content-gallery-cap2">Ремесленный двор</figcaption></figure>
+          <figure class="gallery-card" data-gallery-slot="3"><figcaption id="content-gallery-cap3">Огненный круг</figcaption></figure>
+          <figure class="gallery-card" data-gallery-slot="4"><figcaption id="content-gallery-cap4">Ярмарка мастеров</figcaption></figure>
+          <figure class="gallery-card gallery-card--wide" data-gallery-slot="5"><figcaption id="content-gallery-cap5">Семейные мастер-классы</figcaption></figure>
         </div>
       </section>
 
-      <section class="section section--accent" id="tickets">
+      <section class="section section--accent" id="tickets" data-section-key="tickets">
         <div class="section-heading">
-          <p class="eyebrow">Билеты</p>
-          <h2>Оплата, персональные QR-коды и готовность к контролю на входе.</h2>
+          <p class="eyebrow" id="content-tickets-eyebrow">Билеты</p>
+          <h2 id="content-tickets-title">Оплата, персональные QR-коды и готовность к контролю на входе.</h2>
         </div>
         <div class="ticket-layout">
           <div class="ticket-copy">
             <div class="price-card">
-              <p class="price-card__label">Стандарт</p>
-              <h3>2 500 ₽</h3>
-              <p>Доступ на все площадки фестиваля, концерт и вечерний огненный круг.</p>
+              <p class="price-card__label" id="content-ticket-price-label">Стандарт</p>
+              <h3 id="content-ticket-price-value">2 500 ₽</h3>
+              <p id="content-ticket-price-text">Доступ на все площадки фестиваля, концерт и вечерний огненный круг.</p>
             </div>
             <ul class="feature-list">
-              <li>Каждый билет получает собственный код и QR</li>
-              <li>После оплаты билет сразу доступен на странице</li>
-              <li>После сканирования билет можно использовать для голосования</li>
+              <li id="content-ticket-feature1">Каждый билет получает собственный код и QR</li>
+              <li id="content-ticket-feature2">После оплаты билет сразу доступен на странице</li>
+              <li id="content-ticket-feature3">После сканирования билет можно использовать для голосования</li>
             </ul>
-            <p class="muted">Оплата реализована как клиентский checkout внутри проекта. Для боевого запуска потребуется подключение настоящего эквайринга и серверной базы билетов.</p>
+            <p class="muted" id="content-ticket-note">Оплата реализована как клиентский checkout внутри проекта. Для боевого запуска потребуется подключение настоящего эквайринга и серверной базы билетов.</p>
           </div>
 
           <div class="ticket-widget ornament-card">
@@ -253,36 +267,36 @@
         </div>
       </section>
 
-      <section class="section" id="vote">
+      <section class="section" id="vote" data-section-key="vote">
         <div class="section-heading">
-          <p class="eyebrow">Голосование</p>
-          <h2>Проголосовать может только гость, чей билет уже отсканирован на входе.</h2>
+          <p class="eyebrow" id="content-vote-eyebrow">Голосование</p>
+          <h2 id="content-vote-title">Проголосовать может только гость, чей билет уже отсканирован на входе.</h2>
         </div>
         <div class="vote-layout">
           <article class="ornament-card vote-panel">
             <form id="vote-form" class="ticket-form">
               <label>
-                Номер билета
+                <span id="content-vote-ticket-label">Номер билета</span>
                 <input type="text" name="ticketCode" placeholder="Например, PF26-ABC123" required>
               </label>
               <div class="team-grid">
                 <label class="team-card">
                   <input type="radio" name="team" value="Команда Северный пар" required>
-                  <span>Команда Северный пар</span>
-                  <small>Сибирские пельмени и таёжные травы</small>
+                  <span id="content-team1-name">Команда Северный пар</span>
+                  <small id="content-team1-desc">Сибирские пельмени и таёжные травы</small>
                 </label>
                 <label class="team-card">
                   <input type="radio" name="team" value="Команда Жар-печь" required>
-                  <span>Команда Жар-печь</span>
-                  <small>Огонь, дымок и авторская подача</small>
+                  <span id="content-team2-name">Команда Жар-печь</span>
+                  <small id="content-team2-desc">Огонь, дымок и авторская подача</small>
                 </label>
                 <label class="team-card">
                   <input type="radio" name="team" value="Команда Морской дым" required>
-                  <span>Команда Морской дым</span>
-                  <small>Дальний Восток и северный берег</small>
+                  <span id="content-team3-name">Команда Морской дым</span>
+                  <small id="content-team3-desc">Дальний Восток и северный берег</small>
                 </label>
               </div>
-              <button class="button" type="submit">Отдать голос</button>
+              <button class="button" type="submit"><span id="content-vote-button">Отдать голос</span></button>
             </form>
             <div id="vote-message" class="info-message">
               Введите номер билета и выберите команду. Голос доступен только после прохода через контроль входа.
@@ -290,77 +304,89 @@
           </article>
 
           <article class="ornament-card vote-scoreboard">
-            <p class="eyebrow">Таблица голосов</p>
+            <p class="eyebrow" id="content-vote-scoreboard">Таблица голосов</p>
             <ul id="vote-results" class="score-list"></ul>
           </article>
         </div>
       </section>
 
-      <section class="section section--accent" id="pelmen-quiz">
+      <section class="section section--accent" id="pelmen-quiz" data-section-key="quiz">
         <div class="section-heading">
-          <p class="eyebrow">Тест</p>
-          <h2>Какой ты пельмень?</h2>
+          <p class="eyebrow" id="content-quiz-eyebrow">Тест</p>
+          <h2 id="content-quiz-title">Какой ты пельмень?</h2>
         </div>
         <div class="quiz-layout">
           <form id="quiz-form" class="quiz-form">
             <article class="quiz-card">
-              <h3>1. Какой ритм дня тебе ближе?</h3>
-              <label><input type="radio" name="q1" value="pelmeni" required> Собранный и прямой</label>
-              <label><input type="radio" name="q1" value="khinkali"> Громкий и харизматичный</label>
-              <label><input type="radio" name="q1" value="varenik"> Спокойный и тёплый</label>
-              <label><input type="radio" name="q1" value="gyoza"> Быстрый и дерзкий</label>
+              <h3 id="content-quiz-q1-title">1. Какой ритм дня тебе ближе?</h3>
+              <label><input type="radio" name="q1" value="pelmeni" required> <span id="content-quiz-q1-a1">Собранный и прямой</span></label>
+              <label><input type="radio" name="q1" value="khinkali"> <span id="content-quiz-q1-a2">Громкий и харизматичный</span></label>
+              <label><input type="radio" name="q1" value="varenik"> <span id="content-quiz-q1-a3">Спокойный и тёплый</span></label>
+              <label><input type="radio" name="q1" value="gyoza"> <span id="content-quiz-q1-a4">Быстрый и дерзкий</span></label>
+              <label><input type="radio" name="q1" value="momo"> <span id="content-quiz-q1-a5">Любознательный и лёгкий на подъём</span></label>
             </article>
             <article class="quiz-card">
-              <h3>2. Что берёшь на фестивале первым?</h3>
-              <label><input type="radio" name="q2" value="khinkali" required> Самую шумную сцену</label>
-              <label><input type="radio" name="q2" value="gyoza"> Уличную еду и движ</label>
-              <label><input type="radio" name="q2" value="varenik"> Лужайку и плед</label>
-              <label><input type="radio" name="q2" value="pelmeni"> Ярмарку и ремесло</label>
+              <h3 id="content-quiz-q2-title">2. Что берёшь на фестивале первым?</h3>
+              <label><input type="radio" name="q2" value="khinkali" required> <span id="content-quiz-q2-a1">Самую шумную сцену</span></label>
+              <label><input type="radio" name="q2" value="gyoza"> <span id="content-quiz-q2-a2">Уличную еду и движ</span></label>
+              <label><input type="radio" name="q2" value="varenik"> <span id="content-quiz-q2-a3">Лужайку и плед</span></label>
+              <label><input type="radio" name="q2" value="pelmeni"> <span id="content-quiz-q2-a4">Ярмарку и ремесло</span></label>
+              <label><input type="radio" name="q2" value="momo"> <span id="content-quiz-q2-a5">Необычную локальную закуску</span></label>
             </article>
             <article class="quiz-card">
-              <h3>3. Что для тебя идеальная компания?</h3>
-              <label><input type="radio" name="q3" value="varenik" required> Близкие люди и душевный разговор</label>
-              <label><input type="radio" name="q3" value="pelmeni"> Надёжные друзья без лишнего шума</label>
-              <label><input type="radio" name="q3" value="gyoza"> Те, кто готовы к спонтанности</label>
-              <label><input type="radio" name="q3" value="khinkali"> Яркие лидеры и артисты</label>
+              <h3 id="content-quiz-q3-title">3. Что для тебя идеальная компания?</h3>
+              <label><input type="radio" name="q3" value="varenik" required> <span id="content-quiz-q3-a1">Близкие люди и душевный разговор</span></label>
+              <label><input type="radio" name="q3" value="pelmeni"> <span id="content-quiz-q3-a2">Надёжные друзья без лишнего шума</span></label>
+              <label><input type="radio" name="q3" value="gyoza"> <span id="content-quiz-q3-a3">Те, кто готовы к спонтанности</span></label>
+              <label><input type="radio" name="q3" value="khinkali"> <span id="content-quiz-q3-a4">Яркие лидеры и артисты</span></label>
+              <label><input type="radio" name="q3" value="momo"> <span id="content-quiz-q3-a5">Путешественники и исследователи вкусов</span></label>
             </article>
             <article class="quiz-card">
-              <h3>4. Какой вкус ты выбираешь?</h3>
-              <label><input type="radio" name="q4" value="gyoza" required> Острый и хрустящий</label>
-              <label><input type="radio" name="q4" value="pelmeni"> Классический и насыщенный</label>
-              <label><input type="radio" name="q4" value="khinkali"> Пряный и мощный</label>
-              <label><input type="radio" name="q4" value="varenik"> Нежный и домашний</label>
+              <h3 id="content-quiz-q4-title">4. Какой вкус ты выбираешь?</h3>
+              <label><input type="radio" name="q4" value="gyoza" required> <span id="content-quiz-q4-a1">Острый и хрустящий</span></label>
+              <label><input type="radio" name="q4" value="pelmeni"> <span id="content-quiz-q4-a2">Классический и насыщенный</span></label>
+              <label><input type="radio" name="q4" value="khinkali"> <span id="content-quiz-q4-a3">Пряный и мощный</span></label>
+              <label><input type="radio" name="q4" value="varenik"> <span id="content-quiz-q4-a4">Нежный и домашний</span></label>
+              <label><input type="radio" name="q4" value="momo"> <span id="content-quiz-q4-a5">Воздушный и неожиданно тонкий</span></label>
             </article>
-            <button class="button" type="submit">Узнать результат</button>
+            <article class="quiz-card">
+              <h3 id="content-quiz-q5-title">5. Какая роль тебе ближе на фестивале?</h3>
+              <label><input type="radio" name="q5" value="pelmeni" required> <span id="content-quiz-q5-a1">Опора компании и человек-план</span></label>
+              <label><input type="radio" name="q5" value="khinkali"> <span id="content-quiz-q5-a2">Главный за настроение и эффектный вход</span></label>
+              <label><input type="radio" name="q5" value="momo"> <span id="content-quiz-q5-a3">Открывать новое и вести всех в неожиданные точки</span></label>
+              <label><input type="radio" name="q5" value="varenik"> <span id="content-quiz-q5-a4">Создавать уют и собирать людей рядом</span></label>
+              <label><input type="radio" name="q5" value="gyoza"> <span id="content-quiz-q5-a5">Добавлять драйв, скорость и немного хаоса</span></label>
+            </article>
+            <button class="button" type="submit"><span id="content-quiz-button">Узнать результат</span></button>
           </form>
           <aside id="quiz-result" class="ornament-card quiz-result">
-            <p class="eyebrow">Результат</p>
-            <h3>Твой пельмень ждёт тебя.</h3>
-            <p class="muted">Ответь на четыре вопроса, и блок покажет твой гастро-характер.</p>
+            <p class="eyebrow" id="content-quiz-result-label">Результат</p>
+            <h3 id="content-quiz-result-title">Твой пельмень ждёт тебя.</h3>
+            <p class="muted" id="content-quiz-result-text">Ответь на четыре вопроса, и блок покажет твой гастро-характер.</p>
           </aside>
         </div>
       </section>
 
-      <section class="section" id="contacts">
+      <section class="section" id="contacts" data-section-key="contacts">
         <div class="section-heading">
-          <p class="eyebrow">Контакты</p>
-          <h2>Блок для связи с гостями, партнёрами и прессой.</h2>
+          <p class="eyebrow" id="content-contacts-eyebrow">Контакты</p>
+          <h2 id="content-contacts-title">Блок для связи с гостями, партнёрами и прессой.</h2>
         </div>
         <div class="contacts-grid">
           <article class="contact-card">
-            <h3>Организаторы</h3>
-            <p>+7 (999) 000-12-34</p>
-            <p>hello@kostroviefest.ru</p>
+            <h3 id="content-contact-org-title">Организаторы</h3>
+            <p id="content-contact-org-phone">+7 (999) 000-12-34</p>
+            <p id="content-contact-org-email">hello@kostroviefest.ru</p>
           </article>
           <article class="contact-card">
-            <h3>Партнёры и медиа</h3>
-            <p>press@kostroviefest.ru</p>
-            <p>@kostrovie_fest</p>
+            <h3 id="content-contact-press-title">Партнёры и медиа</h3>
+            <p id="content-contact-press-email">press@kostroviefest.ru</p>
+            <p id="content-contact-press-social">@kostrovie_fest</p>
           </article>
           <article class="contact-card">
-            <h3>Вопросы по билетам</h3>
-            <p>tickets@kostroviefest.ru</p>
-            <p>Входной контроль доступен по отдельной закрытой ссылке.</p>
+            <h3 id="content-contact-ticket-title">Вопросы по билетам</h3>
+            <p id="content-contact-ticket-email">tickets@kostroviefest.ru</p>
+            <p id="content-contact-ticket-note">Входной контроль доступен по отдельной закрытой ссылке.</p>
           </article>
         </div>
       </section>
@@ -370,6 +396,3 @@
   <script src="script.js"></script>
 </body>
 </html>
-
-
-

@@ -411,14 +411,28 @@ iframe {
   color: var(--accent);
 }
 
-.gallery-grid {
-  display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 18px;
+.gallery-carousel {
+  position: relative;
+}
+
+.gallery-viewport {
+  overflow: hidden;
+  border-radius: 24px;
+}
+
+.gallery-track {
+  display: flex;
+  transition: transform 0.42s ease;
+  will-change: transform;
+}
+
+.gallery-slide {
+  min-width: 100%;
 }
 
 .gallery-card {
-  min-height: 220px;
+  min-height: 460px;
+  margin: 0;
   padding: 20px;
   display: flex;
   align-items: flex-end;
@@ -440,13 +454,50 @@ iframe {
   z-index: 1;
 }
 
-.gallery-card--tall {
-  grid-row: span 2;
-  min-height: 458px;
+.gallery-nav {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 46px;
+  height: 46px;
+  border-radius: 50%;
+  border: 1px solid rgba(36, 22, 14, 0.2);
+  background: rgba(249, 241, 231, 0.88);
+  color: var(--ink);
+  font-size: 1.8rem;
+  line-height: 1;
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  z-index: 2;
 }
 
-.gallery-card--wide {
-  grid-column: span 2;
+.gallery-nav--prev {
+  left: 12px;
+}
+
+.gallery-nav--next {
+  right: 12px;
+}
+
+.gallery-dots {
+  margin-top: 14px;
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+}
+
+.gallery-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  border: 0;
+  background: rgba(36, 22, 14, 0.26);
+  cursor: pointer;
+}
+
+.gallery-dot--active {
+  background: var(--accent);
 }
 
 .ticket-layout,
@@ -454,6 +505,52 @@ iframe {
 .quiz-layout {
   grid-template-columns: 0.9fr 1.1fr;
   align-items: start;
+}
+
+.jury-grid {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.jury-card {
+  display: grid;
+  gap: 12px;
+  align-content: start;
+  justify-items: center;
+  text-align: center;
+  padding: 16px;
+}
+
+.jury-card h3 {
+  margin: 0;
+  font-size: 1.2rem;
+  line-height: 1.15;
+  width: 100%;
+  max-width: 100%;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+.jury-card p {
+  margin: 0;
+  font-size: 0.94rem;
+  width: 100%;
+  max-width: 100%;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+.jury-photo {
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  border-radius: 16px;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.08), rgba(36, 22, 14, 0.28)),
+    linear-gradient(135deg, rgba(40, 65, 55, 0.92), rgba(185, 138, 59, 0.62));
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
 }
 
 .feature-list {
@@ -525,6 +622,104 @@ iframe {
   border-radius: 18px;
   background: rgba(255, 250, 245, 0.9);
   border: 1px solid rgba(36, 22, 14, 0.12);
+}
+
+.parking-note {
+  margin: 14px 0 0;
+}
+
+.ticket-legal {
+  margin-top: 10px;
+}
+
+.ticket-legal a {
+  color: var(--accent);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  font-weight: 600;
+}
+
+.pelmen-mini {
+  position: fixed;
+  left: 50%;
+  top: 50%;
+  z-index: 60;
+  display: grid;
+  gap: 8px;
+  justify-items: center;
+  pointer-events: none;
+  opacity: 0;
+  --pelmen-from-x: 0px;
+  --pelmen-from-y: 0px;
+  transform: translate(-50%, -50%) translate(var(--pelmen-from-x), var(--pelmen-from-y));
+  transition: transform 0.52s ease, opacity 0.52s ease, left 0.36s ease, top 0.36s ease;
+}
+
+.pelmen-mini.is-visible {
+  opacity: 1;
+  transform: translate(-50%, -50%) translate(0, 0);
+}
+
+.pelmen-mini.is-leaving {
+  opacity: 0;
+}
+
+.pelmen-mini--from-left {
+  --pelmen-from-x: -65vw;
+  --pelmen-from-y: 0px;
+}
+
+.pelmen-mini--from-right {
+  --pelmen-from-x: 65vw;
+  --pelmen-from-y: 0px;
+}
+
+.pelmen-mini--from-top {
+  --pelmen-from-x: 0px;
+  --pelmen-from-y: -55vh;
+}
+
+.pelmen-mini--from-bottom {
+  --pelmen-from-x: 0px;
+  --pelmen-from-y: 55vh;
+}
+
+.pelmen-mini__hint {
+  margin: 0;
+  padding: 8px 12px;
+  border-radius: 999px;
+  background: rgba(255, 248, 239, 0.95);
+  border: 1px solid rgba(36, 22, 14, 0.14);
+  color: var(--ink);
+  font-size: 0.92rem;
+  font-weight: 600;
+  box-shadow: var(--shadow);
+}
+
+.pelmen-mini__button {
+  width: 540px;
+  height: 540px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  cursor: pointer;
+  pointer-events: auto;
+}
+
+.pelmen-mini__button:disabled {
+  cursor: default;
+  pointer-events: none;
+}
+
+.pelmen-mini__image {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  user-select: none;
+  -webkit-user-drag: none;
+  filter: drop-shadow(0 10px 18px rgba(36, 22, 14, 0.24));
 }
 
 .ticket-result {
@@ -699,6 +894,14 @@ iframe {
   border-radius: 22px;
   background: #221b16;
   object-fit: cover;
+  overflow: hidden;
+}
+
+.scanner-video video,
+.scanner-video img,
+.scanner-video canvas {
+  width: 100% !important;
+  border-radius: 22px;
 }
 
 .log-list {
@@ -914,6 +1117,7 @@ iframe {
   .site-header,
   .hero,
   .ticket-layout,
+  .jury-grid,
   .about-grid,
   .details-grid,
   .contacts-grid,
@@ -943,15 +1147,8 @@ iframe {
     justify-content: flex-start;
   }
 
-  .gallery-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-
-  .gallery-card--tall,
-  .gallery-card--wide {
-    grid-column: auto;
-    grid-row: auto;
-    min-height: 240px;
+  .gallery-card {
+    min-height: 360px;
   }
 
   .ticket-card {
@@ -987,8 +1184,14 @@ iframe {
     border-radius: 26px;
   }
 
-  .gallery-grid {
-    grid-template-columns: 1fr;
+  .gallery-card {
+    min-height: 280px;
+  }
+
+  .gallery-nav {
+    width: 38px;
+    height: 38px;
+    font-size: 1.4rem;
   }
 
   .ticket-result__top,

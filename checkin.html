@@ -42,7 +42,7 @@
         <button id="logout-button" class="button button--secondary" type="button">Выйти</button>
       </div>
       <article class="checkin-panel ornament-card">
-        <p class="checkin-note">Сканер поддерживает два режима: камера устройства через `BarcodeDetector` и ручной ввод строки из QR или номера билета. Повторное сканирование покажет сообщение, что билет уже использован.</p>
+        <p class="checkin-note">Сканер поддерживает камеру устройства через встроенный web-сканер QR, fallback через `BarcodeDetector` и ручной ввод строки из QR или номера билета. Повторное сканирование покажет сообщение, что билет уже использован.</p>
         <form id="checkin-form" class="checkin-form">
           <input type="text" name="code" placeholder="Например, PF26-ABC123 или строка из QR" autofocus required>
           <button class="button" type="submit">Проверить билет</button>
@@ -54,7 +54,8 @@
         <div class="scanner-shell">
           <div class="scanner-grid">
             <div>
-              <video id="scanner-video" class="scanner-video" playsinline muted></video>
+              <div id="scanner-reader" class="scanner-video"></div>
+              <video id="scanner-video" class="scanner-video" playsinline muted hidden></video>
             </div>
             <div>
               <p class="eyebrow">Камера</p>
@@ -75,6 +76,7 @@
     </section>
     </div>
   </main>
+  <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
   <script src="script.js"></script>
 </body>
 </html>

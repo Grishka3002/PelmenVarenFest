@@ -1,8 +1,11 @@
 ﻿const http = require("http");
+const fsNative = require("fs");
 const fs = require("fs/promises");
 const path = require("path");
 const crypto = require("crypto");
 const { DatabaseSync } = require("node:sqlite");
+const PDFDocument = require("pdfkit");
+const QRCode = require("qrcode");
 
 const PORT = Number(process.env.PORT || 3000);
 const ROOT = __dirname;
@@ -14,7 +17,7 @@ const CHECKIN_PASSWORD = process.env.CHECKIN_PASSWORD || "checkin123";
 const ADMIN_USERNAME = process.env.ADMIN_USERNAME || "admin";
 const CHECKIN_USERNAME = process.env.CHECKIN_USERNAME || "checkin";
 const SESSION_TTL_MS = Number(process.env.SESSION_TTL_HOURS || 12) * 60 * 60 * 1000;
-const TICKET_PRICE = 2500;
+const TICKET_PRICE = 600;
 const QUIZ_RESULTS = {
   pelmeni: "Ты пельмень сибирский",
   khinkali: "Ты хинкали",
@@ -33,7 +36,7 @@ const DEFAULT_CONTENT = {
   heroTitle: "Лендинг фестиваля в русско-славянском духе с билетом и входом по QR.",
   heroLead: "Музыка у костра, ремесленные дворы, ярмарка, северная кухня, игры, хороводы и вечерний огненный круг на берегу.",
   heroSideLabel: "Главный день",
-  heroSideDate: "18.07",
+  heroSideDate: "16.05",
   heroSideSchedule: "Сбор гостей с 11:00<br>Открытие в 12:00<br>Огненный финал в 21:30",
   heroSideNote: "После оплаты гость получает персональные билеты с уникальными кодами и QR, которые сканируются на входе.",
   countdownEyebrow: "До открытия фестиваля",
@@ -50,7 +53,7 @@ const DEFAULT_CONTENT = {
   locationEyebrow: "Где и когда",
   locationTitle: "Вся практическая информация на одной странице.",
   dateLabel: "Дата",
-  dateMain: "Суббота, 18 июля 2026 года",
+  dateMain: "Суббота, 16 мая 2026 года",
   dateNote: "Вход гостей с 11:00. Первая сцена запускается в 12:00.",
   placeLabel: "Место",
   placeMain: "Этнопарк «Берег Сварога», Владивосток",
@@ -58,6 +61,7 @@ const DEFAULT_CONTENT = {
   routeLabel: "Как добраться",
   routeMain: "Фестивальный шаттл от центра города каждые 40 минут.",
   routeNote: "Парковка ограничена, гостям рекомендуем трансфер или такси.",
+  parkingNote: "Бесплатная парковка на 70 мест. Если хотите припарковаться у входа, приезжайте заранее.",
   mapLat: "43.1155",
   mapLon: "131.8855",
   mapZoom: "12",
@@ -88,15 +92,35 @@ const DEFAULT_CONTENT = {
   galleryImage3: "",
   galleryImage4: "",
   galleryImage5: "",
+  juryEyebrow: "Жюри",
+  juryTitle: "Пять экспертов оценивают команды и фестивальные подачи.",
+  juryName1: "Александр Невский",
+  juryRegalia1: "Шеф-повар, эксперт по региональной кухне Дальнего Востока.",
+  juryPhoto1: "",
+  juryName2: "Мария Белова",
+  juryRegalia2: "Этнокультуролог, куратор ремесленных и гастрономических программ.",
+  juryPhoto2: "",
+  juryName3: "Илья Сомов",
+  juryRegalia3: "Ресторатор, автор фестивалей локальной кухни.",
+  juryPhoto3: "",
+  juryName4: "Екатерина Ярова",
+  juryRegalia4: "Фуд-журналист, обозреватель гастрономических событий.",
+  juryPhoto4: "",
+  juryName5: "Денис Ладов",
+  juryRegalia5: "Бренд-шеф, судья кулинарных чемпионатов.",
+  juryPhoto5: "",
   ticketsEyebrow: "Билеты",
   ticketsTitle: "Оплата, персональные QR-коды и готовность к контролю на входе.",
   ticketPriceLabel: "Стандарт",
-  ticketPriceValue: "2 500 ₽",
+  ticketPriceValue: "600 ₽",
   ticketPriceText: "Доступ на все площадки фестиваля, концерт и вечерний огненный круг.",
   ticketFeature1: "Каждый билет получает собственный код и QR",
   ticketFeature2: "После оплаты билет сразу доступен на странице",
   ticketFeature3: "После сканирования билет можно использовать для голосования",
   ticketNote: "Оплата реализована как клиентский checkout внутри проекта. Для боевого запуска потребуется подключение настоящего эквайринга и серверной базы билетов.",
+  ticketOfferNote: "Покупая билет, вы принимаете условия публичной оферты.",
+  ticketOfferLinkText: "Ознакомиться с офертой",
+  ticketOfferLinkUrl: "/offer",
   voteEyebrow: "Голосование",
   voteTitle: "Проголосовать может только гость, чей билет уже отсканирован на входе.",
   voteTicketLabel: "Номер билета",
@@ -149,6 +173,7 @@ const DEFAULT_CONTENT = {
   showLocation: "true",
   showProgram: "true",
   showGallery: "true",
+  showJury: "true",
   showTickets: "true",
   showVote: "true",
   showQuiz: "true",
@@ -181,6 +206,7 @@ const MIME_TYPES = {
 let database = null;
 let databaseReady = null;
 const sessions = new Map();
+let resolvedPdfFontPath = null;
 
 function parseBody(req) {
   return (async () => {
@@ -202,6 +228,15 @@ function sendCsv(res, filename, content) {
     "Content-Disposition": `attachment; filename="${filename}"`,
   });
   res.end(`\uFEFF${content}`);
+}
+
+function sendPdf(res, filename, buffer) {
+  res.writeHead(200, {
+    "Content-Type": "application/pdf",
+    "Content-Disposition": `attachment; filename="${filename}"`,
+    "Content-Length": buffer.length,
+  });
+  res.end(buffer);
 }
 
 function sendError(res, status, message) {
@@ -512,6 +547,10 @@ function getTicketByCode(db, code) {
   return row ? mapTicketRow(row) : null;
 }
 
+function getTicketsByOrderId(db, orderId) {
+  return db.prepare("SELECT * FROM tickets WHERE order_id = ? ORDER BY order_index ASC").all(orderId).map(mapTicketRow);
+}
+
 function getQuizEntries(db) {
   return db.prepare("SELECT id, type, created_at FROM quiz_entries ORDER BY created_at DESC").all().map((row) => ({
     id: row.id,
@@ -603,6 +642,113 @@ function buildTicketsExportCsv(state) {
       ]),
   ];
   return rows.map((row) => row.map(escapeCsv).join(";")).join("\n");
+}
+
+function buildTicketQrPayload(ticket) {
+  return `KOSTROVIE:${ticket.code}`;
+}
+
+function resolvePdfFontPath() {
+  if (resolvedPdfFontPath !== null) return resolvedPdfFontPath || null;
+
+  const candidates = [
+    process.env.PDF_FONT_PATH,
+    "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf",
+    "/usr/share/fonts/truetype/noto/NotoSans-Regular.ttf",
+    "C:\\Windows\\Fonts\\arial.ttf",
+    "C:\\Windows\\Fonts\\segoeui.ttf",
+  ].filter(Boolean);
+
+  resolvedPdfFontPath = candidates.find((fontPath) => fsNative.existsSync(fontPath)) || "";
+  if (!resolvedPdfFontPath) {
+    console.warn("PDF font with Cyrillic support not found. Set PDF_FONT_PATH for readable Russian text in tickets.");
+  }
+  return resolvedPdfFontPath || null;
+}
+function renderTicketPage(doc, ticket, content, qrBuffer, fontPath) {
+  const title = content.seoTitle || "Костровье";
+  const location = content.placeMain || "Этнопарк «Берег Сварога», Владивосток";
+  const dateText = content.dateMain || "Суббота, 18 июля 2026 года";
+  if (fontPath) doc.font(fontPath);
+  const leftX = 76;
+  const qrX = 340;
+  const qrY = 210;
+  const qrSize = 170;
+  const columnGap = 24;
+  const textWidth = qrX - leftX - columnGap;
+  const pageWidth = 595;
+  const pageHeight = 842;
+
+  doc.save();
+  doc.rect(0, 0, pageWidth, pageHeight).fill("#F2EADF");
+  doc.fillOpacity(0.18).circle(70, 60, 140).fill("#B98A3B");
+  doc.fillOpacity(0.12).circle(520, 110, 120).fill("#8E2F1F");
+  doc.fillOpacity(0.08).circle(545, 790, 160).fill("#B98A3B");
+  doc.restore();
+
+  doc.roundedRect(42, 42, 511, 758, 20).fillColor("#F7EFE5").fill();
+  doc.roundedRect(42, 42, 511, 758, 20).lineWidth(1).strokeColor("#C8B8A8").stroke();
+  doc.roundedRect(56, 56, 483, 730, 16).fillColor("#FBF4EA").fill();
+  doc.roundedRect(56, 56, 483, 730, 16).lineWidth(1).strokeColor("#E2D6CB").stroke();
+
+  doc.fillColor("#7F2E1F").fontSize(11).text("ФЕСТИВАЛЬНЫЙ БИЛЕТ", leftX, 86);
+  doc.fillColor("#21150E").fontSize(24);
+  const titleY = 108;
+  const titleHeight = doc.heightOfString(title, { width: textWidth });
+  doc.text(title, leftX, titleY, { width: textWidth });
+
+  const metaY = titleY + titleHeight + 14;
+  doc.fillColor("#51423A").fontSize(12).text(`Дата: ${dateText}`, leftX, metaY, { width: textWidth });
+  doc.text(`Место: ${location}`, leftX, metaY + 20, { width: textWidth });
+
+  const ownerLabelY = metaY + 64;
+  doc.fillColor("#21150E").fontSize(13).text("Владелец билета", leftX, ownerLabelY);
+  doc.fontSize(20).text(ticket.name || "Гость", leftX, ownerLabelY + 20, { width: textWidth });
+
+  const ticketLabelY = ownerLabelY + 72;
+  doc.fillColor("#7F2E1F").fontSize(12).text("Номер билета", leftX, ticketLabelY);
+  doc.fillColor("#21150E").fontSize(22).text(ticket.code, leftX, ticketLabelY + 18);
+  doc.fillColor("#51423A").fontSize(12).text(`Заказ: ${ticket.orderId.slice(0, 8).toUpperCase()}`, leftX, ticketLabelY + 52);
+  doc.text(`Билет: ${ticket.orderIndex}/${ticket.quantityInOrder}`, leftX, ticketLabelY + 70);
+  doc.text(`Стоимость: ${ticket.price} ₽`, leftX, ticketLabelY + 88);
+  doc.text(`Оплачен: ${new Date(ticket.paidAt || ticket.createdAt).toLocaleString("ru-RU")}`, leftX, ticketLabelY + 106);
+
+  doc.image(qrBuffer, qrX, qrY, { fit: [qrSize, qrSize], align: "center", valign: "center" });
+  doc.fillColor("#51423A").fontSize(11).text("Покажите этот QR-код на входе.", qrX - 8, qrY + qrSize + 10, { width: qrSize + 16, align: "center" });
+  doc.fillColor("#51423A").fontSize(10).text(buildTicketQrPayload(ticket), qrX - 8, qrY + qrSize + 32, { width: qrSize + 16, align: "center" });
+
+  doc.fillColor("#7F2E1F").fontSize(12).text("Правила прохода", 76, 500);
+  doc.fillColor("#51423A").fontSize(11).text("1. Один QR-код = один проход на территорию.", 76, 522);
+  doc.text("2. На территории есть бесплатная парковка на 70 мест.", 76, 540);
+  doc.text("3. Передача билета третьим лицам после прохода невозможна.", 76, 558);
+  doc.text("4. Сохраните PDF или скрин QR-кода до посещения.", 76, 576);
+
+  doc.fillColor("#8D7A6D").fontSize(10).text("Сформировано автоматически. Подлинность подтверждается в модуле check-in.", 76, 742, { width: 440 });
+}
+
+async function buildTicketsPdfBuffer(tickets, content) {
+  return new Promise((resolve, reject) => {
+    const doc = new PDFDocument({ size: "A4", margin: 42 });
+    const fontPath = resolvePdfFontPath();
+    const chunks = [];
+    doc.on("data", (chunk) => chunks.push(chunk));
+    doc.on("end", () => resolve(Buffer.concat(chunks)));
+    doc.on("error", reject);
+
+    (async () => {
+      try {
+        for (let index = 0; index < tickets.length; index += 1) {
+          if (index > 0) doc.addPage();
+          const ticket = tickets[index];
+          const qrBuffer = await QRCode.toBuffer(buildTicketQrPayload(ticket), { type: "png", width: 340, margin: 1 });
+          renderTicketPage(doc, ticket, content, qrBuffer, fontPath);
+        }
+        doc.end();
+      } catch (error) {
+        reject(error);
+      }
+    })();
+  });
 }
 
 async function migrateLegacyJsonIfNeeded(db) {
@@ -938,6 +1084,22 @@ async function handleApi(req, res, pathname) {
     if (!requireRole(req, res, "admin")) return;
     db.exec("DELETE FROM quiz_entries");
     return sendJson(res, 200, { ok: true });
+  }
+
+  if (req.method === "GET" && /^\/api\/tickets\/[^/]+\/pdf$/.test(pathname)) {
+    const code = decodeURIComponent(pathname.split("/")[3] || "").trim();
+    const ticket = getTicketByCode(db, code);
+    if (!ticket) return sendError(res, 404, "Билет не найден.");
+    const pdf = await buildTicketsPdfBuffer([ticket], getContent(db));
+    return sendPdf(res, `ticket-${ticket.code}.pdf`, pdf);
+  }
+
+  if (req.method === "GET" && /^\/api\/orders\/[^/]+\/pdf$/.test(pathname)) {
+    const orderId = decodeURIComponent(pathname.split("/")[3] || "").trim();
+    const tickets = getTicketsByOrderId(db, orderId);
+    if (!tickets.length) return sendError(res, 404, "Заказ не найден.");
+    const pdf = await buildTicketsPdfBuffer(tickets, getContent(db));
+    return sendPdf(res, `order-${orderId.slice(0, 8)}-tickets.pdf`, pdf);
   }
 
   if (req.method === "GET" && pathname === "/api/export/quiz.csv") {

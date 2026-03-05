@@ -1,5 +1,7 @@
-﻿const TICKET_PRICE = 2500;
+﻿const TICKET_PRICE = 600;
 const QR_ENDPOINT = "https://api.qrserver.com/v1/create-qr-code/?size=320x320&data=";
+const PELMEN_SESSION_KEY = "pelmen_game_seen_v1";
+const PELMEN_STAGE_TOTAL = 7;
 const TEAMS = ["Команда Северный пар", "Команда Жар-печь", "Команда Морской дым"];
 const QUIZ_RESULTS = {
   pelmeni: {
@@ -59,6 +61,7 @@ const DEFAULT_CONTENT = {
   routeLabel: "Как добраться",
   routeMain: "Фестивальный шаттл от центра города каждые 40 минут.",
   routeNote: "Парковка ограничена, гостям рекомендуем трансфер или такси.",
+  parkingNote: "Бесплатная парковка на 70 мест. Если хотите припарковаться у входа, приезжайте заранее.",
   mapLat: "43.1155",
   mapLon: "131.8855",
   mapZoom: "12",
@@ -89,15 +92,35 @@ const DEFAULT_CONTENT = {
   galleryImage3: "",
   galleryImage4: "",
   galleryImage5: "",
+  juryEyebrow: "Жюри",
+  juryTitle: "Пять экспертов оценивают команды и фестивальные подачи.",
+  juryName1: "Александр Невский",
+  juryRegalia1: "Шеф-повар, эксперт по региональной кухне Дальнего Востока.",
+  juryPhoto1: "",
+  juryName2: "Мария Белова",
+  juryRegalia2: "Этнокультуролог, куратор ремесленных и гастрономических программ.",
+  juryPhoto2: "",
+  juryName3: "Илья Сомов",
+  juryRegalia3: "Ресторатор, автор фестивалей локальной кухни.",
+  juryPhoto3: "",
+  juryName4: "Екатерина Ярова",
+  juryRegalia4: "Фуд-журналист, обозреватель гастрономических событий.",
+  juryPhoto4: "",
+  juryName5: "Денис Ладов",
+  juryRegalia5: "Бренд-шеф, судья кулинарных чемпионатов.",
+  juryPhoto5: "",
   ticketsEyebrow: "Билеты",
   ticketsTitle: "Оплата, персональные QR-коды и готовность к контролю на входе.",
   ticketPriceLabel: "Стандарт",
-  ticketPriceValue: "2 500 ₽",
+  ticketPriceValue: "600 ₽",
   ticketPriceText: "Доступ на все площадки фестиваля, концерт и вечерний огненный круг.",
   ticketFeature1: "Каждый билет получает собственный код и QR",
   ticketFeature2: "После оплаты билет сразу доступен на странице",
   ticketFeature3: "После сканирования билет можно использовать для голосования",
   ticketNote: "Оплата реализована как клиентский checkout внутри проекта. Для боевого запуска потребуется подключение настоящего эквайринга и серверной базы билетов.",
+  ticketOfferNote: "Покупая билет, вы принимаете условия публичной оферты.",
+  ticketOfferLinkText: "Ознакомиться с офертой",
+  ticketOfferLinkUrl: "/offer",
   voteEyebrow: "Голосование",
   voteTitle: "Проголосовать может только гость, чей билет уже отсканирован на входе.",
   voteTicketLabel: "Номер билета",
@@ -150,6 +173,7 @@ const DEFAULT_CONTENT = {
   showLocation: "true",
   showProgram: "true",
   showGallery: "true",
+  showJury: "true",
   showTickets: "true",
   showVote: "true",
   showQuiz: "true",
@@ -195,6 +219,7 @@ const CONTENT_BINDINGS = {
   routeLabel: { id: "content-route-label", html: false },
   routeMain: { id: "content-route-main", html: false },
   routeNote: { id: "content-route-note", html: false },
+  parkingNote: { id: "content-parking-note", html: false },
   locationCta: { id: "content-location-cta", html: false },
   programEyebrow: { id: "content-program-eyebrow", html: false },
   programTitle: { id: "content-program-title", html: false },
@@ -217,6 +242,18 @@ const CONTENT_BINDINGS = {
   galleryCap3: { id: "content-gallery-cap3", html: false },
   galleryCap4: { id: "content-gallery-cap4", html: false },
   galleryCap5: { id: "content-gallery-cap5", html: false },
+  juryEyebrow: { id: "content-jury-eyebrow", html: false },
+  juryTitle: { id: "content-jury-title", html: false },
+  juryName1: { id: "content-jury-name1", html: false },
+  juryRegalia1: { id: "content-jury-regalia1", html: false },
+  juryName2: { id: "content-jury-name2", html: false },
+  juryRegalia2: { id: "content-jury-regalia2", html: false },
+  juryName3: { id: "content-jury-name3", html: false },
+  juryRegalia3: { id: "content-jury-regalia3", html: false },
+  juryName4: { id: "content-jury-name4", html: false },
+  juryRegalia4: { id: "content-jury-regalia4", html: false },
+  juryName5: { id: "content-jury-name5", html: false },
+  juryRegalia5: { id: "content-jury-regalia5", html: false },
   ticketsEyebrow: { id: "content-tickets-eyebrow", html: false },
   ticketsTitle: { id: "content-tickets-title", html: false },
   ticketPriceLabel: { id: "content-ticket-price-label", html: false },
@@ -226,6 +263,8 @@ const CONTENT_BINDINGS = {
   ticketFeature2: { id: "content-ticket-feature2", html: false },
   ticketFeature3: { id: "content-ticket-feature3", html: false },
   ticketNote: { id: "content-ticket-note", html: false },
+  ticketOfferNote: { id: "content-ticket-offer-note", html: false },
+  ticketOfferLinkText: { id: "content-ticket-offer-link", html: false },
   voteEyebrow: { id: "content-vote-eyebrow", html: false },
   voteTitle: { id: "content-vote-title", html: false },
   voteTicketLabel: { id: "content-vote-ticket-label", html: false },
@@ -312,10 +351,12 @@ const countdownNodes = {
 const checkinForm = document.querySelector("#checkin-form");
 const checkinResult = document.querySelector("#checkin-result");
 const logList = document.querySelector("#checkin-log-list");
+const scannerReader = document.querySelector("#scanner-reader");
 const scannerVideo = document.querySelector("#scanner-video");
 const startScanButton = document.querySelector("#start-scan");
 const stopScanButton = document.querySelector("#stop-scan");
 const cameraStatus = document.querySelector("#camera-status");
+const galleryCarousel = document.querySelector("#gallery-carousel");
 
 const adminContentForm = document.querySelector("#admin-content-form");
 const adminMessage = document.querySelector("#admin-message");
@@ -350,15 +391,113 @@ let pendingOrder = null;
 let lastCreatedOrderTickets = [];
 let protectedModulesInitialized = false;
 let countdownTimerId = null;
+let galleryState = {
+  index: 0,
+  slides: [],
+  dots: [],
+  track: null,
+};
 let scannerState = {
   stream: null,
   detector: null,
+  html5Scanner: null,
   active: false,
   frameId: null,
+  mode: "",
   lastRawValue: "",
   lastDetectedAt: 0,
 };
 
+function getRandomInt(min, max) {
+  return Math.floor(Math.random() * (max - min + 1)) + min;
+}
+
+function buildPelmenImagePath(stage) {
+  return `images/pelmen${stage}.png`;
+}
+
+function hidePelmenMiniGame(node) {
+  if (!node) return;
+  node.classList.remove("is-visible");
+  node.classList.add("is-leaving");
+  window.setTimeout(() => node.remove(), 520);
+}
+
+function movePelmenMiniGameRandom(node) {
+  if (!node) return;
+  const margin = 20;
+  const rect = node.getBoundingClientRect();
+  const halfWidth = Math.max(40, rect.width / 2);
+  const halfHeight = Math.max(40, rect.height / 2);
+
+  const minX = Math.round(halfWidth + margin);
+  const maxX = Math.round(window.innerWidth - halfWidth - margin);
+  const minY = Math.round(halfHeight + margin);
+  const maxY = Math.round(window.innerHeight - halfHeight - margin);
+
+  const targetX = maxX > minX ? getRandomInt(minX, maxX) : Math.round(window.innerWidth / 2);
+  const targetY = maxY > minY ? getRandomInt(minY, maxY) : Math.round(window.innerHeight / 2);
+
+  node.style.left = `${targetX}px`;
+  node.style.top = `${targetY}px`;
+}
+
+function spawnPelmenMiniGame() {
+  const sideVariants = ["left", "right", "top", "bottom"];
+  const side = sideVariants[getRandomInt(0, sideVariants.length - 1)];
+  const root = document.createElement("div");
+  root.className = `pelmen-mini pelmen-mini--from-${side}`;
+  const flightDistanceX = window.innerWidth * 0.65;
+  const flightDistanceY = window.innerHeight * 0.55;
+  const fromX = side === "left" ? -flightDistanceX : side === "right" ? flightDistanceX : 0;
+  const fromY = side === "top" ? -flightDistanceY : side === "bottom" ? flightDistanceY : 0;
+  root.style.setProperty("--pelmen-from-x", `${Math.round(fromX)}px`);
+  root.style.setProperty("--pelmen-from-y", `${Math.round(fromY)}px`);
+
+  root.innerHTML = `
+    <p class="pelmen-mini__hint">Тапай на пельмень, чтобы слепить его.</p>
+    <button class="pelmen-mini__button" type="button" aria-label="Лепить пельмень" disabled>
+      <img class="pelmen-mini__image" src="${buildPelmenImagePath(1)}" alt="Пельмень, этап 1">
+    </button>
+  `;
+
+  const button = root.querySelector(".pelmen-mini__button");
+  const image = root.querySelector(".pelmen-mini__image");
+  let stage = 1;
+
+  button?.addEventListener("click", () => {
+    stage += 1;
+    if (!image) return;
+    if (stage > PELMEN_STAGE_TOTAL) {
+      hidePelmenMiniGame(root);
+      return;
+    }
+    image.src = buildPelmenImagePath(stage);
+    image.alt = `Пельмень, этап ${stage}`;
+    movePelmenMiniGameRandom(root);
+    if (stage === PELMEN_STAGE_TOTAL) {
+      window.setTimeout(() => hidePelmenMiniGame(root), 700);
+    }
+  });
+
+  document.body.append(root);
+  window.requestAnimationFrame(() => root.classList.add("is-visible"));
+  window.setTimeout(() => {
+    button?.removeAttribute("disabled");
+    root.classList.add("is-ready");
+  }, 560);
+}
+
+function initPelmenMiniGame() {
+  if (protectedRole) return;
+  try {
+    if (sessionStorage.getItem(PELMEN_SESSION_KEY) === "1") return;
+    sessionStorage.setItem(PELMEN_SESSION_KEY, "1");
+  } catch (error) {
+    return;
+  }
+  window.setTimeout(spawnPelmenMiniGame, 10000);
+}
 async function requestJson(url, options = {}) {
   const response = await fetch(url, {
     ...options,
@@ -444,6 +583,7 @@ function applySectionVisibility(content) {
     location: isEnabled(content.showLocation, true),
     program: isEnabled(content.showProgram, true),
     gallery: isEnabled(content.showGallery, true),
+    jury: isEnabled(content.showJury, true),
     tickets: isEnabled(content.showTickets, true),
     vote: isEnabled(content.showVote, true),
     quiz: isEnabled(content.showQuiz, true),
@@ -512,15 +652,123 @@ function applyGalleryImages(content) {
   }
 }
 
-function normalizeTicketInput(value) {
-  const trimmed = value.trim();
-  if (!trimmed) return "";
-  if (trimmed.startsWith("KOSTROVIE:")) return trimmed.split(":").at(-1);
-  if (trimmed.includes("data=KOSTROVIE%3A")) {
-    const raw = decodeURIComponent(trimmed.split("data=").at(-1));
-    return raw.split(":").at(-1);
+function applyJuryPhotos(content) {
+  for (let index = 1; index <= 5; index += 1) {
+    const photo = document.querySelector(`[data-jury-photo-slot="${index}"]`);
+    if (!photo) continue;
+    const path = sanitizeAssetPath(content[`juryPhoto${index}`]);
+    if (path) {
+      photo.style.backgroundImage = `linear-gradient(180deg, rgba(255, 255, 255, 0.05), rgba(36, 22, 14, 0.22)), url("${path.replace(/"/g, "%22")}")`;
+    } else {
+      photo.style.backgroundImage = "";
+    }
   }
+}
+
+function setGallerySlide(nextIndex) {
+  if (!galleryState.track || !galleryState.slides.length) return;
+  const total = galleryState.slides.length;
+  const safeIndex = ((nextIndex % total) + total) % total;
+  galleryState.index = safeIndex;
+  galleryState.track.style.transform = `translateX(-${safeIndex * 100}%)`;
+  galleryState.dots.forEach((dot, index) => {
+    dot.classList.toggle("gallery-dot--active", index === safeIndex);
+    dot.setAttribute("aria-current", index === safeIndex ? "true" : "false");
+  });
+}
+
+function initGalleryCarousel() {
+  if (!galleryCarousel) return;
+  const track = galleryCarousel.querySelector(".gallery-track");
+  const slides = track ? Array.from(track.querySelectorAll(".gallery-slide")) : [];
+  const dotsWrap = galleryCarousel.querySelector("[data-gallery-dots]");
+  const prevButton = galleryCarousel.querySelector("[data-gallery-prev]");
+  const nextButton = galleryCarousel.querySelector("[data-gallery-next]");
+  if (!track || !slides.length || !dotsWrap || !prevButton || !nextButton) return;
+
+  galleryState.track = track;
+  galleryState.slides = slides;
+  dotsWrap.innerHTML = slides
+    .map((_, index) => `<button class="gallery-dot${index === 0 ? " gallery-dot--active" : ""}" type="button" data-gallery-dot="${index}" aria-label="Фото ${index + 1}"></button>`)
+    .join("");
+  galleryState.dots = Array.from(dotsWrap.querySelectorAll("[data-gallery-dot]"));
+
+  prevButton.addEventListener("click", () => setGallerySlide(galleryState.index - 1));
+  nextButton.addEventListener("click", () => setGallerySlide(galleryState.index + 1));
+  galleryState.dots.forEach((dot) => {
+    dot.addEventListener("click", () => {
+      const index = Number(dot.getAttribute("data-gallery-dot"));
+      setGallerySlide(index);
+    });
+  });
+
+  setGallerySlide(0);
+}
+
+function tryDecodeUri(value) {
+  try {
+    return decodeURIComponent(value);
+  } catch (error) {
+    return value;
+  }
+}
+
+function extractTicketCode(value) {
+  const match = String(value || "").match(/PF26-[A-Z0-9]{6}/i);
+  return match ? match[0].toUpperCase() : "";
+}
+
+function normalizeTicketInput(value) {
+  const trimmed = String(value || "").trim();
+  if (!trimmed) return "";
+
+  const candidates = [trimmed];
+  const decodedOnce = tryDecodeUri(trimmed);
+  if (decodedOnce !== trimmed) candidates.push(decodedOnce);
+  const decodedTwice = tryDecodeUri(decodedOnce);
+  if (decodedTwice !== decodedOnce) candidates.push(decodedTwice);
+
+  for (const candidate of candidates) {
+    const source = String(candidate).trim();
+    if (!source) continue;
+
+    if (source.startsWith("KOSTROVIE:")) {
+      const code = extractTicketCode(source.split(":").at(-1));
+      if (code) return code;
+    }
+
+    if (source.includes("data=")) {
+      const tail = source.split("data=").at(-1);
+      const tailCode = extractTicketCode(tail);
+      if (tailCode) return tailCode;
+      const decodedTailCode = extractTicketCode(tryDecodeUri(tail));
+      if (decodedTailCode) return decodedTailCode;
+    }
+
+    const directCode = extractTicketCode(source);
+    if (directCode) return directCode;
+  }
+
   return trimmed;
+}
+
+function shouldProcessScan(rawValue) {
+  const normalized = normalizeTicketInput(rawValue);
+  if (!normalized) return false;
+  const now = Date.now();
+  if (normalized !== scannerState.lastRawValue || now - scannerState.lastDetectedAt > 1500) {
+    scannerState.lastRawValue = normalized;
+    scannerState.lastDetectedAt = now;
+    return true;
+  }
+  return false;
+}
+
+function setCheckinInputValue(value) {
+  const field = document.querySelector('#checkin-form input[name="code"]') || checkinForm?.querySelector("input");
+  if (!field) return;
+  field.value = String(value || "");
+  field.dispatchEvent(new Event("input", { bubbles: true }));
 }
 
 function formatPrice(value) {
@@ -588,7 +836,16 @@ function renderOrderTickets(orderTickets) {
   if (!resultCard || !ticketList || !orderTickets.length) return;
   const first = orderTickets[0];
   document.querySelector("#ticket-order-title").textContent = `Заказ ${first.orderId.slice(0, 8).toUpperCase()}`;
-  document.querySelector("#ticket-order-subtitle").textContent = `${first.name}, оплачено ${formatPrice(first.orderTotal)}. Ниже все билеты из заказа.`;
+  const orderPdfUrl = `/api/orders/${encodeURIComponent(first.orderId)}/pdf`;
+  const subtitle = document.querySelector("#ticket-order-subtitle");
+  subtitle.textContent = `${first.name}, оплачено ${formatPrice(first.orderTotal)}. Ниже все билеты из заказа.`;
+  subtitle.appendChild(document.createElement("br"));
+  const downloadAllLink = document.createElement("a");
+  downloadAllLink.className = "button button--secondary";
+  downloadAllLink.href = orderPdfUrl;
+  downloadAllLink.setAttribute("download", "");
+  downloadAllLink.textContent = "Скачать все билеты PDF";
+  subtitle.appendChild(downloadAllLink);
 
   ticketList.innerHTML = orderTickets.map((ticket) => `
     <article class="ticket-card">
@@ -601,6 +858,7 @@ function renderOrderTickets(orderTickets) {
         <p><strong>Статус:</strong> ${ticket.accessStatus === "used" ? "Отсканирован" : "Ожидает входа"}</p>
         <p><strong>Оплата:</strong> ${ticket.paymentReference}</p>
         <p><strong>Стоимость:</strong> ${formatPrice(ticket.price)}</p>
+        <a class="button button--secondary" href="/api/tickets/${encodeURIComponent(ticket.code)}/pdf" download>Скачать билет PDF</a>
         <a class="button button--secondary" target="_blank" rel="noreferrer" href="${buildQrUrl(ticket)}">Открыть QR</a>
       </div>
     </article>
@@ -652,10 +910,22 @@ function applyContent(content) {
       node.textContent = merged[key];
     }
   });
+  const offerLink = document.querySelector("#content-ticket-offer-link");
+  if (offerLink) {
+    const href = String(merged.ticketOfferLinkUrl || "").trim();
+    if (href) {
+      offerLink.setAttribute("href", href);
+      offerLink.removeAttribute("aria-disabled");
+    } else {
+      offerLink.setAttribute("href", "#");
+      offerLink.setAttribute("aria-disabled", "true");
+    }
+  }
   const mapFrame = document.querySelector("#content-map-frame");
   if (mapFrame) mapFrame.src = buildMapUrl(merged);
   applySectionVisibility(merged);
   applyGalleryImages(merged);
+  applyJuryPhotos(merged);
   startCountdown(merged);
   const teamInputs = document.querySelectorAll('#vote-form input[name="team"]');
   if (teamInputs[0]) teamInputs[0].value = merged.team1Name;
@@ -786,21 +1056,15 @@ async function processCheckin(rawCode) {
 }
 
 async function scanFrame() {
-  if (!scannerState.active || !scannerState.detector || !scannerVideo) return;
+  if (!scannerState.active || scannerState.mode !== "barcode-detector" || !scannerState.detector || !scannerVideo) return;
 
   try {
     const barcodes = await scannerState.detector.detect(scannerVideo);
     const barcode = barcodes.find((item) => item.rawValue);
 
-    if (barcode?.rawValue) {
-      const now = Date.now();
-      if (barcode.rawValue !== scannerState.lastRawValue || now - scannerState.lastDetectedAt > 1500) {
-        scannerState.lastRawValue = barcode.rawValue;
-        scannerState.lastDetectedAt = now;
-        const field = checkinForm?.querySelector("input");
-        if (field) field.value = normalizeTicketInput(barcode.rawValue);
-        await processCheckin(barcode.rawValue);
-      }
+    if (barcode?.rawValue && shouldProcessScan(barcode.rawValue)) {
+      setCheckinInputValue(normalizeTicketInput(barcode.rawValue));
+      await processCheckin(barcode.rawValue);
     }
   } catch (error) {
     if (cameraStatus) cameraStatus.textContent = "Ошибка распознавания камеры.";
@@ -810,37 +1074,90 @@ async function scanFrame() {
 }
 
 async function startScanner() {
-  if (!scannerVideo || !cameraStatus) return;
-  if (!("BarcodeDetector" in window)) {
-    cameraStatus.textContent = "В этом браузере нет BarcodeDetector. Используйте ручной ввод или USB-сканер.";
-    return;
-  }
+  if (!cameraStatus) return;
+  if (scannerState.active) return;
 
   try {
+    if (typeof Html5Qrcode !== "undefined" && scannerReader) {
+      const html5Scanner = new Html5Qrcode("scanner-reader");
+      const cameras = await Html5Qrcode.getCameras();
+      if (!cameras.length) {
+        cameraStatus.textContent = "Камера не найдена. Проверьте разрешения устройства.";
+        return;
+      }
+
+      const preferredCamera = cameras.find((camera) => /back|rear|environment|зад/i.test(camera.label)) || cameras[0];
+      await html5Scanner.start(
+        preferredCamera.id,
+        {
+          fps: 10,
+          qrbox: { width: 240, height: 240 },
+          aspectRatio: 1.333334,
+        },
+        async (decodedText) => {
+          if (!shouldProcessScan(decodedText)) return;
+          setCheckinInputValue(normalizeTicketInput(decodedText));
+          await processCheckin(decodedText);
+        },
+        () => {},
+      );
+
+      scannerState.html5Scanner = html5Scanner;
+      scannerState.active = true;
+      scannerState.mode = "html5-qrcode";
+      cameraStatus.textContent = "Камера активна. Наведите QR-код билета в рамку.";
+      return;
+    }
+
+    if (!scannerVideo || !("BarcodeDetector" in window)) {
+      cameraStatus.textContent = "В этом браузере нет web-сканера QR. Используйте ручной ввод или USB-сканер.";
+      return;
+    }
+
+    scannerVideo.hidden = false;
     scannerState.detector = new BarcodeDetector({ formats: ["qr_code"] });
-    scannerState.stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" }, audio: false });
+    scannerState.stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: { ideal: "environment" } }, audio: false });
     scannerVideo.srcObject = scannerState.stream;
     await scannerVideo.play();
     scannerState.active = true;
-    cameraStatus.textContent = "Камера активна. Наведите QR в кадр.";
+    scannerState.mode = "barcode-detector";
+    cameraStatus.textContent = "Камера активна. Наведите QR-код билета в кадр.";
     scanFrame();
   } catch (error) {
-    cameraStatus.textContent = "Не удалось запустить камеру. Проверьте разрешения браузера.";
+    cameraStatus.textContent = "Не удалось запустить камеру. Проверьте разрешения браузера и HTTPS.";
   }
 }
 
-function stopScanner() {
+async function stopScanner() {
   if (scannerState.frameId) cancelAnimationFrame(scannerState.frameId);
+  if (scannerState.html5Scanner) {
+    try {
+      await scannerState.html5Scanner.stop();
+    } catch (error) {
+      // no-op: scanner may already be stopped
+    }
+    try {
+      await scannerState.html5Scanner.clear();
+    } catch (error) {
+      // no-op
+    }
+  }
   if (scannerState.stream) scannerState.stream.getTracks().forEach((track) => track.stop());
   scannerState = {
     stream: null,
     detector: null,
+    html5Scanner: null,
     active: false,
     frameId: null,
+    mode: "",
     lastRawValue: "",
     lastDetectedAt: 0,
   };
-  if (scannerVideo) scannerVideo.srcObject = null;
+  if (scannerVideo) {
+    scannerVideo.srcObject = null;
+    scannerVideo.hidden = true;
+  }
+  if (scannerReader) scannerReader.innerHTML = "";
   if (cameraStatus) cameraStatus.textContent = "Камера остановлена.";
 }
 
@@ -1147,6 +1464,8 @@ function initProtectedAuth() {
 
 async function init() {
   setProtectedVisibility(!protectedRole);
+  initPelmenMiniGame();
+  initGalleryCarousel();
   try {
     const content = await api.getContent();
     applyContent(content);

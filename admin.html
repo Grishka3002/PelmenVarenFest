@@ -80,6 +80,7 @@
             <button class="admin-tab" type="button" data-tab-target="location">Локация</button>
             <button class="admin-tab" type="button" data-tab-target="program">Программа</button>
             <button class="admin-tab" type="button" data-tab-target="gallery">Галерея</button>
+            <button class="admin-tab" type="button" data-tab-target="jury">Жюри</button>
             <button class="admin-tab" type="button" data-tab-target="tickets">Билеты</button>
             <button class="admin-tab" type="button" data-tab-target="vote">Голосование</button>
             <button class="admin-tab" type="button" data-tab-target="quiz">Тест</button>
@@ -246,6 +247,10 @@
               Где и когда: примечание к маршруту
               <textarea name="routeNote"></textarea>
             </label>
+            <label class="admin-wide">
+              Где и когда: заметка про парковку
+              <textarea name="parkingNote"></textarea>
+            </label>
             <label>
               Карта: широта
               <input type="text" name="mapLat">
@@ -311,6 +316,28 @@
             <label><input type="text" name="galleryImage4" placeholder="Путь к фото 4, например images/gallery-4.jpg"></label>
             <label class="admin-wide"><input type="text" name="galleryImage5" placeholder="Путь к фото 5, например images/gallery-5.jpg"></label>
             </section>
+            <section class="admin-tab-panel admin-wide" data-tab-panel="jury">
+            <div class="admin-wide">
+              <p class="eyebrow">Жюри</p>
+            </div>
+            <label><input type="text" name="juryEyebrow" placeholder="Заголовок секции"></label>
+            <label class="admin-wide"><textarea name="juryTitle" placeholder="Подзаголовок секции"></textarea></label>
+            <label><input type="text" name="juryName1" placeholder="ФИО 1"></label>
+            <label><input type="text" name="juryRegalia1" placeholder="Регалии 1"></label>
+            <label><input type="text" name="juryPhoto1" placeholder="Путь к фото 1, например images/jury-1.jpg"></label>
+            <label><input type="text" name="juryName2" placeholder="ФИО 2"></label>
+            <label><input type="text" name="juryRegalia2" placeholder="Регалии 2"></label>
+            <label><input type="text" name="juryPhoto2" placeholder="Путь к фото 2, например images/jury-2.jpg"></label>
+            <label><input type="text" name="juryName3" placeholder="ФИО 3"></label>
+            <label><input type="text" name="juryRegalia3" placeholder="Регалии 3"></label>
+            <label><input type="text" name="juryPhoto3" placeholder="Путь к фото 3, например images/jury-3.jpg"></label>
+            <label><input type="text" name="juryName4" placeholder="ФИО 4"></label>
+            <label><input type="text" name="juryRegalia4" placeholder="Регалии 4"></label>
+            <label><input type="text" name="juryPhoto4" placeholder="Путь к фото 4, например images/jury-4.jpg"></label>
+            <label><input type="text" name="juryName5" placeholder="ФИО 5"></label>
+            <label><input type="text" name="juryRegalia5" placeholder="Регалии 5"></label>
+            <label><input type="text" name="juryPhoto5" placeholder="Путь к фото 5, например images/jury-5.jpg"></label>
+            </section>
             <section class="admin-tab-panel admin-wide" data-tab-panel="tickets">
             <div class="admin-wide">
               <p class="eyebrow">Билеты</p>
@@ -324,6 +351,9 @@
             <label><input type="text" name="ticketFeature2" placeholder="Преимущество 2"></label>
             <label><input type="text" name="ticketFeature3" placeholder="Преимущество 3"></label>
             <label class="admin-wide"><textarea name="ticketNote" placeholder="Пояснение к оплате"></textarea></label>
+            <label class="admin-wide"><textarea name="ticketOfferNote" placeholder="Текст о принятии публичной оферты"></textarea></label>
+            <label><input type="text" name="ticketOfferLinkText" placeholder="Текст ссылки на оферту"></label>
+            <label><input type="text" name="ticketOfferLinkUrl" placeholder="Ссылка на оферту (например /offer или https://...)"></label>
             </section>
             <section class="admin-tab-panel admin-wide" data-tab-panel="vote">
             <div class="admin-wide">
@@ -425,6 +455,7 @@
             <label class="admin-toggle"><input type="checkbox" name="showLocation"> <span>Показывать блок «Где и когда»</span></label>
             <label class="admin-toggle"><input type="checkbox" name="showProgram"> <span>Показывать блок «Программа»</span></label>
             <label class="admin-toggle"><input type="checkbox" name="showGallery"> <span>Показывать блок «Фотоальбом»</span></label>
+            <label class="admin-toggle"><input type="checkbox" name="showJury"> <span>Показывать блок «Жюри»</span></label>
             <label class="admin-toggle"><input type="checkbox" name="showTickets"> <span>Показывать блок «Билеты»</span></label>
             <label class="admin-toggle"><input type="checkbox" name="showVote"> <span>Показывать блок «Голосование»</span></label>
             <label class="admin-toggle"><input type="checkbox" name="showQuiz"> <span>Показывать блок «Тест»</span></label>

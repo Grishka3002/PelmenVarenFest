@@ -413,7 +413,14 @@ function getRandomInt(min, max) {
 }
 
 function buildPelmenImagePath(stage) {
-  return `images/pelmen${stage}.png`;
+  return `/images/pelmen${stage}.png`;
+}
+
+function preloadPelmenFrames() {
+  for (let stage = 1; stage <= PELMEN_STAGE_TOTAL; stage += 1) {
+    const img = new Image();
+    img.src = buildPelmenImagePath(stage);
+  }
 }
 
 function hidePelmenMiniGame(node) {
@@ -490,6 +497,7 @@ function spawnPelmenMiniGame() {
 
 function initPelmenMiniGame() {
   if (protectedRole) return;
+  preloadPelmenFrames();
   try {
     if (sessionStorage.getItem(PELMEN_SESSION_KEY) === "1") return;
     sessionStorage.setItem(PELMEN_SESSION_KEY, "1");

@@ -653,6 +653,8 @@ function resolvePdfFontPath() {
 
   const candidates = [
     process.env.PDF_FONT_PATH,
+    "/usr/share/fonts/TTF/DejaVuSans.ttf",
+    "/usr/share/fonts/dejavu/DejaVuSans.ttf",
     "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf",
     "/usr/share/fonts/truetype/noto/NotoSans-Regular.ttf",
     "C:\\Windows\\Fonts\\arial.ttf",

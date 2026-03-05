@@ -3,6 +3,7 @@ const QR_ENDPOINT = "https://api.qrserver.com/v1/create-qr-code/?size=320x320&da
 const PELMEN_SESSION_KEY = "pelmen_game_seen_v1";
 const PELMEN_STAGE_TOTAL = 7;
 const TEAMS = ["Команда Северный пар", "Команда Жар-печь", "Команда Морской дым"];
+const pelmenFrameCache = new Map();
 const QUIZ_RESULTS = {
   pelmeni: {
     title: "Ты пельмень сибирский",
@@ -413,14 +414,17 @@ function getRandomInt(min, max) {
 }
 
 function buildPelmenImagePath(stage) {
-  return `/images/pelmen${stage}.png`;
+  return `/images/pelmen${stage}.webp`;
 }
 
 function setPelmenStage(image, hint, stage) {
   if (!image) return;
-  const nextSrc = `${buildPelmenImagePath(stage)}?stage=${stage}`;
-  image.src = "";
+  const currentStage = Number(image.dataset.stage || 0);
+  if (currentStage === stage) return;
+  const cached = pelmenFrameCache.get(stage);
+  const nextSrc = cached?.src || buildPelmenImagePath(stage);
   image.src = nextSrc;
+  image.dataset.stage = String(stage);
   image.alt = `Пельмень, этап ${stage}`;
   if (hint) hint.textContent = `Тапай на пельмень, чтобы слепить его. Этап ${stage}/7`;
 }
@@ -429,6 +433,7 @@ function preloadPelmenFrames() {
   for (let stage = 1; stage <= PELMEN_STAGE_TOTAL; stage += 1) {
     const img = new Image();
     img.src = buildPelmenImagePath(stage);
+    pelmenFrameCache.set(stage, img);
   }
 }
 

@@ -416,6 +416,15 @@ function buildPelmenImagePath(stage) {
   return `/images/pelmen${stage}.png`;
 }
 
+function setPelmenStage(image, hint, stage) {
+  if (!image) return;
+  const nextSrc = `${buildPelmenImagePath(stage)}?stage=${stage}`;
+  image.src = "";
+  image.src = nextSrc;
+  image.alt = `Пельмень, этап ${stage}`;
+  if (hint) hint.textContent = `Тапай на пельмень, чтобы слепить его. Этап ${stage}/7`;
+}
+
 function preloadPelmenFrames() {
   for (let stage = 1; stage <= PELMEN_STAGE_TOTAL; stage += 1) {
     const img = new Image();
@@ -462,15 +471,17 @@ function spawnPelmenMiniGame() {
   root.style.setProperty("--pelmen-from-y", `${Math.round(fromY)}px`);
 
   root.innerHTML = `
-    <p class="pelmen-mini__hint">Тапай на пельмень, чтобы слепить его.</p>
+    <p class="pelmen-mini__hint">Тапай на пельмень, чтобы слепить его. Этап 1/7</p>
     <button class="pelmen-mini__button" type="button" aria-label="Лепить пельмень" disabled>
       <img class="pelmen-mini__image" src="${buildPelmenImagePath(1)}" alt="Пельмень, этап 1">
     </button>
   `;
 
+  const hint = root.querySelector(".pelmen-mini__hint");
   const button = root.querySelector(".pelmen-mini__button");
   const image = root.querySelector(".pelmen-mini__image");
   let stage = 1;
+  setPelmenStage(image, hint, stage);
 
   button?.addEventListener("click", () => {
     stage += 1;
@@ -479,8 +490,7 @@ function spawnPelmenMiniGame() {
       hidePelmenMiniGame(root);
       return;
     }
-    image.src = buildPelmenImagePath(stage);
-    image.alt = `Пельмень, этап ${stage}`;
+    setPelmenStage(image, hint, stage);
     movePelmenMiniGameRandom(root);
     if (stage === PELMEN_STAGE_TOTAL) {
       window.setTimeout(() => hidePelmenMiniGame(root), 700);

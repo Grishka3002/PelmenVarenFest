@@ -18,6 +18,7 @@ const ADMIN_USERNAME = process.env.ADMIN_USERNAME || "admin";
 const CHECKIN_USERNAME = process.env.CHECKIN_USERNAME || "checkin";
 const SESSION_TTL_MS = Number(process.env.SESSION_TTL_HOURS || 12) * 60 * 60 * 1000;
 const TICKET_PRICE = 600;
+const STATIC_MAP = { lat: "43.174647", lon: "132.713618", zoom: "12" };
 const QUIZ_RESULTS = {
   pelmeni: "Ты пельмень сибирский",
   khinkali: "Ты хинкали",
@@ -64,9 +65,9 @@ const DEFAULT_CONTENT = {
   routeMain: "Фестивальный шаттл от центра города каждые 40 минут.",
   routeNote: "Парковка ограничена, гостям рекомендуем трансфер или такси.",
   parkingNote: "Бесплатная парковка на 70 мест. Если хотите припарковаться у входа, приезжайте заранее.",
-  mapLat: "43.1155",
-  mapLon: "131.8855",
-  mapZoom: "12",
+  mapLat: STATIC_MAP.lat,
+  mapLon: STATIC_MAP.lon,
+  mapZoom: STATIC_MAP.zoom,
   locationCta: "Купить билет",
   programEyebrow: "Программа",
   programItem1Time: "12:00",
@@ -458,15 +459,22 @@ function seedDefaultUsers(db) {
 
 function seedContentDefaults(db) {
   const statement = db.prepare("INSERT INTO content(key, value) VALUES(?, ?) ON CONFLICT(key) DO NOTHING");
+  const upsert = db.prepare("INSERT INTO content(key, value) VALUES(?, ?) ON CONFLICT(key) DO UPDATE SET value = excluded.value");
   runTransaction(db, () => {
     Object.entries(DEFAULT_CONTENT).forEach(([key, value]) => {
       statement.run(key, String(value ?? ""));
     });
+    upsert.run("mapLat", STATIC_MAP.lat);
+    upsert.run("mapLon", STATIC_MAP.lon);
+    upsert.run("mapZoom", STATIC_MAP.zoom);
   });
 }
 
 function saveContent(db, content) {
   const merged = { ...DEFAULT_CONTENT, ...(content || {}) };
+  merged.mapLat = STATIC_MAP.lat;
+  merged.mapLon = STATIC_MAP.lon;
+  merged.mapZoom = STATIC_MAP.zoom;
   const insert = db.prepare("INSERT INTO content(key, value) VALUES(?, ?)");
   runTransaction(db, () => {
     db.exec("DELETE FROM content");

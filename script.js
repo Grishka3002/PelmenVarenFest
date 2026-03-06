@@ -1,6 +1,7 @@
 ﻿const TICKET_PRICE = 600;
 const QR_ENDPOINT = "https://api.qrserver.com/v1/create-qr-code/?size=320x320&data=";
 const PELMEN_SESSION_KEY = "pelmen_game_seen_v1";
+const STATIC_MAP = { lat: 43.174647, lon: 132.713618, zoom: 12 };
 const PELMEN_STAGE_TOTAL = 7;
 const TEAMS = ["Команда Северный пар", "Команда Жар-печь", "Команда Морской дым"];
 const pelmenFrameCache = new Map();
@@ -65,9 +66,9 @@ const DEFAULT_CONTENT = {
   routeMain: "Фестивальный шаттл от центра города каждые 40 минут.",
   routeNote: "Парковка ограничена, гостям рекомендуем трансфер или такси.",
   parkingNote: "Бесплатная парковка на 70 мест. Если хотите припарковаться у входа, приезжайте заранее.",
-  mapLat: "43.1155",
-  mapLon: "131.8855",
-  mapZoom: "12",
+  mapLat: String(STATIC_MAP.lat),
+  mapLon: String(STATIC_MAP.lon),
+  mapZoom: String(STATIC_MAP.zoom),
   locationCta: "Купить билет",
   programEyebrow: "Программа",
   programItem1Time: "12:00",
@@ -659,14 +660,10 @@ function buildQrUrl(ticket) {
   return `${QR_ENDPOINT}${payload}`;
 }
 
-function buildMapUrl(content) {
-  const normalizeCoord = (value) => String(value ?? "").trim().replace(",", ".");
-  const lat = Number.parseFloat(normalizeCoord(content.mapLat));
-  const lon = Number.parseFloat(normalizeCoord(content.mapLon));
-  const zoom = Number.parseInt(content.mapZoom, 10);
-  const safeLat = Number.isFinite(lat) ? lat : 43.1155;
-  const safeLon = Number.isFinite(lon) ? lon : 131.8855;
-  const safeZoom = Number.isFinite(zoom) ? zoom : 12;
+function buildMapUrl() {
+  const safeLat = STATIC_MAP.lat;
+  const safeLon = STATIC_MAP.lon;
+  const safeZoom = STATIC_MAP.zoom;
   const ll = `${safeLon},${safeLat}`;
   return `https://yandex.ru/map-widget/v1/?mode=whatshere&whatshere%5Bpoint%5D=${ll}&whatshere%5Bzoom%5D=${safeZoom}&ll=${ll}&z=${safeZoom}&l=map&lang=ru_RU`;
 }
@@ -1113,8 +1110,8 @@ function applyContent(content) {
   }
   const mapFrame = document.querySelector("#content-map-frame");
   if (mapFrame) {
-    const mapUrl = buildMapUrl(merged);
-    const mapVersion = encodeURIComponent(`${merged.mapLat}|${merged.mapLon}|${merged.mapZoom}`);
+    const mapUrl = buildMapUrl();
+    const mapVersion = encodeURIComponent(`${STATIC_MAP.lat}|${STATIC_MAP.lon}|${STATIC_MAP.zoom}`);
     mapFrame.src = `${mapUrl}&v=${mapVersion}`;
   }
   applySectionVisibility(merged);

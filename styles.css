@@ -1344,6 +1344,21 @@ iframe {
     grid-template-columns: 1fr;
   }
 
+  .about-grid {
+    display: flex;
+    gap: 12px;
+    overflow-x: auto;
+    overflow-y: hidden;
+    padding: 2px 2px 8px;
+    scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .about-grid .info-card {
+    flex: 0 0 min(86vw, 420px);
+    scroll-snap-align: start;
+  }
+
   .site-header {
     position: static;
     padding: 12px 0 8px;

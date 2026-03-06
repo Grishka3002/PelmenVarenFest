@@ -660,8 +660,9 @@ function buildQrUrl(ticket) {
 }
 
 function buildMapUrl(content) {
-  const lat = Number.parseFloat(content.mapLat);
-  const lon = Number.parseFloat(content.mapLon);
+  const normalizeCoord = (value) => String(value ?? "").trim().replace(",", ".");
+  const lat = Number.parseFloat(normalizeCoord(content.mapLat));
+  const lon = Number.parseFloat(normalizeCoord(content.mapLon));
   const zoom = Number.parseInt(content.mapZoom, 10);
   const safeLat = Number.isFinite(lat) ? lat : 43.1155;
   const safeLon = Number.isFinite(lon) ? lon : 131.8855;

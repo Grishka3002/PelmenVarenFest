@@ -664,8 +664,9 @@ function buildMapUrl() {
   const safeLat = STATIC_MAP.lat;
   const safeLon = STATIC_MAP.lon;
   const safeZoom = STATIC_MAP.zoom;
-  const ll = `${safeLon},${safeLat}`;
-  return `https://yandex.ru/map-widget/v1/?mode=whatshere&whatshere%5Bpoint%5D=${ll}&whatshere%5Bzoom%5D=${safeZoom}&ll=${ll}&z=${safeZoom}&l=map&lang=ru_RU`;
+  const ll = encodeURIComponent(`${safeLon},${safeLat}`);
+  const pt = encodeURIComponent(`${safeLon},${safeLat},pm2rdm`);
+  return `https://yandex.ru/map-widget/v1/?ll=${ll}&z=${safeZoom}&l=map&pt=${pt}&lang=ru_RU`;
 }
 
 function isEnabled(value, fallback = true) {

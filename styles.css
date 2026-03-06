@@ -71,6 +71,18 @@ iframe {
   margin-inline: auto;
 }
 
+.hero > *,
+.ticket-layout > *,
+.vote-layout > *,
+.quiz-layout > *,
+.teams-layout > *,
+.details-grid > *,
+.contacts-grid > *,
+.about-grid > *,
+.jury-grid > * {
+  min-width: 0;
+}
+
 .site-header {
   display: flex;
   align-items: center;
@@ -429,7 +441,7 @@ iframe {
 }
 
 .map-frame iframe {
-  min-height: 360px;
+  min-height: clamp(220px, 42vw, 360px);
   border-radius: 22px;
 }
 
@@ -481,7 +493,7 @@ iframe {
 }
 
 .gallery-card {
-  min-height: 460px;
+  min-height: clamp(250px, 42vw, 460px);
   margin: 0;
   padding: 20px;
   display: flex;
@@ -1579,5 +1591,89 @@ iframe {
   .pelmen-mini__hint {
     font-size: 0.84rem;
     padding: 7px 10px;
+  }
+}
+
+@media (max-width: 768px) {
+  .site-nav {
+    gap: 10px;
+  }
+
+  .site-nav a {
+    font-size: 0.88rem;
+  }
+
+  .hero__actions {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+
+  .hero__actions .button,
+  .section-cta .button {
+    width: 100%;
+  }
+
+  .hero__stats {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 10px;
+    width: 100%;
+  }
+
+  .hero__stats li {
+    min-width: 0;
+  }
+
+  .ornament-card__date {
+    font-size: 3rem;
+  }
+}
+
+@media (max-width: 420px) {
+  .page-shell,
+  .checkin-page,
+  .admin-page {
+    padding-inline: 6px;
+  }
+
+  .hero h1 {
+    font-size: clamp(1.7rem, 9vw, 2.2rem);
+    line-height: 1;
+  }
+
+  .section-heading h2,
+  .checkin-title {
+    font-size: clamp(1.7rem, 8vw, 2.2rem);
+    line-height: 1.04;
+  }
+
+  .eyebrow {
+    letter-spacing: 0.12em;
+    font-size: 0.72rem;
+  }
+
+  .hero__lead {
+    font-size: 0.95rem;
+  }
+
+  .button,
+  .button--ticket {
+    min-height: 44px;
+    font-size: 0.92rem;
+    padding: 0 14px;
+  }
+
+  .timeline-item {
+    grid-template-columns: 88px 1fr;
+    gap: 8px;
+  }
+
+  .timeline-item span {
+    font-size: 1.28rem;
+  }
+
+  .ornament-card__date {
+    font-size: 2.4rem;
   }
 }

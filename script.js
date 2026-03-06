@@ -667,7 +667,8 @@ function buildMapUrl(content) {
   const safeLat = Number.isFinite(lat) ? lat : 43.1155;
   const safeLon = Number.isFinite(lon) ? lon : 131.8855;
   const safeZoom = Number.isFinite(zoom) ? zoom : 12;
-  return `https://yandex.ru/map-widget/v1/?ll=${safeLon},${safeLat}&z=${safeZoom}&l=map&pt=${safeLon},${safeLat},pm2rdm&lang=ru_RU`;
+  const ll = `${safeLon},${safeLat}`;
+  return `https://yandex.ru/map-widget/v1/?mode=whatshere&whatshere%5Bpoint%5D=${ll}&whatshere%5Bzoom%5D=${safeZoom}&ll=${ll}&z=${safeZoom}&l=map&lang=ru_RU`;
 }
 
 function isEnabled(value, fallback = true) {

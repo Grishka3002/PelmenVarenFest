@@ -667,7 +667,7 @@ function buildMapUrl(content) {
   const safeLat = Number.isFinite(lat) ? lat : 43.1155;
   const safeLon = Number.isFinite(lon) ? lon : 131.8855;
   const safeZoom = Number.isFinite(zoom) ? zoom : 12;
-  return `https://yandex.ru/map-widget/v1/?ll=${encodeURIComponent(`${safeLon},${safeLat}`)}&z=${safeZoom}&pt=${encodeURIComponent(`${safeLon},${safeLat},pm2rdm`)}`;
+  return `https://yandex.ru/map-widget/v1/?ll=${safeLon},${safeLat}&z=${safeZoom}&l=map&pt=${safeLon},${safeLat},pm2rdm&lang=ru_RU`;
 }
 
 function isEnabled(value, fallback = true) {
@@ -1111,7 +1111,11 @@ function applyContent(content) {
     });
   }
   const mapFrame = document.querySelector("#content-map-frame");
-  if (mapFrame) mapFrame.src = buildMapUrl(merged);
+  if (mapFrame) {
+    const mapUrl = buildMapUrl(merged);
+    const mapVersion = encodeURIComponent(`${merged.mapLat}|${merged.mapLon}|${merged.mapZoom}`);
+    mapFrame.src = `${mapUrl}&v=${mapVersion}`;
+  }
   applySectionVisibility(merged);
   applyGalleryImages(merged);
   applyJuryPhotos(merged);

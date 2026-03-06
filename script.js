@@ -51,6 +51,8 @@ const DEFAULT_CONTENT = {
   aboutCard2Text: "Печи, травяные сборы, фермерские продукты, авторская керамика, ткани, дерево и кузнечное дело.",
   aboutCard3Title: "Современный вход",
   aboutCard3Text: "Оплата, персональные QR-билеты, сканирование на входе, голосование по номеру билета и развлекательные механики на странице.",
+  aboutCard4Title: "Семейный формат",
+  aboutCard4Text: "Пространство для детей и родителей, мастер-классы, игровые станции и безопасный дневной ритм.",
   locationEyebrow: "Где и когда",
   locationTitle: "Вся практическая информация на одной странице.",
   dateLabel: "Дата",
@@ -68,21 +70,29 @@ const DEFAULT_CONTENT = {
   mapZoom: "12",
   locationCta: "Купить билет",
   programEyebrow: "Программа",
-  programTitle: "День разбит по крупным событиям, чтобы гостю было легко спланировать маршрут.",
   programItem1Time: "12:00",
   programItem1Title: "Открытие круга",
-  programItem1Text: "Общий сбор, приветствие ведущих, хор, гусли и первый хоровод у главной сцены.",
   programItem2Time: "14:00",
   programItem2Title: "Ремесленные дворы",
-  programItem2Text: "Кузнечное шоу, резьба по дереву, ткачество, роспись и мастер-классы для семей.",
   programItem3Time: "17:30",
   programItem3Title: "Большой концерт",
-  programItem3Text: "Фолк-группы, этно-электроника, северные барабаны, народный вокал и танцевальный блок.",
   programItem4Time: "21:30",
   programItem4Title: "Огненный финал",
-  programItem4Text: "Огненное шоу на берегу, световые инсталляции и закрывающий круг у костра.",
+  programItem5Time: "10:00",
+  programItem5Title: "Регистрация команд",
+  programItem6Time: "11:00",
+  programItem6Title: "Открытие фуд-зоны",
+  programItem7Time: "13:30",
+  programItem7Title: "Конкурсная подача блюд",
+  programItem8Time: "16:00",
+  programItem8Title: "Мастер-классы шефов",
+  programItem9Time: "19:00",
+  programItem9Title: "Награждение победителей",
   galleryEyebrow: "Фотоальбом",
   galleryTitle: "Блок можно наполнить реальными кадрами без изменения структуры страницы.",
+  galleryMoreNote: "Со всеми фотографиями можете ознакомиться по ссылке:",
+  galleryMoreLinkText: "Смотреть все фото",
+  galleryMoreLinkUrl: "#",
   galleryCap1: "Береговая сцена",
   galleryCap2: "Ремесленный двор",
   galleryCap3: "Огненный круг",
@@ -110,6 +120,29 @@ const DEFAULT_CONTENT = {
   juryName5: "Денис Ладов",
   juryRegalia5: "Бренд-шеф, судья кулинарных чемпионатов.",
   juryPhoto5: "",
+  teamsEyebrow: "Командам",
+  teamsTitle: "Подайте заявку на участие в конкурсе фестиваля.",
+  teamsLead: "Заполните форму: заявка уходит организаторам и фиксируется в системе.",
+  teamsApplyButton: "Подать заявку",
+  teamsFormTitle: "Заявка команды",
+  teamsLeaderLabel: "ФИО руководителя команды",
+  teamsPhoneLabel: "Контактный телефон",
+  teamsParticipantsLabel: "5 ФИО участников (включая капитана)",
+  teamsNominationsLabel: "Выберите номинации (можно несколько)",
+  teamsNomination1: "Лучшее традиционное блюдо",
+  teamsNomination2: "Авторская интерпретация",
+  teamsNomination3: "Лучшая подача",
+  teamsNomination4: "Приз зрительских симпатий",
+  teamsDishLabel: "Краткое описание блюда",
+  teamsConceptLabel: "Концепция команды",
+  teamsEquipmentLabel: "Базовое оборудование от организаторов",
+  teamsEquipmentNeedAll: "Да, всё необходимо",
+  teamsEquipmentOwn: "Будем работать со своим",
+  teamsWishesLabel: "Особые пожелания и комментарии",
+  teamsSubmitButton: "Отправить заявку",
+  teamsRegulationText: "Положение конкурса",
+  teamsRegulationUrl: "/docs/regulation.pdf",
+  teamsSuccessMessage: "Заявка отправлена. Организаторы свяжутся с вами.",
   ticketsEyebrow: "Билеты",
   ticketsTitle: "Оплата, персональные QR-коды и готовность к контролю на входе.",
   ticketPriceLabel: "Стандарт",
@@ -175,6 +208,7 @@ const DEFAULT_CONTENT = {
   showProgram: "true",
   showGallery: "true",
   showJury: "true",
+  showTeams: "true",
   showTickets: "true",
   showVote: "true",
   showQuiz: "true",
@@ -209,6 +243,8 @@ const CONTENT_BINDINGS = {
   aboutCard2Text: { id: "content-about-card2-text", html: false },
   aboutCard3Title: { id: "content-about-card3-title", html: false },
   aboutCard3Text: { id: "content-about-card3-text", html: false },
+  aboutCard4Title: { id: "content-about-card4-title", html: false },
+  aboutCard4Text: { id: "content-about-card4-text", html: false },
   locationEyebrow: { id: "content-location-eyebrow", html: false },
   locationTitle: { id: "content-location-title", html: false },
   dateLabel: { id: "content-date-label", html: false },
@@ -223,21 +259,28 @@ const CONTENT_BINDINGS = {
   parkingNote: { id: "content-parking-note", html: false },
   locationCta: { id: "content-location-cta", html: false },
   programEyebrow: { id: "content-program-eyebrow", html: false },
-  programTitle: { id: "content-program-title", html: false },
   programItem1Time: { id: "content-program-item1-time", html: false },
   programItem1Title: { id: "content-program-item1-title", html: false },
-  programItem1Text: { id: "content-program-item1-text", html: false },
   programItem2Time: { id: "content-program-item2-time", html: false },
   programItem2Title: { id: "content-program-item2-title", html: false },
-  programItem2Text: { id: "content-program-item2-text", html: false },
   programItem3Time: { id: "content-program-item3-time", html: false },
   programItem3Title: { id: "content-program-item3-title", html: false },
-  programItem3Text: { id: "content-program-item3-text", html: false },
   programItem4Time: { id: "content-program-item4-time", html: false },
   programItem4Title: { id: "content-program-item4-title", html: false },
-  programItem4Text: { id: "content-program-item4-text", html: false },
+  programItem5Time: { id: "content-program-item5-time", html: false },
+  programItem5Title: { id: "content-program-item5-title", html: false },
+  programItem6Time: { id: "content-program-item6-time", html: false },
+  programItem6Title: { id: "content-program-item6-title", html: false },
+  programItem7Time: { id: "content-program-item7-time", html: false },
+  programItem7Title: { id: "content-program-item7-title", html: false },
+  programItem8Time: { id: "content-program-item8-time", html: false },
+  programItem8Title: { id: "content-program-item8-title", html: false },
+  programItem9Time: { id: "content-program-item9-time", html: false },
+  programItem9Title: { id: "content-program-item9-title", html: false },
   galleryEyebrow: { id: "content-gallery-eyebrow", html: false },
   galleryTitle: { id: "content-gallery-title", html: false },
+  galleryMoreNote: { id: "content-gallery-more-note", html: false },
+  galleryMoreLinkText: { id: "content-gallery-more-link-text", html: false },
   galleryCap1: { id: "content-gallery-cap1", html: false },
   galleryCap2: { id: "content-gallery-cap2", html: false },
   galleryCap3: { id: "content-gallery-cap3", html: false },
@@ -255,6 +298,27 @@ const CONTENT_BINDINGS = {
   juryRegalia4: { id: "content-jury-regalia4", html: false },
   juryName5: { id: "content-jury-name5", html: false },
   juryRegalia5: { id: "content-jury-regalia5", html: false },
+  teamsEyebrow: { id: "content-teams-eyebrow", html: false },
+  teamsTitle: { id: "content-teams-title", html: false },
+  teamsLead: { id: "content-teams-lead", html: false },
+  teamsApplyButton: { id: "content-teams-apply-button", html: false },
+  teamsFormTitle: { id: "content-teams-form-title", html: false },
+  teamsLeaderLabel: { id: "content-teams-leader-label", html: false },
+  teamsPhoneLabel: { id: "content-teams-phone-label", html: false },
+  teamsParticipantsLabel: { id: "content-teams-participants-label", html: false },
+  teamsNominationsLabel: { id: "content-teams-nominations-label", html: false },
+  teamsNomination1: { id: "content-teams-nomination1", html: false },
+  teamsNomination2: { id: "content-teams-nomination2", html: false },
+  teamsNomination3: { id: "content-teams-nomination3", html: false },
+  teamsNomination4: { id: "content-teams-nomination4", html: false },
+  teamsDishLabel: { id: "content-teams-dish-label", html: false },
+  teamsConceptLabel: { id: "content-teams-concept-label", html: false },
+  teamsEquipmentLabel: { id: "content-teams-equipment-label", html: false },
+  teamsEquipmentNeedAll: { id: "content-teams-equipment-need-all", html: false },
+  teamsEquipmentOwn: { id: "content-teams-equipment-own", html: false },
+  teamsWishesLabel: { id: "content-teams-wishes-label", html: false },
+  teamsSubmitButton: { id: "content-teams-submit-button", html: false },
+  teamsRegulationText: { id: "content-teams-regulation-text", html: false },
   ticketsEyebrow: { id: "content-tickets-eyebrow", html: false },
   ticketsTitle: { id: "content-tickets-title", html: false },
   ticketPriceLabel: { id: "content-ticket-price-label", html: false },
@@ -327,6 +391,10 @@ const CONTENT_BINDINGS = {
 };
 
 const ticketForm = document.querySelector("#ticket-form");
+const teamApplyToggle = document.querySelector("#team-apply-toggle");
+const teamApplyPanel = document.querySelector("#team-apply-panel");
+const teamApplyForm = document.querySelector("#team-apply-form");
+const teamApplyMessage = document.querySelector("#team-apply-message");
 const paymentForm = document.querySelector("#payment-form");
 const backToOrderButton = document.querySelector("#back-to-order");
 const payButton = document.querySelector("#pay-button");
@@ -336,8 +404,10 @@ const ticketList = document.querySelector("#ticket-list");
 const voteForm = document.querySelector("#vote-form");
 const voteMessage = document.querySelector("#vote-message");
 const voteResults = document.querySelector("#vote-results");
+const programExpandButton = document.querySelector("#program-expand-button");
 const quizForm = document.querySelector("#quiz-form");
 const quizResult = document.querySelector("#quiz-result");
+const quizProgress = document.querySelector("#quiz-progress");
 const orderStepLabel = document.querySelector("#order-step-label");
 const paymentStepLabel = document.querySelector("#payment-step-label");
 const ticketsStepLabel = document.querySelector("#tickets-step-label");
@@ -365,6 +435,8 @@ const adminResetButton = document.querySelector("#admin-reset-content");
 const adminRefreshButton = document.querySelector("#admin-refresh-stats");
 const adminExportQuizButton = document.querySelector("#admin-export-quiz");
 const adminExportTicketsButton = document.querySelector("#admin-export-tickets");
+const adminExportTeamsButton = document.querySelector("#admin-export-teams");
+const adminResetTeamsButton = document.querySelector("#admin-reset-teams");
 const adminResetTicketsButton = document.querySelector("#admin-reset-tickets");
 const adminResetQuizButton = document.querySelector("#admin-reset-quiz");
 const adminUserForm = document.querySelector("#admin-user-form");
@@ -383,6 +455,7 @@ const adminStats = {
   ticketsScanned: document.querySelector("#stat-tickets-scanned"),
   votesCast: document.querySelector("#stat-votes-cast"),
   quizTotal: document.querySelector("#stat-quiz-total"),
+  teamsTotal: document.querySelector("#stat-teams-total"),
   votesList: document.querySelector("#admin-vote-results"),
   quizList: document.querySelector("#admin-quiz-results"),
   recentTickets: document.querySelector("#admin-recent-tickets"),
@@ -567,11 +640,13 @@ const api = {
   resetContent: async () => (await requestJson("/api/content", { method: "DELETE" })).content,
   getTickets: async () => (await requestJson("/api/tickets")).tickets,
   createOrder: async (order) => requestJson("/api/orders", { method: "POST", body: JSON.stringify(order) }),
+  createTeamApplication: async (payload) => requestJson("/api/team-applications", { method: "POST", body: JSON.stringify(payload) }),
   checkin: async (code) => requestJson("/api/checkin", { method: "POST", body: JSON.stringify({ code }) }),
   vote: async (code, team) => requestJson("/api/vote", { method: "POST", body: JSON.stringify({ code, team }) }),
   recordQuiz: async (type) => requestJson("/api/quiz", { method: "POST", body: JSON.stringify({ type }) }),
   resetTickets: async () => requestJson("/api/reset/tickets", { method: "POST", body: JSON.stringify({}) }),
   resetQuiz: async () => requestJson("/api/reset/quiz", { method: "POST", body: JSON.stringify({}) }),
+  resetTeams: async () => requestJson("/api/reset/teams", { method: "POST", body: JSON.stringify({}) }),
   getPublicStats: async () => requestJson("/api/public-stats"),
   getStats: async () => (await requestJson("/api/stats")).stats,
   getUsers: async () => (await requestJson("/api/admin/users")).users,
@@ -607,6 +682,7 @@ function applySectionVisibility(content) {
     program: isEnabled(content.showProgram, true),
     gallery: isEnabled(content.showGallery, true),
     jury: isEnabled(content.showJury, true),
+    teams: isEnabled(content.showTeams, true),
     tickets: isEnabled(content.showTickets, true),
     vote: isEnabled(content.showVote, true),
     quiz: isEnabled(content.showQuiz, true),
@@ -805,6 +881,54 @@ function setStep(step) {
   ticketsStepLabel.classList.toggle("checkout-step--active", step === "tickets");
 }
 
+function setTeamApplyMessage(message, tone = "ok") {
+  if (!teamApplyMessage) return;
+  teamApplyMessage.classList.remove("info-message--warn", "info-message--ok");
+  teamApplyMessage.classList.add(tone === "warn" ? "info-message--warn" : "info-message--ok");
+  teamApplyMessage.textContent = message;
+}
+
+function initTeamApplyFlow() {
+  if (!teamApplyToggle || !teamApplyPanel || !teamApplyForm) return;
+
+  teamApplyToggle.addEventListener("click", () => {
+    teamApplyPanel.hidden = !teamApplyPanel.hidden;
+    if (!teamApplyPanel.hidden) {
+      setTeamApplyMessage("Заполните форму и отправьте заявку.", "ok");
+    }
+  });
+
+  teamApplyForm.addEventListener("submit", async (event) => {
+    event.preventDefault();
+    const formData = new FormData(teamApplyForm);
+    const nominations = formData.getAll("nominations").map((item) => String(item || "").trim()).filter(Boolean);
+    const payload = {
+      leaderName: String(formData.get("leaderName") || "").trim(),
+      phone: String(formData.get("phone") || "").trim(),
+      participants: String(formData.get("participants") || "").trim(),
+      nominations,
+      dishDescription: String(formData.get("dishDescription") || "").trim(),
+      concept: String(formData.get("concept") || "").trim(),
+      equipmentMode: String(formData.get("equipmentMode") || "").trim(),
+      wishes: String(formData.get("wishes") || "").trim(),
+    };
+
+    if (!payload.nominations.length) {
+      setTeamApplyMessage("Выберите хотя бы одну номинацию.", "warn");
+      return;
+    }
+
+    try {
+      await api.createTeamApplication(payload);
+      const successText = String((window.__appContent && window.__appContent.teamsSuccessMessage) || DEFAULT_CONTENT.teamsSuccessMessage);
+      setTeamApplyMessage(successText, "ok");
+      teamApplyForm.reset();
+    } catch (error) {
+      setTeamApplyMessage(error.message || "Не удалось отправить заявку. Попробуйте ещё раз.", "warn");
+    }
+  });
+}
+
 function validatePaymentData(data) {
   const cleanNumber = String(data.cardNumber || "").replace(/\s+/g, "");
   return cleanNumber.length >= 16 && /^\d{2}\/\d{2}$/.test(data.expiry) && /^\d{3}$/.test(data.cvv) && String(data.cardHolder || "").trim().length >= 4;
@@ -848,10 +972,22 @@ function setProtectedVisibility(authenticated) {
 function renderQuizResult(type) {
   if (!quizResult) return;
   const result = QUIZ_RESULTS[type];
+  const restartLabel = "Пройти еще раз";
   quizResult.innerHTML = `
     <p class="eyebrow">Результат</p>
     <h3>${result.title}</h3>
     <p>${result.text}</p>
+    <button type="button" class="button button--secondary" id="quiz-restart">${restartLabel}</button>
+  `;
+}
+
+function resetQuizResultPanel() {
+  if (!quizResult) return;
+  const content = window.__appContent || DEFAULT_CONTENT;
+  quizResult.innerHTML = `
+    <p class="eyebrow">${content.quizResultLabel || DEFAULT_CONTENT.quizResultLabel}</p>
+    <h3>${content.quizResultTitle || DEFAULT_CONTENT.quizResultTitle}</h3>
+    <p>${content.quizResultText || DEFAULT_CONTENT.quizResultText}</p>
   `;
 }
 
@@ -903,6 +1039,7 @@ function renderPaymentSummary(order) {
 
 function applyContent(content) {
   const merged = { ...DEFAULT_CONTENT, ...(content || {}) };
+  window.__appContent = merged;
   document.title = merged.seoTitle || DEFAULT_CONTENT.seoTitle;
   const metaDescription = document.querySelector('meta[name="description"]');
   if (metaDescription) {
@@ -943,6 +1080,34 @@ function applyContent(content) {
       offerLink.setAttribute("href", "#");
       offerLink.setAttribute("aria-disabled", "true");
     }
+  }
+  const regulationLink = document.querySelector("#content-teams-regulation-link");
+  if (regulationLink) {
+    const href = String(merged.teamsRegulationUrl || "").trim();
+    regulationLink.setAttribute("href", href || "#");
+  }
+  const galleryMoreLink = document.querySelector("#content-gallery-more-link");
+  if (galleryMoreLink) {
+    const href = String(merged.galleryMoreLinkUrl || "").trim();
+    if (href) {
+      galleryMoreLink.setAttribute("href", href);
+      galleryMoreLink.removeAttribute("aria-disabled");
+    } else {
+      galleryMoreLink.setAttribute("href", "#");
+      galleryMoreLink.setAttribute("aria-disabled", "true");
+    }
+  }
+  if (teamApplyForm) {
+    const nominationMap = {
+      nomination1: merged.teamsNomination1,
+      nomination2: merged.teamsNomination2,
+      nomination3: merged.teamsNomination3,
+      nomination4: merged.teamsNomination4,
+    };
+    teamApplyForm.querySelectorAll('input[name="nominations"]').forEach((checkbox) => {
+      const key = checkbox.value;
+      checkbox.value = String(nominationMap[key] || key);
+    });
   }
   const mapFrame = document.querySelector("#content-map-frame");
   if (mapFrame) mapFrame.src = buildMapUrl(merged);
@@ -998,6 +1163,7 @@ async function renderAdminStats() {
   adminStats.ticketsScanned.textContent = String(stats.ticketsScanned);
   adminStats.votesCast.textContent = String(stats.votesCast);
   adminStats.quizTotal.textContent = String(stats.quizTotal);
+  if (adminStats.teamsTotal) adminStats.teamsTotal.textContent = String(stats.teamsTotal || 0);
 
   if (adminStats.votesList) {
     adminStats.votesList.innerHTML = stats.voteResults
@@ -1262,19 +1428,67 @@ function initVoteFlow() {
   });
 }
 
+function initProgramPreview() {
+  const programSection = document.querySelector("#program");
+  const timelineItems = Array.from(programSection?.querySelectorAll(".timeline .timeline-item") || []);
+  if (!timelineItems.length || !programExpandButton) return;
+
+  const hiddenItems = timelineItems.slice(2);
+  if (!hiddenItems.length) {
+    programExpandButton.hidden = true;
+    return;
+  }
+
+  let expanded = false;
+  const applyState = () => {
+    hiddenItems.forEach((item) => item.classList.toggle("timeline-item--collapsed", !expanded));
+    programExpandButton.textContent = expanded ? "Скрыть" : "Показать полностью расписание";
+  };
+
+  applyState();
+  programExpandButton.hidden = false;
+  programExpandButton.addEventListener("click", () => {
+    expanded = !expanded;
+    applyState();
+  });
+}
+
 function initQuizFlow() {
   if (!quizForm) return;
 
-  quizForm.addEventListener("submit", async (event) => {
-    event.preventDefault();
-    const data = Object.fromEntries(new FormData(quizForm).entries());
-    const scores = Object.values(data).reduce((acc, value) => {
+  const quizCards = Array.from(quizForm.querySelectorAll(".quiz-card"));
+  if (!quizCards.length) return;
+  const totalSteps = quizCards.length;
+  const answers = {};
+  let currentStep = 0;
+
+  const renderStep = () => {
+    quizCards.forEach((card, index) => {
+      card.hidden = index !== currentStep;
+    });
+    if (quizProgress) {
+      quizProgress.textContent = `Вопрос ${currentStep + 1} из ${totalSteps}`;
+    }
+  };
+
+  const calculateWinner = () => {
+    const scores = Object.values(answers).reduce((acc, value) => {
       acc[value] = (acc[value] || 0) + 1;
       return acc;
     }, {});
     const priority = ["momo", "pelmeni", "khinkali", "varenik", "gyoza"];
-    const winner = Object.entries(scores)
+    return Object.entries(scores)
       .sort((a, b) => b[1] - a[1] || priority.indexOf(a[0]) - priority.indexOf(b[0]))[0]?.[0] || "pelmeni";
+  };
+
+  const completeQuiz = async () => {
+    const winner = calculateWinner();
+    quizForm.hidden = true;
+    if (quizProgress) quizProgress.hidden = true;
+    if (quizResult) {
+      quizResult.hidden = false;
+      quizResult.innerHTML = "<p class=\"eyebrow\">Результат</p><h3>Считаем результат...</h3><p>Подождите пару секунд.</p>";
+    }
 
     try {
       await api.recordQuiz(winner);
@@ -1282,10 +1496,48 @@ function initQuizFlow() {
       await renderAdminStats();
     } catch (error) {
       if (quizResult) {
+        quizResult.hidden = false;
         quizResult.innerHTML = `<p class="eyebrow">Ошибка</p><h3>Результат не сохранён</h3><p>${error.message}</p>`;
       }
     }
+  };
+
+  const restartQuiz = () => {
+    quizForm.reset();
+    quizForm.hidden = false;
+    if (quizResult) quizResult.hidden = true;
+    if (quizProgress) quizProgress.hidden = false;
+    Object.keys(answers).forEach((key) => delete answers[key]);
+    currentStep = 0;
+    renderStep();
+    resetQuizResultPanel();
+  };
+
+  quizForm.addEventListener("change", (event) => {
+    const target = event.target;
+    if (!(target instanceof HTMLInputElement) || target.type !== "radio") return;
+    if (!quizCards[currentStep]?.contains(target)) return;
+    answers[target.name] = target.value;
+
+    if (currentStep < totalSteps - 1) {
+      currentStep += 1;
+      renderStep();
+      return;
+    }
+
+    void completeQuiz();
   });
+
+  quizResult?.addEventListener("click", (event) => {
+    const target = event.target;
+    if (!(target instanceof Element)) return;
+    const button = target.closest("#quiz-restart");
+    if (!button) return;
+    restartQuiz();
+  });
+
+  if (quizResult) quizResult.hidden = true;
+  renderStep();
 }
 
 function initCheckinFlow() {
@@ -1363,6 +1615,25 @@ function initAdminPanel() {
       setAdminMessage("<strong>Экспорт готов.</strong><br>Файл со статистикой билетов скачан.", "ok");
     } catch (error) {
       setAdminMessage(`<strong>Ошибка экспорта.</strong><br>${error.message}`, "warn");
+    }
+  });
+
+  adminExportTeamsButton?.addEventListener("click", async () => {
+    try {
+      await downloadFile("/api/export/teams.csv", "teams-applications.csv");
+      setAdminMessage("<strong>Экспорт готов.</strong><br>Файл со списком команд скачан.", "ok");
+    } catch (error) {
+      setAdminMessage(`<strong>Ошибка экспорта.</strong><br>${error.message}`, "warn");
+    }
+  });
+
+  adminResetTeamsButton?.addEventListener("click", async () => {
+    try {
+      await api.resetTeams();
+      await renderAdminStats();
+      setAdminMessage("<strong>Команды сброшены.</strong><br>Список заявок команд очищен.", "ok");
+    } catch (error) {
+      setAdminMessage(`<strong>Ошибка сброса.</strong><br>${error.message}`, "warn");
     }
   });
 
@@ -1498,7 +1769,9 @@ async function init() {
   }
 
   initTicketFlow();
+  initTeamApplyFlow();
   initVoteFlow();
+  initProgramPreview();
   initQuizFlow();
   const authenticated = await initProtectedAuth();
   if (!protectedRole || authenticated) initProtectedModules();

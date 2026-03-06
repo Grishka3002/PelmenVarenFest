@@ -63,6 +63,11 @@
           <strong id="stat-quiz-total">0</strong>
           <p class="muted">Всего результатов</p>
         </article>
+        <article class="admin-stat-card">
+          <p class="eyebrow">Команды</p>
+          <strong id="stat-teams-total">0</strong>
+          <p class="muted">Зарегистрировано</p>
+        </article>
       </div>
 
       <div id="admin-message" class="info-message">Изменения сохраняются на сервере и применяются для всех пользователей сайта.</div>
@@ -81,6 +86,7 @@
             <button class="admin-tab" type="button" data-tab-target="program">Программа</button>
             <button class="admin-tab" type="button" data-tab-target="gallery">Галерея</button>
             <button class="admin-tab" type="button" data-tab-target="jury">Жюри</button>
+            <button class="admin-tab" type="button" data-tab-target="teams">Командам</button>
             <button class="admin-tab" type="button" data-tab-target="tickets">Билеты</button>
             <button class="admin-tab" type="button" data-tab-target="vote">Голосование</button>
             <button class="admin-tab" type="button" data-tab-target="quiz">Тест</button>
@@ -198,6 +204,14 @@
               Карточка 3: текст
               <textarea name="aboutCard3Text"></textarea>
             </label>
+            <label>
+              Карточка 4: заголовок
+              <input type="text" name="aboutCard4Title">
+            </label>
+            <label>
+              Карточка 4: текст
+              <textarea name="aboutCard4Text"></textarea>
+            </label>
             </section>
             <section class="admin-tab-panel admin-wide" data-tab-panel="location">
             <div class="admin-wide">
@@ -232,20 +246,12 @@
               <input type="text" name="placeMain">
             </label>
             <label>
-              Где и когда: примечание к месту
-              <textarea name="placeNote"></textarea>
-            </label>
-            <label>
               Карточка маршрута: label
               <input type="text" name="routeLabel">
             </label>
             <label>
               Карточка маршрута: как добраться
               <input type="text" name="routeMain">
-            </label>
-            <label>
-              Где и когда: примечание к маршруту
-              <textarea name="routeNote"></textarea>
             </label>
             <label class="admin-wide">
               Где и когда: заметка про парковку
@@ -276,22 +282,24 @@
               Заголовок секции
               <input type="text" name="programEyebrow">
             </label>
-            <label class="admin-wide">
-              Подзаголовок секции
-              <textarea name="programTitle"></textarea>
-            </label>
             <label><input type="text" name="programItem1Time" placeholder="12:00"></label>
             <label><input type="text" name="programItem1Title" placeholder="Событие 1"></label>
-            <label class="admin-wide"><textarea name="programItem1Text" placeholder="Описание события 1"></textarea></label>
             <label><input type="text" name="programItem2Time" placeholder="14:00"></label>
             <label><input type="text" name="programItem2Title" placeholder="Событие 2"></label>
-            <label class="admin-wide"><textarea name="programItem2Text" placeholder="Описание события 2"></textarea></label>
             <label><input type="text" name="programItem3Time" placeholder="17:30"></label>
             <label><input type="text" name="programItem3Title" placeholder="Событие 3"></label>
-            <label class="admin-wide"><textarea name="programItem3Text" placeholder="Описание события 3"></textarea></label>
             <label><input type="text" name="programItem4Time" placeholder="21:30"></label>
             <label><input type="text" name="programItem4Title" placeholder="Событие 4"></label>
-            <label class="admin-wide"><textarea name="programItem4Text" placeholder="Описание события 4"></textarea></label>
+            <label><input type="text" name="programItem5Time" placeholder="Слот 5: время"></label>
+            <label><input type="text" name="programItem5Title" placeholder="Слот 5: название"></label>
+            <label><input type="text" name="programItem6Time" placeholder="Слот 6: время"></label>
+            <label><input type="text" name="programItem6Title" placeholder="Слот 6: название"></label>
+            <label><input type="text" name="programItem7Time" placeholder="Слот 7: время"></label>
+            <label><input type="text" name="programItem7Title" placeholder="Слот 7: название"></label>
+            <label><input type="text" name="programItem8Time" placeholder="Слот 8: время"></label>
+            <label><input type="text" name="programItem8Title" placeholder="Слот 8: название"></label>
+            <label><input type="text" name="programItem9Time" placeholder="Слот 9: время"></label>
+            <label><input type="text" name="programItem9Title" placeholder="Слот 9: название"></label>
             </section>
             <section class="admin-tab-panel admin-wide" data-tab-panel="gallery">
             <div class="admin-wide">
@@ -304,6 +312,18 @@
             <label class="admin-wide">
               Подзаголовок секции
               <textarea name="galleryTitle"></textarea>
+            </label>
+            <label class="admin-wide">
+              Подпись под галереей
+              <input type="text" name="galleryMoreNote" placeholder="Со всеми фотографиями можете ознакомиться по ссылке:">
+            </label>
+            <label>
+              Текст ссылки на полный альбом
+              <input type="text" name="galleryMoreLinkText" placeholder="Смотреть все фото">
+            </label>
+            <label>
+              Ссылка на полный альбом
+              <input type="text" name="galleryMoreLinkUrl" placeholder="https://...">
             </label>
             <label><input type="text" name="galleryCap1" placeholder="Подпись 1"></label>
             <label><input type="text" name="galleryCap2" placeholder="Подпись 2"></label>
@@ -337,6 +357,34 @@
             <label><input type="text" name="juryName5" placeholder="ФИО 5"></label>
             <label><input type="text" name="juryRegalia5" placeholder="Регалии 5"></label>
             <label><input type="text" name="juryPhoto5" placeholder="Путь к фото 5, например images/jury-5.jpg"></label>
+            </section>
+            <section class="admin-tab-panel admin-wide" data-tab-panel="teams">
+            <div class="admin-wide">
+              <p class="eyebrow">Командам</p>
+            </div>
+            <label><input type="text" name="teamsEyebrow" placeholder="Заголовок секции"></label>
+            <label class="admin-wide"><textarea name="teamsTitle" placeholder="Подзаголовок секции"></textarea></label>
+            <label class="admin-wide"><textarea name="teamsLead" placeholder="Описание блока"></textarea></label>
+            <label><input type="text" name="teamsApplyButton" placeholder="Текст кнопки подачи заявки"></label>
+            <label><input type="text" name="teamsFormTitle" placeholder="Заголовок формы"></label>
+            <label><input type="text" name="teamsLeaderLabel" placeholder="Вопрос: ФИО руководителя"></label>
+            <label><input type="text" name="teamsPhoneLabel" placeholder="Вопрос: телефон"></label>
+            <label class="admin-wide"><input type="text" name="teamsParticipantsLabel" placeholder="Вопрос: участники"></label>
+            <label class="admin-wide"><input type="text" name="teamsNominationsLabel" placeholder="Вопрос: номинации"></label>
+            <label><input type="text" name="teamsNomination1" placeholder="Номинация 1"></label>
+            <label><input type="text" name="teamsNomination2" placeholder="Номинация 2"></label>
+            <label><input type="text" name="teamsNomination3" placeholder="Номинация 3"></label>
+            <label><input type="text" name="teamsNomination4" placeholder="Номинация 4"></label>
+            <label class="admin-wide"><input type="text" name="teamsDishLabel" placeholder="Вопрос: описание блюда"></label>
+            <label class="admin-wide"><input type="text" name="teamsConceptLabel" placeholder="Вопрос: концепция"></label>
+            <label class="admin-wide"><input type="text" name="teamsEquipmentLabel" placeholder="Вопрос: оборудование"></label>
+            <label><input type="text" name="teamsEquipmentNeedAll" placeholder="Опция: всё необходимо"></label>
+            <label><input type="text" name="teamsEquipmentOwn" placeholder="Опция: со своим"></label>
+            <label class="admin-wide"><input type="text" name="teamsWishesLabel" placeholder="Вопрос: пожелания"></label>
+            <label><input type="text" name="teamsSubmitButton" placeholder="Текст кнопки отправки"></label>
+            <label class="admin-wide"><input type="text" name="teamsSuccessMessage" placeholder="Текст после успешной отправки"></label>
+            <label><input type="text" name="teamsRegulationText" placeholder="Текст ссылки на положение"></label>
+            <label><input type="text" name="teamsRegulationUrl" placeholder="Ссылка на положение конкурса"></label>
             </section>
             <section class="admin-tab-panel admin-wide" data-tab-panel="tickets">
             <div class="admin-wide">
@@ -427,20 +475,7 @@
               Контакты: email организаторов
               <input type="text" name="contactOrgEmail">
             </label>
-            <label><input type="text" name="contactPressTitle" placeholder="Заголовок карточки 2"></label>
-            <label>
-              Контакты: email медиа
-              <input type="text" name="contactPressEmail">
-            </label>
-            <label>
-              Контакты: соцсети
-              <input type="text" name="contactPressSocial">
-            </label>
-            <label><input type="text" name="contactTicketTitle" placeholder="Заголовок карточки 3"></label>
-            <label>
-              Контакты: email по билетам
-              <input type="text" name="contactTicketEmail">
-            </label>
+            <label><input type="text" name="contactTicketTitle" placeholder="Заголовок карточки входного контроля"></label>
             <label>
               Контакты: пояснение по входному контролю
               <textarea name="contactTicketNote"></textarea>
@@ -456,6 +491,7 @@
             <label class="admin-toggle"><input type="checkbox" name="showProgram"> <span>Показывать блок «Программа»</span></label>
             <label class="admin-toggle"><input type="checkbox" name="showGallery"> <span>Показывать блок «Фотоальбом»</span></label>
             <label class="admin-toggle"><input type="checkbox" name="showJury"> <span>Показывать блок «Жюри»</span></label>
+            <label class="admin-toggle"><input type="checkbox" name="showTeams"> <span>Показывать блок «Командам»</span></label>
             <label class="admin-toggle"><input type="checkbox" name="showTickets"> <span>Показывать блок «Билеты»</span></label>
             <label class="admin-toggle"><input type="checkbox" name="showVote"> <span>Показывать блок «Голосование»</span></label>
             <label class="admin-toggle"><input type="checkbox" name="showQuiz"> <span>Показывать блок «Тест»</span></label>
@@ -526,15 +562,17 @@
           <article class="admin-panel ornament-card">
             <div class="section-heading">
               <p class="eyebrow">Экспорт</p>
-              <h2>Скачать отчёты по тесту и билетам.</h2>
+              <h2>Скачать отчёты по тесту, билетам и командам.</h2>
             </div>
             <div class="payment-actions admin-actions admin-actions--stacked">
               <button class="button" id="admin-export-quiz" type="button">Скачать тест CSV</button>
               <button class="button button--secondary" id="admin-export-tickets" type="button">Скачать билеты CSV</button>
+              <button class="button button--secondary" id="admin-export-teams" type="button">Скачать команды CSV</button>
+              <button class="button button--secondary" id="admin-reset-teams" type="button">Сбросить команды</button>
               <button class="button button--secondary" id="admin-reset-tickets" type="button">Сбросить билеты</button>
               <button class="button button--secondary" id="admin-reset-quiz" type="button">Сбросить тест</button>
             </div>
-            <p class="muted">Тест: время прохождения и результат. Билеты: время покупки, статус, номер, ФИО, количество и стоимость.</p>
+            <p class="muted">Тест: время прохождения и результат. Билеты: время покупки, статус, номер, ФИО, количество и стоимость. Команды: все поля заявки.</p>
           </article>
         </div>
       </div>

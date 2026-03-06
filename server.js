@@ -50,6 +50,8 @@ const DEFAULT_CONTENT = {
   aboutCard2Text: "Печи, травяные сборы, фермерские продукты, авторская керамика, ткани, дерево и кузнечное дело.",
   aboutCard3Title: "Современный вход",
   aboutCard3Text: "Оплата, персональные QR-билеты, сканирование на входе, голосование по номеру билета и развлекательные механики на странице.",
+  aboutCard4Title: "Семейный формат",
+  aboutCard4Text: "Пространство для детей и родителей, мастер-классы, игровые станции и безопасный дневной ритм.",
   locationEyebrow: "Где и когда",
   locationTitle: "Вся практическая информация на одной странице.",
   dateLabel: "Дата",
@@ -67,21 +69,29 @@ const DEFAULT_CONTENT = {
   mapZoom: "12",
   locationCta: "Купить билет",
   programEyebrow: "Программа",
-  programTitle: "День разбит по крупным событиям, чтобы гостю было легко спланировать маршрут.",
   programItem1Time: "12:00",
   programItem1Title: "Открытие круга",
-  programItem1Text: "Общий сбор, приветствие ведущих, хор, гусли и первый хоровод у главной сцены.",
   programItem2Time: "14:00",
   programItem2Title: "Ремесленные дворы",
-  programItem2Text: "Кузнечное шоу, резьба по дереву, ткачество, роспись и мастер-классы для семей.",
   programItem3Time: "17:30",
   programItem3Title: "Большой концерт",
-  programItem3Text: "Фолк-группы, этно-электроника, северные барабаны, народный вокал и танцевальный блок.",
   programItem4Time: "21:30",
   programItem4Title: "Огненный финал",
-  programItem4Text: "Огненное шоу на берегу, световые инсталляции и закрывающий круг у костра.",
+  programItem5Time: "10:00",
+  programItem5Title: "Регистрация команд",
+  programItem6Time: "11:00",
+  programItem6Title: "Открытие фуд-зоны",
+  programItem7Time: "13:30",
+  programItem7Title: "Конкурсная подача блюд",
+  programItem8Time: "16:00",
+  programItem8Title: "Мастер-классы шефов",
+  programItem9Time: "19:00",
+  programItem9Title: "Награждение победителей",
   galleryEyebrow: "Фотоальбом",
   galleryTitle: "Блок можно наполнить реальными кадрами без изменения структуры страницы.",
+  galleryMoreNote: "Со всеми фотографиями можете ознакомиться по ссылке:",
+  galleryMoreLinkText: "Смотреть все фото",
+  galleryMoreLinkUrl: "#",
   galleryCap1: "Береговая сцена",
   galleryCap2: "Ремесленный двор",
   galleryCap3: "Огненный круг",
@@ -109,6 +119,29 @@ const DEFAULT_CONTENT = {
   juryName5: "Денис Ладов",
   juryRegalia5: "Бренд-шеф, судья кулинарных чемпионатов.",
   juryPhoto5: "",
+  teamsEyebrow: "Командам",
+  teamsTitle: "Подайте заявку на участие в конкурсе фестиваля.",
+  teamsLead: "Заполните форму: заявка уходит организаторам и фиксируется в системе.",
+  teamsApplyButton: "Подать заявку",
+  teamsFormTitle: "Заявка команды",
+  teamsLeaderLabel: "ФИО руководителя команды",
+  teamsPhoneLabel: "Контактный телефон",
+  teamsParticipantsLabel: "5 ФИО участников (включая капитана)",
+  teamsNominationsLabel: "Выберите номинации (можно несколько)",
+  teamsNomination1: "Лучшее традиционное блюдо",
+  teamsNomination2: "Авторская интерпретация",
+  teamsNomination3: "Лучшая подача",
+  teamsNomination4: "Приз зрительских симпатий",
+  teamsDishLabel: "Краткое описание блюда",
+  teamsConceptLabel: "Концепция команды",
+  teamsEquipmentLabel: "Базовое оборудование от организаторов",
+  teamsEquipmentNeedAll: "Да, всё необходимо",
+  teamsEquipmentOwn: "Будем работать со своим",
+  teamsWishesLabel: "Особые пожелания и комментарии",
+  teamsSubmitButton: "Отправить заявку",
+  teamsRegulationText: "Положение конкурса",
+  teamsRegulationUrl: "/docs/regulation.pdf",
+  teamsSuccessMessage: "Заявка отправлена. Организаторы свяжутся с вами.",
   ticketsEyebrow: "Билеты",
   ticketsTitle: "Оплата, персональные QR-коды и готовность к контролю на входе.",
   ticketPriceLabel: "Стандарт",
@@ -174,6 +207,7 @@ const DEFAULT_CONTENT = {
   showProgram: "true",
   showGallery: "true",
   showJury: "true",
+  showTeams: "true",
   showTickets: "true",
   showVote: "true",
   showQuiz: "true",
@@ -560,11 +594,35 @@ function getQuizEntries(db) {
   }));
 }
 
+function getTeamApplications(db) {
+  return db.prepare("SELECT * FROM team_applications ORDER BY created_at DESC").all().map((row) => {
+    let nominations = [];
+    try {
+      nominations = JSON.parse(row.nominations || "[]");
+    } catch (error) {
+      nominations = [];
+    }
+    return {
+      id: row.id,
+      leaderName: row.leader_name,
+      phone: row.phone,
+      participants: row.participants,
+      nominations: Array.isArray(nominations) ? nominations : [],
+      dishDescription: row.dish_description,
+      concept: row.concept,
+      equipmentMode: row.equipment_mode,
+      wishes: row.wishes || "",
+      createdAt: row.created_at,
+    };
+  });
+}
+
 function getState(db) {
   return {
     content: getContent(db),
     tickets: getTickets(db),
     quizEntries: getQuizEntries(db),
+    teamApplications: getTeamApplications(db),
   };
 }
 
@@ -601,6 +659,7 @@ function buildStats(state) {
     ticketsRevenue: revenue,
     votesCast,
     quizTotal: state.quizEntries.length,
+    teamsTotal: state.teamApplications.length,
     voteResults,
     quizResults,
     recentTickets,
@@ -641,6 +700,36 @@ function buildTicketsExportCsv(state) {
         ticket.price,
         ticket.orderTotal,
       ]),
+  ];
+  return rows.map((row) => row.map(escapeCsv).join(";")).join("\n");
+}
+
+function buildTeamsExportCsv(state) {
+  const rows = [
+    [
+      "Время заявки",
+      "ID заявки",
+      "ФИО руководителя",
+      "Телефон",
+      "Участники",
+      "Номинации",
+      "Описание блюда",
+      "Концепция",
+      "Оборудование",
+      "Пожелания",
+    ],
+    ...state.teamApplications.map((entry) => [
+      entry.createdAt,
+      entry.id,
+      entry.leaderName,
+      entry.phone,
+      entry.participants,
+      entry.nominations.join(", "),
+      entry.dishDescription,
+      entry.concept,
+      entry.equipmentMode === "need_all" ? "Да, всё необходимо" : "Будем работать со своим",
+      entry.wishes,
+    ]),
   ];
   return rows.map((row) => row.map(escapeCsv).join(";")).join("\n");
 }
@@ -872,6 +961,21 @@ async function ensureDatabase() {
       );
 
       CREATE INDEX IF NOT EXISTS idx_quiz_entries_created_at ON quiz_entries(created_at DESC);
+
+      CREATE TABLE IF NOT EXISTS team_applications (
+        id TEXT PRIMARY KEY,
+        leader_name TEXT NOT NULL,
+        phone TEXT NOT NULL,
+        participants TEXT NOT NULL,
+        nominations TEXT NOT NULL,
+        dish_description TEXT NOT NULL,
+        concept TEXT NOT NULL,
+        equipment_mode TEXT NOT NULL,
+        wishes TEXT,
+        created_at TEXT NOT NULL
+      );
+
+      CREATE INDEX IF NOT EXISTS idx_team_applications_created_at ON team_applications(created_at DESC);
     `);
 
     await migrateLegacyJsonIfNeeded(db);
@@ -1044,6 +1148,47 @@ async function handleApi(req, res, pathname) {
     return sendJson(res, 201, { entry });
   }
 
+  if (req.method === "POST" && pathname === "/api/team-applications") {
+    const body = await parseBody(req);
+    const leaderName = String(body.leaderName || "").trim();
+    const phone = String(body.phone || "").trim();
+    const participants = String(body.participants || "").trim();
+    const nominations = Array.isArray(body.nominations)
+      ? body.nominations.map((item) => String(item || "").trim()).filter(Boolean)
+      : [];
+    const dishDescription = String(body.dishDescription || "").trim();
+    const concept = String(body.concept || "").trim();
+    const equipmentMode = String(body.equipmentMode || "").trim();
+    const wishes = String(body.wishes || "").trim();
+
+    if (!leaderName || !phone || !participants || !nominations.length || !dishDescription || !concept || !equipmentMode) {
+      return sendError(res, 400, "Заполните обязательные поля заявки.");
+    }
+    if (!["need_all", "own"].includes(equipmentMode)) {
+      return sendError(res, 400, "Некорректный вариант по оборудованию.");
+    }
+
+    const createdAt = new Date().toISOString();
+    const id = crypto.randomUUID();
+    db.prepare(`
+      INSERT INTO team_applications(
+        id, leader_name, phone, participants, nominations, dish_description, concept, equipment_mode, wishes, created_at
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    `).run(
+      id,
+      leaderName,
+      phone,
+      participants,
+      JSON.stringify(nominations),
+      dishDescription,
+      concept,
+      equipmentMode,
+      wishes,
+      createdAt,
+    );
+    return sendJson(res, 201, { ok: true, id, createdAt });
+  }
+
   if (req.method === "GET" && pathname === "/api/stats") {
     if (!requireRole(req, res, "admin")) return;
     return sendJson(res, 200, { stats: buildStats(getState(db)) });
@@ -1089,6 +1234,12 @@ async function handleApi(req, res, pathname) {
     return sendJson(res, 200, { ok: true });
   }
 
+  if (req.method === "POST" && pathname === "/api/reset/teams") {
+    if (!requireRole(req, res, "admin")) return;
+    db.exec("DELETE FROM team_applications");
+    return sendJson(res, 200, { ok: true });
+  }
+
   if (req.method === "GET" && /^\/api\/tickets\/[^/]+\/pdf$/.test(pathname)) {
     const code = decodeURIComponent(pathname.split("/")[3] || "").trim();
     const ticket = getTicketByCode(db, code);
@@ -1113,6 +1264,11 @@ async function handleApi(req, res, pathname) {
   if (req.method === "GET" && pathname === "/api/export/tickets.csv") {
     if (!requireRole(req, res, "admin")) return;
     return sendCsv(res, "tickets-report.csv", buildTicketsExportCsv(getState(db)));
+  }
+
+  if (req.method === "GET" && pathname === "/api/export/teams.csv") {
+    if (!requireRole(req, res, "admin")) return;
+    return sendCsv(res, "teams-applications.csv", buildTeamsExportCsv(getState(db)));
   }
 
   return sendError(res, 404, "Маршрут не найден.");

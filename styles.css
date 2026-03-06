@@ -10,6 +10,7 @@
   --forest: #284137;
   --line: rgba(53, 27, 15, 0.12);
   --shadow: 0 18px 60px rgba(55, 27, 11, 0.16);
+  --content-max: 1380px;
 }
 
 * {
@@ -18,6 +19,7 @@
 
 html {
   scroll-behavior: smooth;
+  -webkit-text-size-adjust: 100%;
 }
 
 body {
@@ -28,6 +30,7 @@ body {
     radial-gradient(circle at top left, rgba(185, 138, 59, 0.22), transparent 28%),
     radial-gradient(circle at 85% 15%, rgba(142, 47, 31, 0.18), transparent 24%),
     linear-gradient(180deg, #e9ddcc 0%, var(--bg) 35%, #eadfce 100%);
+  overflow-x: hidden;
 }
 
 body::before {
@@ -54,9 +57,18 @@ iframe {
 }
 
 .page-shell {
-  width: min(1180px, calc(100% - 32px));
-  margin: 0 auto;
+  width: 100%;
+  max-width: none;
+  margin: 0;
+  padding-inline: clamp(10px, 2vw, 28px);
   padding-bottom: 72px;
+}
+
+.page-shell > main > .hero,
+.page-shell > main > .section {
+  width: 100%;
+  max-width: var(--content-max);
+  margin-inline: auto;
 }
 
 .site-header {
@@ -182,7 +194,7 @@ iframe {
 }
 
 .hero {
-  grid-template-columns: 1.4fr 0.8fr;
+  grid-template-columns: minmax(0, 1.18fr) minmax(320px, 0.82fr);
   align-items: center;
   padding: 58px 0 34px;
 }
@@ -353,13 +365,13 @@ iframe {
 }
 
 .section {
-  padding: 42px 0;
+  padding: clamp(26px, 4vw, 42px) 0;
 }
 
 .section--accent {
-  padding: 38px 28px;
-  margin: 24px 0;
-  border-radius: 36px;
+  padding: clamp(22px, 3vw, 38px) clamp(16px, 2.5vw, 28px);
+  margin: clamp(14px, 2vw, 24px) 0;
+  border-radius: clamp(24px, 3vw, 36px);
   background: linear-gradient(180deg, rgba(255, 248, 239, 0.76), rgba(235, 223, 208, 0.84));
   border: 1px solid rgba(111, 73, 48, 0.14);
 }
@@ -374,14 +386,41 @@ iframe {
 .checkin-title {
   margin: 0;
   font-size: clamp(2.1rem, 4vw, 3.4rem);
-  line-height: 0.96;
-  max-width: 14ch;
+  line-height: 0.98;
+  max-width: 18ch;
 }
 
-.about-grid,
+.about-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
 .details-grid,
 .contacts-grid {
   grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.contacts-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.contact-story-card {
+  grid-column: 1 / -1;
+}
+
+.contact-story-details {
+  margin-top: 6px;
+}
+
+.contact-story-details summary {
+  cursor: pointer;
+  font-weight: 700;
+  color: var(--accent);
+}
+
+.contact-story-body {
+  margin-top: 12px;
+  display: grid;
+  gap: 10px;
 }
 
 .map-frame {
@@ -416,6 +455,10 @@ iframe {
   font-family: "Cormorant SC", serif;
   font-size: 2rem;
   color: var(--accent);
+}
+
+.timeline-item--collapsed {
+  display: none;
 }
 
 .gallery-carousel {
@@ -514,6 +557,81 @@ iframe {
   align-items: start;
 }
 
+.quiz-layout {
+  grid-template-columns: minmax(0, 1.2fr) minmax(320px, 0.8fr);
+}
+
+.teams-layout {
+  display: grid;
+  grid-template-columns: 0.8fr 1.2fr;
+  gap: 24px;
+  align-items: start;
+}
+
+.teams-copy {
+  display: grid;
+  gap: 14px;
+  min-width: 0;
+  padding: 24px;
+}
+
+.teams-form-card h3 {
+  margin-top: 0;
+}
+
+.teams-form-card {
+  min-width: 0;
+  padding: 24px;
+}
+
+.teams-form-card .ticket-form,
+.teams-form-card .ticket-form label {
+  min-width: 0;
+}
+
+.teams-form-card .ticket-form input,
+.teams-form-card .ticket-form select,
+.teams-form-card .ticket-form textarea,
+.teams-copy .button {
+  width: 100%;
+  max-width: 100%;
+}
+
+.teams-regulation {
+  margin: 0;
+}
+
+.teams-regulation a {
+  color: var(--accent);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  font-weight: 600;
+}
+
+.teams-fieldset {
+  border: 1px solid rgba(36, 22, 14, 0.15);
+  border-radius: 14px;
+  padding: 12px 14px;
+  display: grid;
+  gap: 10px;
+  margin: 0;
+}
+
+.teams-fieldset legend {
+  padding: 0 6px;
+  font-weight: 600;
+}
+
+.teams-fieldset label {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-weight: 500;
+  min-width: 0;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
 .jury-grid {
   display: grid;
   grid-template-columns: repeat(5, minmax(0, 1fr));
@@ -592,6 +710,12 @@ iframe {
   gap: 14px;
 }
 
+.quiz-progress {
+  margin: 0;
+  font-weight: 700;
+  color: var(--accent);
+}
+
 .ticket-form label,
 .quiz-card label,
 .team-card {
@@ -605,6 +729,7 @@ iframe {
 
 .ticket-form input,
 .ticket-form select,
+.ticket-form textarea,
 .checkin-form input,
 .team-card input {
   min-height: 48px;
@@ -614,6 +739,24 @@ iframe {
   background: rgba(255, 250, 245, 0.9);
   font: inherit;
   color: var(--ink);
+}
+
+.ticket-form textarea {
+  min-height: 112px;
+  padding: 12px 14px;
+  resize: vertical;
+}
+
+.ticket-form input[type="checkbox"],
+.ticket-form input[type="radio"] {
+  min-height: 18px;
+  width: 18px;
+  height: 18px;
+  padding: 0;
+  border: 0;
+  border-radius: 4px;
+  background: transparent;
+  accent-color: var(--accent);
 }
 
 .payment-grid,
@@ -629,6 +772,16 @@ iframe {
   border-radius: 18px;
   background: rgba(255, 250, 245, 0.9);
   border: 1px solid rgba(36, 22, 14, 0.12);
+}
+
+.info-message--ok {
+  border-color: rgba(40, 65, 55, 0.28);
+  background: rgba(232, 247, 237, 0.72);
+}
+
+.info-message--warn {
+  border-color: rgba(142, 47, 31, 0.26);
+  background: rgba(255, 238, 231, 0.76);
 }
 
 .parking-note {
@@ -833,19 +986,31 @@ iframe {
 }
 
 .quiz-form {
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-columns: 1fr;
   align-items: start;
+  width: 100%;
 }
 
 .quiz-card {
   padding: 20px;
+  width: 100%;
 }
 
 .quiz-card label {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
   padding: 12px 14px;
   border-radius: 16px;
   border: 1px solid rgba(36, 22, 14, 0.1);
   background: rgba(255, 250, 245, 0.9);
+}
+
+.quiz-card label span {
+  min-width: 0;
+  white-space: normal;
+  overflow: visible;
+  text-overflow: clip;
 }
 
 .quiz-result {
@@ -855,10 +1020,18 @@ iframe {
   gap: 10px;
 }
 
+.quiz-result[hidden] {
+  display: grid;
+  visibility: hidden;
+}
+
 .checkin-page {
-  width: min(980px, calc(100% - 32px));
-  margin: 0 auto;
-  padding: 32px 0 72px;
+  width: 100%;
+  max-width: none;
+  margin: 0;
+  padding-inline: clamp(10px, 2vw, 28px);
+  padding-top: 32px;
+  padding-bottom: 72px;
 }
 
 .checkin-form {
@@ -929,9 +1102,12 @@ iframe {
 }
 
 .admin-page {
-  width: min(1180px, calc(100% - 32px));
-  margin: 0 auto;
-  padding: 32px 0 72px;
+  width: 100%;
+  max-width: none;
+  margin: 0;
+  padding-inline: clamp(10px, 2vw, 28px);
+  padding-top: 32px;
+  padding-bottom: 72px;
 }
 
 .admin-layout,
@@ -1121,9 +1297,20 @@ iframe {
 }
 
 @media (max-width: 980px) {
+  .page-shell,
+  .checkin-page,
+  .admin-page {
+    width: 100%;
+    max-width: none;
+    margin: 0;
+    padding-inline: 12px;
+    padding-bottom: 44px;
+  }
+
   .site-header,
   .hero,
   .ticket-layout,
+  .teams-layout,
   .jury-grid,
   .about-grid,
   .details-grid,
@@ -1147,11 +1334,121 @@ iframe {
 
   .site-header {
     position: static;
-    padding-top: 16px;
+    padding: 12px 0 8px;
+    gap: 12px;
+    backdrop-filter: none;
   }
 
   .site-nav {
     justify-content: flex-start;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    gap: 12px;
+    width: 100%;
+    padding-bottom: 4px;
+  }
+
+  .site-nav a {
+    flex: 0 0 auto;
+    white-space: nowrap;
+    font-size: 0.94rem;
+  }
+
+  .hero {
+    padding: 22px 0 14px;
+    gap: 18px;
+  }
+
+  .hero h1 {
+    font-size: clamp(2rem, 10vw, 3rem);
+    max-width: 100%;
+    line-height: 0.96;
+  }
+
+  .hero__lead {
+    font-size: 1rem;
+  }
+
+  .button,
+  .button--ticket {
+    min-height: 48px;
+    padding: 0 18px;
+    font-size: 0.96rem;
+  }
+
+  .hero__actions {
+    margin: 16px 0;
+  }
+
+  .hero__stats {
+    gap: 14px;
+  }
+
+  .hero__stats li {
+    min-width: 108px;
+  }
+
+  .hero__stats strong {
+    font-size: 1.45rem;
+  }
+
+  .section-heading h2,
+  .checkin-title {
+    max-width: 100%;
+    line-height: 1.02;
+  }
+
+  .ornament-card,
+  .info-card,
+  .detail-block,
+  .contact-card,
+  .price-card,
+  .map-frame,
+  .timeline-item,
+  .gallery-card,
+  .quiz-card,
+  .scanner-shell,
+  .ticket-card,
+  .vote-scoreboard,
+  .admin-stat-card,
+  .admin-panel {
+    border-radius: 22px;
+  }
+
+  .ornament-card::before,
+  .info-card::before,
+  .detail-block::before,
+  .contact-card::before,
+  .price-card::before,
+  .timeline-item::before,
+  .gallery-card::before,
+  .quiz-card::before,
+  .scanner-shell::before,
+  .ticket-card::before,
+  .vote-scoreboard::before,
+  .admin-stat-card::before,
+  .admin-panel::before {
+    inset: 8px;
+    border-radius: 16px;
+  }
+
+  .hero__panel,
+  .info-card,
+  .detail-block,
+  .contact-card,
+  .price-card,
+  .timeline-item,
+  .ticket-widget,
+  .vote-panel,
+  .vote-scoreboard,
+  .quiz-result,
+  .scanner-shell,
+  .checkin-panel,
+  .checkin-log,
+  .admin-panel,
+  .admin-stat-card {
+    padding: 18px;
   }
 
   .gallery-card {
@@ -1169,26 +1466,56 @@ iframe {
   .countdown-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
+
+  .quiz-result[hidden] {
+    display: none;
+    visibility: hidden;
+  }
 }
 
 @media (max-width: 640px) {
   .page-shell,
   .checkin-page,
   .admin-page {
-    width: min(100% - 20px, 1180px);
+    width: 100%;
+    max-width: none;
+    margin: 0;
+    padding-inline: 8px;
   }
 
   .hero {
-    padding-top: 24px;
+    padding-top: 16px;
+    gap: 14px;
   }
 
   .hero h1 {
     max-width: 100%;
   }
 
+  .brand {
+    gap: 8px;
+  }
+
+  .brand strong {
+    font-size: 1.3rem;
+  }
+
+  .brand small {
+    font-size: 0.82rem;
+  }
+
+  .brand__crest {
+    width: 38px;
+    height: 38px;
+  }
+
+  .section {
+    padding: 20px 0;
+  }
+
   .section--accent {
-    padding: 26px 18px;
-    border-radius: 26px;
+    padding: 18px 12px;
+    border-radius: 20px;
   }
 
   .gallery-card {
@@ -1213,5 +1540,44 @@ iframe {
 
   .button--ticket {
     width: 100%;
+  }
+
+  .countdown-grid {
+    gap: 10px;
+  }
+
+  .countdown-grid div {
+    padding: 10px 8px;
+    border-radius: 14px;
+  }
+
+  .countdown-grid strong {
+    font-size: 1.5rem;
+  }
+
+  .timeline-item {
+    gap: 10px;
+  }
+
+  .timeline-item span {
+    font-size: 1.5rem;
+  }
+
+  .ticket-form textarea {
+    min-height: 88px;
+  }
+
+  .quiz-card label {
+    padding: 10px 12px;
+  }
+
+  .pelmen-mini__button {
+    width: 180px;
+    height: 180px;
+  }
+
+  .pelmen-mini__hint {
+    font-size: 0.84rem;
+    padding: 7px 10px;
   }
 }

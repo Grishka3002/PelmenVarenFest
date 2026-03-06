@@ -41,6 +41,12 @@ const DEFAULT_CONTENT = {
   heroSideDate: "18.07",
   heroSideSchedule: "Сбор гостей с 11:00<br>Открытие в 12:00<br>Огненный финал в 21:30",
   heroSideNote: "После оплаты гость получает персональные билеты с уникальными кодами и QR, которые сканируются на входе.",
+  heroStat1Value: "12+",
+  heroStat1Text: "часов программы",
+  heroStat2Value: "4",
+  heroStat2Text: "тематические площадки",
+  heroStat3Value: "1 QR",
+  heroStat3Text: "на каждый билет",
   countdownEyebrow: "До открытия фестиваля",
   countdownNote: "Счётчик идёт до официального старта фестивального дня.",
   festivalStartAt: "2026-07-18T11:00:00+10:00",
@@ -141,9 +147,11 @@ const DEFAULT_CONTENT = {
   teamsEquipmentOwn: "Будем работать со своим",
   teamsWishesLabel: "Особые пожелания и комментарии",
   teamsSubmitButton: "Отправить заявку",
+  teamsApplyDisclaimer: "Если вы что-то заполнили неточно или данные изменились, повторно заполнять форму не нужно. Уточнения можно передать организатору.",
   teamsRegulationText: "Положение конкурса",
   teamsRegulationUrl: "/docs/regulation.pdf",
   teamsSuccessMessage: "Заявка отправлена. Организаторы свяжутся с вами.",
+  teamsReserveMessage: "Вы добавлены в резерв. Организатор свяжется с вами при появлении места в основном списке.",
   ticketsEyebrow: "Билеты",
   ticketsTitle: "Оплата, персональные QR-коды и готовность к контролю на входе.",
   ticketPriceLabel: "Стандарт",
@@ -153,6 +161,7 @@ const DEFAULT_CONTENT = {
   ticketFeature2: "После оплаты билет сразу доступен на странице",
   ticketFeature3: "После сканирования билет можно использовать для голосования",
   ticketNote: "Оплата реализована как клиентский checkout внутри проекта. Для боевого запуска потребуется подключение настоящего эквайринга и серверной базы билетов.",
+  ticketsClosedDisclaimer: "Продажа билетов сейчас временно недоступна. Купить билет можно будет позже.",
   ticketOfferNote: "Покупая билет, вы принимаете условия публичной оферты.",
   ticketOfferLinkText: "Ознакомиться с офертой",
   ticketOfferLinkUrl: "/offer",
@@ -234,6 +243,12 @@ const CONTENT_BINDINGS = {
   heroSideDate: { id: "content-hero-side-date", html: false },
   heroSideSchedule: { id: "content-hero-side-schedule", html: true },
   heroSideNote: { id: "content-hero-side-note", html: false },
+  heroStat1Value: { id: "content-hero-stat1-value", html: false },
+  heroStat1Text: { id: "content-hero-stat1-text", html: false },
+  heroStat2Value: { id: "content-hero-stat2-value", html: false },
+  heroStat2Text: { id: "content-hero-stat2-text", html: false },
+  heroStat3Value: { id: "content-hero-stat3-value", html: false },
+  heroStat3Text: { id: "content-hero-stat3-text", html: false },
   countdownEyebrow: { id: "content-countdown-eyebrow", html: false },
   countdownNote: { id: "content-countdown-note", html: false },
   aboutEyebrow: { id: "content-about-eyebrow", html: false },
@@ -405,10 +420,12 @@ const ticketList = document.querySelector("#ticket-list");
 const voteForm = document.querySelector("#vote-form");
 const voteMessage = document.querySelector("#vote-message");
 const voteResults = document.querySelector("#vote-results");
+const ticketCtaButtons = document.querySelectorAll("[data-ticket-cta]");
 const programExpandButton = document.querySelector("#program-expand-button");
 const quizForm = document.querySelector("#quiz-form");
 const quizResult = document.querySelector("#quiz-result");
 const quizProgress = document.querySelector("#quiz-progress");
+const centerDisclaimer = document.querySelector("#center-disclaimer");
 const orderStepLabel = document.querySelector("#order-step-label");
 const paymentStepLabel = document.querySelector("#payment-step-label");
 const ticketsStepLabel = document.querySelector("#tickets-step-label");
@@ -437,6 +454,7 @@ const adminRefreshButton = document.querySelector("#admin-refresh-stats");
 const adminExportQuizButton = document.querySelector("#admin-export-quiz");
 const adminExportTicketsButton = document.querySelector("#admin-export-tickets");
 const adminExportTeamsButton = document.querySelector("#admin-export-teams");
+const adminExportReserveTeamsButton = document.querySelector("#admin-export-reserve-teams");
 const adminResetTeamsButton = document.querySelector("#admin-reset-teams");
 const adminResetTicketsButton = document.querySelector("#admin-reset-tickets");
 const adminResetQuizButton = document.querySelector("#admin-reset-quiz");
@@ -457,6 +475,7 @@ const adminStats = {
   votesCast: document.querySelector("#stat-votes-cast"),
   quizTotal: document.querySelector("#stat-quiz-total"),
   teamsTotal: document.querySelector("#stat-teams-total"),
+  teamsReserve: document.querySelector("#stat-teams-reserve"),
   votesList: document.querySelector("#admin-vote-results"),
   quizList: document.querySelector("#admin-quiz-results"),
   recentTickets: document.querySelector("#admin-recent-tickets"),
@@ -466,6 +485,7 @@ let pendingOrder = null;
 let lastCreatedOrderTickets = [];
 let protectedModulesInitialized = false;
 let countdownTimerId = null;
+let centerDisclaimerTimerId = null;
 let galleryState = {
   index: 0,
   slides: [],
@@ -888,10 +908,28 @@ function setTeamApplyMessage(message, tone = "ok") {
   teamApplyMessage.textContent = message;
 }
 
+function showCenterDisclaimer(message, duration = 5000) {
+  if (!centerDisclaimer) return;
+  if (centerDisclaimerTimerId) {
+    clearTimeout(centerDisclaimerTimerId);
+    centerDisclaimerTimerId = null;
+  }
+  centerDisclaimer.textContent = String(message || "").trim();
+  if (!centerDisclaimer.textContent) return;
+  centerDisclaimer.hidden = false;
+  centerDisclaimer.classList.add("center-disclaimer--visible");
+  centerDisclaimerTimerId = window.setTimeout(() => {
+    centerDisclaimer.classList.remove("center-disclaimer--visible");
+    centerDisclaimer.hidden = true;
+  }, duration);
+}
+
 function initTeamApplyFlow() {
   if (!teamApplyToggle || !teamApplyPanel || !teamApplyForm) return;
 
   teamApplyToggle.addEventListener("click", () => {
+    const content = window.__appContent || DEFAULT_CONTENT;
+    showCenterDisclaimer(content.teamsApplyDisclaimer || DEFAULT_CONTENT.teamsApplyDisclaimer, 5000);
     teamApplyPanel.hidden = !teamApplyPanel.hidden;
     if (!teamApplyPanel.hidden) {
       setTeamApplyMessage("Заполните форму и отправьте заявку.", "ok");
@@ -919,13 +957,28 @@ function initTeamApplyFlow() {
     }
 
     try {
-      await api.createTeamApplication(payload);
-      const successText = String((window.__appContent && window.__appContent.teamsSuccessMessage) || DEFAULT_CONTENT.teamsSuccessMessage);
+      const response = await api.createTeamApplication(payload);
+      const content = window.__appContent || DEFAULT_CONTENT;
+      const successText = response.status === "reserve"
+        ? String(content.teamsReserveMessage || DEFAULT_CONTENT.teamsReserveMessage)
+        : String(content.teamsSuccessMessage || DEFAULT_CONTENT.teamsSuccessMessage);
       setTeamApplyMessage(successText, "ok");
       teamApplyForm.reset();
     } catch (error) {
       setTeamApplyMessage(error.message || "Не удалось отправить заявку. Попробуйте ещё раз.", "warn");
     }
+  });
+}
+
+function initTicketCtaGuard() {
+  if (!ticketCtaButtons.length) return;
+  ticketCtaButtons.forEach((button) => {
+    button.addEventListener("click", (event) => {
+      const content = window.__appContent || DEFAULT_CONTENT;
+      if (isEnabled(content.showTickets, true)) return;
+      event.preventDefault();
+      showCenterDisclaimer(content.ticketsClosedDisclaimer || DEFAULT_CONTENT.ticketsClosedDisclaimer, 5000);
+    });
   });
 }
 
@@ -1168,6 +1221,7 @@ async function renderAdminStats() {
   adminStats.votesCast.textContent = String(stats.votesCast);
   adminStats.quizTotal.textContent = String(stats.quizTotal);
   if (adminStats.teamsTotal) adminStats.teamsTotal.textContent = String(stats.teamsTotal || 0);
+  if (adminStats.teamsReserve) adminStats.teamsReserve.textContent = String(stats.teamsReserveTotal || 0);
 
   if (adminStats.votesList) {
     adminStats.votesList.innerHTML = stats.voteResults
@@ -1631,6 +1685,15 @@ function initAdminPanel() {
     }
   });
 
+  adminExportReserveTeamsButton?.addEventListener("click", async () => {
+    try {
+      await downloadFile("/api/export/teams-reserve.csv", "teams-reserve.csv");
+      setAdminMessage("<strong>Экспорт готов.</strong><br>Файл с резервом команд скачан.", "ok");
+    } catch (error) {
+      setAdminMessage(`<strong>Ошибка экспорта.</strong><br>${error.message}`, "warn");
+    }
+  });
+
   adminResetTeamsButton?.addEventListener("click", async () => {
     try {
       await api.resetTeams();
@@ -1773,6 +1836,7 @@ async function init() {
   }
 
   initTicketFlow();
+  initTicketCtaGuard();
   initTeamApplyFlow();
   initVoteFlow();
   initProgramPreview();

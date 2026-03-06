@@ -18,6 +18,7 @@ const ADMIN_USERNAME = process.env.ADMIN_USERNAME || "admin";
 const CHECKIN_USERNAME = process.env.CHECKIN_USERNAME || "checkin";
 const SESSION_TTL_MS = Number(process.env.SESSION_TTL_HOURS || 12) * 60 * 60 * 1000;
 const TICKET_PRICE = 600;
+const TEAM_MAIN_LIMIT = 20;
 const STATIC_MAP = { lat: "43.174647", lon: "132.713618", zoom: "12" };
 const QUIZ_RESULTS = {
   pelmeni: "Ты пельмень сибирский",
@@ -40,6 +41,12 @@ const DEFAULT_CONTENT = {
   heroSideDate: "16.05",
   heroSideSchedule: "Сбор гостей с 11:00<br>Открытие в 12:00<br>Огненный финал в 21:30",
   heroSideNote: "После оплаты гость получает персональные билеты с уникальными кодами и QR, которые сканируются на входе.",
+  heroStat1Value: "12+",
+  heroStat1Text: "часов программы",
+  heroStat2Value: "4",
+  heroStat2Text: "тематические площадки",
+  heroStat3Value: "1 QR",
+  heroStat3Text: "на каждый билет",
   countdownEyebrow: "До открытия фестиваля",
   countdownNote: "Счётчик идёт до официального старта фестивального дня.",
   festivalStartAt: "2026-07-18T11:00:00+10:00",
@@ -140,9 +147,11 @@ const DEFAULT_CONTENT = {
   teamsEquipmentOwn: "Будем работать со своим",
   teamsWishesLabel: "Особые пожелания и комментарии",
   teamsSubmitButton: "Отправить заявку",
+  teamsApplyDisclaimer: "Если вы что-то заполнили неточно или данные изменились, повторно заполнять форму не нужно. Уточнения можно передать организатору.",
   teamsRegulationText: "Положение конкурса",
   teamsRegulationUrl: "/docs/regulation.pdf",
   teamsSuccessMessage: "Заявка отправлена. Организаторы свяжутся с вами.",
+  teamsReserveMessage: "Вы добавлены в резерв. Организатор свяжется с вами при появлении места в основном списке.",
   ticketsEyebrow: "Билеты",
   ticketsTitle: "Оплата, персональные QR-коды и готовность к контролю на входе.",
   ticketPriceLabel: "Стандарт",
@@ -152,6 +161,7 @@ const DEFAULT_CONTENT = {
   ticketFeature2: "После оплаты билет сразу доступен на странице",
   ticketFeature3: "После сканирования билет можно использовать для голосования",
   ticketNote: "Оплата реализована как клиентский checkout внутри проекта. Для боевого запуска потребуется подключение настоящего эквайринга и серверной базы билетов.",
+  ticketsClosedDisclaimer: "Продажа билетов сейчас временно недоступна. Купить билет можно будет позже.",
   ticketOfferNote: "Покупая билет, вы принимаете условия публичной оферты.",
   ticketOfferLinkText: "Ознакомиться с офертой",
   ticketOfferLinkUrl: "/offer",
@@ -457,6 +467,15 @@ function seedDefaultUsers(db) {
   createUser(db, "checkin", CHECKIN_USERNAME, CHECKIN_PASSWORD);
 }
 
+function ensureTeamApplicationsSchema(db) {
+  const columns = db.prepare("PRAGMA table_info(team_applications)").all();
+  const hasStatus = columns.some((column) => column.name === "status");
+  if (!hasStatus) {
+    db.exec("ALTER TABLE team_applications ADD COLUMN status TEXT NOT NULL DEFAULT 'main'");
+  }
+  db.exec("CREATE INDEX IF NOT EXISTS idx_team_applications_status ON team_applications(status)");
+}
+
 function seedContentDefaults(db) {
   const statement = db.prepare("INSERT INTO content(key, value) VALUES(?, ?) ON CONFLICT(key) DO NOTHING");
   const upsert = db.prepare("INSERT INTO content(key, value) VALUES(?, ?) ON CONFLICT(key) DO UPDATE SET value = excluded.value");
@@ -620,6 +639,7 @@ function getTeamApplications(db) {
       concept: row.concept,
       equipmentMode: row.equipment_mode,
       wishes: row.wishes || "",
+      status: row.status === "reserve" ? "reserve" : "main",
       createdAt: row.created_at,
     };
   });
@@ -667,7 +687,8 @@ function buildStats(state) {
     ticketsRevenue: revenue,
     votesCast,
     quizTotal: state.quizEntries.length,
-    teamsTotal: state.teamApplications.length,
+    teamsTotal: state.teamApplications.filter((entry) => entry.status !== "reserve").length,
+    teamsReserveTotal: state.teamApplications.filter((entry) => entry.status === "reserve").length,
     voteResults,
     quizResults,
     recentTickets,
@@ -712,11 +733,17 @@ function buildTicketsExportCsv(state) {
   return rows.map((row) => row.map(escapeCsv).join(";")).join("\n");
 }
 
-function buildTeamsExportCsv(state) {
+function buildTeamsExportCsv(state, mode = "all") {
+  const filtered = state.teamApplications.filter((entry) => {
+    if (mode === "reserve") return entry.status === "reserve";
+    if (mode === "main") return entry.status !== "reserve";
+    return true;
+  });
   const rows = [
     [
       "Время заявки",
       "ID заявки",
+      "Статус",
       "ФИО руководителя",
       "Телефон",
       "Участники",
@@ -726,9 +753,10 @@ function buildTeamsExportCsv(state) {
       "Оборудование",
       "Пожелания",
     ],
-    ...state.teamApplications.map((entry) => [
+    ...filtered.map((entry) => [
       entry.createdAt,
       entry.id,
+      entry.status === "reserve" ? "Резерв" : "Основной список",
       entry.leaderName,
       entry.phone,
       entry.participants,
@@ -980,12 +1008,14 @@ async function ensureDatabase() {
         concept TEXT NOT NULL,
         equipment_mode TEXT NOT NULL,
         wishes TEXT,
+        status TEXT NOT NULL DEFAULT 'main',
         created_at TEXT NOT NULL
       );
 
       CREATE INDEX IF NOT EXISTS idx_team_applications_created_at ON team_applications(created_at DESC);
     `);
 
+    ensureTeamApplicationsSchema(db);
     await migrateLegacyJsonIfNeeded(db);
     seedContentDefaults(db);
     seedDefaultUsers(db);
@@ -1176,12 +1206,18 @@ async function handleApi(req, res, pathname) {
       return sendError(res, 400, "Некорректный вариант по оборудованию.");
     }
 
+    const mainTeamsTotal = db.prepare("SELECT COUNT(*) AS total FROM team_applications WHERE status != 'reserve' OR status IS NULL").get().total;
+    const status = mainTeamsTotal >= TEAM_MAIN_LIMIT ? "reserve" : "main";
+    const reservePosition = status === "reserve"
+      ? db.prepare("SELECT COUNT(*) AS total FROM team_applications WHERE status = 'reserve'").get().total + 1
+      : 0;
+
     const createdAt = new Date().toISOString();
     const id = crypto.randomUUID();
     db.prepare(`
       INSERT INTO team_applications(
-        id, leader_name, phone, participants, nominations, dish_description, concept, equipment_mode, wishes, created_at
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        id, leader_name, phone, participants, nominations, dish_description, concept, equipment_mode, wishes, status, created_at
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `).run(
       id,
       leaderName,
@@ -1192,9 +1228,10 @@ async function handleApi(req, res, pathname) {
       concept,
       equipmentMode,
       wishes,
+      status,
       createdAt,
     );
-    return sendJson(res, 201, { ok: true, id, createdAt });
+    return sendJson(res, 201, { ok: true, id, createdAt, status, reservePosition });
   }
 
   if (req.method === "GET" && pathname === "/api/stats") {
@@ -1277,6 +1314,11 @@ async function handleApi(req, res, pathname) {
   if (req.method === "GET" && pathname === "/api/export/teams.csv") {
     if (!requireRole(req, res, "admin")) return;
     return sendCsv(res, "teams-applications.csv", buildTeamsExportCsv(getState(db)));
+  }
+
+  if (req.method === "GET" && pathname === "/api/export/teams-reserve.csv") {
+    if (!requireRole(req, res, "admin")) return;
+    return sendCsv(res, "teams-reserve.csv", buildTeamsExportCsv(getState(db), "reserve"));
   }
 
   return sendError(res, 404, "Маршрут не найден.");

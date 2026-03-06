@@ -66,7 +66,12 @@
         <article class="admin-stat-card">
           <p class="eyebrow">Команды</p>
           <strong id="stat-teams-total">0</strong>
-          <p class="muted">Зарегистрировано</p>
+          <p class="muted">Основной список</p>
+        </article>
+        <article class="admin-stat-card">
+          <p class="eyebrow">Резерв</p>
+          <strong id="stat-teams-reserve">0</strong>
+          <p class="muted">Команд в резерве</p>
         </article>
       </div>
 
@@ -166,6 +171,30 @@
             <label class="admin-wide">
               Отсчёт: дата старта в ISO
               <input type="text" name="festivalStartAt" placeholder="2026-07-18T11:00:00+10:00">
+            </label>
+            <label>
+              Hero: показатель 1 (значение)
+              <input type="text" name="heroStat1Value">
+            </label>
+            <label>
+              Hero: показатель 1 (подпись)
+              <input type="text" name="heroStat1Text">
+            </label>
+            <label>
+              Hero: показатель 2 (значение)
+              <input type="text" name="heroStat2Value">
+            </label>
+            <label>
+              Hero: показатель 2 (подпись)
+              <input type="text" name="heroStat2Text">
+            </label>
+            <label>
+              Hero: показатель 3 (значение)
+              <input type="text" name="heroStat3Value">
+            </label>
+            <label>
+              Hero: показатель 3 (подпись)
+              <input type="text" name="heroStat3Text">
             </label>
             </section>
             <section class="admin-tab-panel admin-wide" data-tab-panel="about">
@@ -370,7 +399,9 @@
             <label><input type="text" name="teamsEquipmentOwn" placeholder="Опция: со своим"></label>
             <label class="admin-wide"><input type="text" name="teamsWishesLabel" placeholder="Вопрос: пожелания"></label>
             <label><input type="text" name="teamsSubmitButton" placeholder="Текст кнопки отправки"></label>
+            <label class="admin-wide"><textarea name="teamsApplyDisclaimer" placeholder="Дисклеймер на 5 секунд при нажатии «Подать заявку»"></textarea></label>
             <label class="admin-wide"><input type="text" name="teamsSuccessMessage" placeholder="Текст после успешной отправки"></label>
+            <label class="admin-wide"><input type="text" name="teamsReserveMessage" placeholder="Текст, если команда добавлена в резерв"></label>
             <label><input type="text" name="teamsRegulationText" placeholder="Текст ссылки на положение"></label>
             <label><input type="text" name="teamsRegulationUrl" placeholder="Ссылка на положение конкурса"></label>
             </section>
@@ -387,6 +418,7 @@
             <label><input type="text" name="ticketFeature2" placeholder="Преимущество 2"></label>
             <label><input type="text" name="ticketFeature3" placeholder="Преимущество 3"></label>
             <label class="admin-wide"><textarea name="ticketNote" placeholder="Пояснение к оплате"></textarea></label>
+            <label class="admin-wide"><textarea name="ticketsClosedDisclaimer" placeholder="Текст на 5 секунд, если блок билетов скрыт"></textarea></label>
             <label class="admin-wide"><textarea name="ticketOfferNote" placeholder="Текст о принятии публичной оферты"></textarea></label>
             <label><input type="text" name="ticketOfferLinkText" placeholder="Текст ссылки на оферту"></label>
             <label><input type="text" name="ticketOfferLinkUrl" placeholder="Ссылка на оферту (например /offer или https://...)"></label>
@@ -556,6 +588,7 @@
               <button class="button" id="admin-export-quiz" type="button">Скачать тест CSV</button>
               <button class="button button--secondary" id="admin-export-tickets" type="button">Скачать билеты CSV</button>
               <button class="button button--secondary" id="admin-export-teams" type="button">Скачать команды CSV</button>
+              <button class="button button--secondary" id="admin-export-reserve-teams" type="button">Скачать резерв CSV</button>
               <button class="button button--secondary" id="admin-reset-teams" type="button">Сбросить команды</button>
               <button class="button button--secondary" id="admin-reset-tickets" type="button">Сбросить билеты</button>
               <button class="button button--secondary" id="admin-reset-quiz" type="button">Сбросить тест</button>

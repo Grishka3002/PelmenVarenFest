@@ -46,7 +46,7 @@
           <h1 id="content-hero-title">Лендинг фестиваля в русско-славянском духе с билетом и входом по QR.</h1>
           <p class="hero__lead" id="content-hero-lead">Музыка у костра, ремесленные дворы, ярмарка, северная кухня, игры, хороводы и вечерний огненный круг на берегу.</p>
           <div class="hero__actions">
-            <a class="button button--ticket" href="#tickets">Купить билет</a>
+            <a class="button button--ticket" href="#tickets" data-ticket-cta>Купить билет</a>
             <a class="button button--secondary" href="#program">Смотреть программу</a>
           </div>
           <div class="countdown-card ornament-card" id="countdown-block" data-section-key="countdown">
@@ -60,9 +60,9 @@
             <p class="muted" id="content-countdown-note">Счётчик идёт до официального старта фестивального дня.</p>
           </div>
           <ul class="hero__stats">
-            <li><strong>12+</strong><span>часов программы</span></li>
-            <li><strong>4</strong><span>тематические площадки</span></li>
-            <li><strong>1 QR</strong><span>на каждый билет</span></li>
+            <li><strong id="content-hero-stat1-value">12+</strong><span id="content-hero-stat1-text">часов программы</span></li>
+            <li><strong id="content-hero-stat2-value">4</strong><span id="content-hero-stat2-text">тематические площадки</span></li>
+            <li><strong id="content-hero-stat3-value">1 QR</strong><span id="content-hero-stat3-text">на каждый билет</span></li>
           </ul>
         </div>
         <aside class="hero__panel ornament-card">
@@ -124,7 +124,7 @@
         </div>
         <p class="muted parking-note" id="content-parking-note">Бесплатная парковка на 70 мест. Если хотите припарковаться на территории фестиваля, приезжайте заранее.</p>
         <div class="section-cta">
-          <a class="button button--ticket" href="#tickets" id="content-location-cta">Купить билет</a>
+          <a class="button button--ticket" href="#tickets" id="content-location-cta" data-ticket-cta>Купить билет</a>
         </div>
       </section>
 
@@ -551,6 +551,8 @@
       </section>
     </main>
   </div>
+
+  <div id="center-disclaimer" class="center-disclaimer" hidden></div>
 
   <script src="script.js"></script>
 </body>

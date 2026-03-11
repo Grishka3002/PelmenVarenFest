@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Пельмень Варень | кабинет жюри</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+SC:wght@500;600;700&family=Golos+Text:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body data-protected-role="jury">
+  <main class="admin-page">
+    <section id="auth-screen" class="section auth-screen">
+      <article class="admin-panel ornament-card auth-card">
+        <div class="section-heading">
+          <p class="eyebrow">Закрытый доступ</p>
+          <h1 class="checkin-title">Вход для жюри.</h1>
+        </div>
+        <form id="auth-form" class="ticket-form">
+          <label>
+            Логин жюри
+            <input type="text" name="username" placeholder="Например, jury1" autocomplete="username" required>
+          </label>
+          <label>
+            Пароль жюри
+            <input type="password" name="password" placeholder="Введите пароль" autocomplete="current-password" required>
+          </label>
+          <button class="button" type="submit">Войти</button>
+        </form>
+        <div id="auth-message" class="info-message">Доступ к оценкам открыт только авторизованным членам жюри.</div>
+      </article>
+    </section>
+
+    <div id="protected-app" hidden>
+      <section class="section">
+        <div class="section-heading">
+          <p class="eyebrow">Кабинет жюри</p>
+          <h1 class="checkin-title">Поставьте оценки командам по каждому критерию.</h1>
+        </div>
+        <div class="payment-actions">
+          <button id="logout-button" class="button button--secondary" type="button">Выйти</button>
+        </div>
+
+        <article class="admin-panel ornament-card">
+          <form id="jury-score-form" class="jury-score-form"></form>
+          <div class="payment-actions">
+            <button id="jury-save-button" class="button" type="button">Сохранить оценки</button>
+          </div>
+          <div id="jury-message" class="info-message">Оценки выставляются по шкале от 1 до 10.</div>
+        </article>
+      </section>
+    </div>
+  </main>
+  <script src="script.js"></script>
+</body>
+</html>

@@ -14,6 +14,7 @@ const SQLITE_PATH = process.env.SQLITE_PATH || path.join(DATA_ROOT, "festival.sq
 const LEGACY_DB_PATH = path.join(ROOT, "db.json");
 const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || "admin123";
 const CHECKIN_PASSWORD = process.env.CHECKIN_PASSWORD || "checkin123";
+const JURY_DEFAULT_PASSWORD = process.env.JURY_DEFAULT_PASSWORD || "jury12345";
 const ADMIN_USERNAME = process.env.ADMIN_USERNAME || "admin";
 const CHECKIN_USERNAME = process.env.CHECKIN_USERNAME || "checkin";
 const SESSION_TTL_MS = Number(process.env.SESSION_TTL_HOURS || 12) * 60 * 60 * 1000;
@@ -127,6 +128,8 @@ const DEFAULT_CONTENT = {
   juryName5: "Денис Ладов",
   juryRegalia5: "Бренд-шеф, судья кулинарных чемпионатов.",
   juryPhoto5: "",
+  juryScoringTeams: "Команда Северный пар\nКоманда Жар-печь\nКоманда Морской дым",
+  juryScoringCriteria: "Вкус\nПодача\nОригинальность\nТехника\nПрезентация",
   teamsEyebrow: "Командам",
   teamsTitle: "Подайте заявку на участие в конкурсе фестиваля.",
   teamsLead: "Заполните форму: заявка уходит организаторам и фиксируется в системе.",
@@ -176,6 +179,40 @@ const DEFAULT_CONTENT = {
   team2Desc: "Огонь, дымок и авторская подача",
   team3Name: "Команда Морской дым",
   team3Desc: "Дальний Восток и северный берег",
+  team4Name: "Команда 4",
+  team4Desc: "",
+  team5Name: "Команда 5",
+  team5Desc: "",
+  team6Name: "Команда 6",
+  team6Desc: "",
+  team7Name: "Команда 7",
+  team7Desc: "",
+  team8Name: "Команда 8",
+  team8Desc: "",
+  team9Name: "Команда 9",
+  team9Desc: "",
+  team10Name: "Команда 10",
+  team10Desc: "",
+  team11Name: "Команда 11",
+  team11Desc: "",
+  team12Name: "Команда 12",
+  team12Desc: "",
+  team13Name: "Команда 13",
+  team13Desc: "",
+  team14Name: "Команда 14",
+  team14Desc: "",
+  team15Name: "Команда 15",
+  team15Desc: "",
+  team16Name: "Команда 16",
+  team16Desc: "",
+  team17Name: "Команда 17",
+  team17Desc: "",
+  team18Name: "Команда 18",
+  team18Desc: "",
+  team19Name: "Команда 19",
+  team19Desc: "",
+  team20Name: "Команда 20",
+  team20Desc: "",
   quizEyebrow: "Тест",
   quizTitle: "Какой ты пельмень?",
   quizQ1Title: "1. Какой ритм дня тебе ближе?",
@@ -419,7 +456,7 @@ function findUserById(db, id) {
 function createUser(db, role, username, password) {
   const normalizedRole = String(role || "").trim();
   const normalizedUsername = String(username || "").trim();
-  if (!["admin", "checkin"].includes(normalizedRole)) {
+  if (!["admin", "checkin", "jury"].includes(normalizedRole)) {
     throw new Error("Недопустимая роль.");
   }
   if (!/^[a-zA-Z0-9._-]{3,32}$/.test(normalizedUsername)) {
@@ -465,6 +502,17 @@ function seedDefaultUsers(db) {
   if (db.prepare("SELECT COUNT(*) AS total FROM users").get().total > 0) return;
   createUser(db, "admin", ADMIN_USERNAME, ADMIN_PASSWORD);
   createUser(db, "checkin", CHECKIN_USERNAME, CHECKIN_PASSWORD);
+  for (let index = 1; index <= 5; index += 1) {
+    createUser(db, "jury", `jury${index}`, JURY_DEFAULT_PASSWORD);
+  }
+}
+
+function ensureDefaultJuryUsers(db) {
+  const total = db.prepare("SELECT COUNT(*) AS total FROM users WHERE role = 'jury'").get().total;
+  if (total > 0) return;
+  for (let index = 1; index <= 5; index += 1) {
+    createUser(db, "jury", `jury${index}`, JURY_DEFAULT_PASSWORD);
+  }
 }
 
 function ensureTeamApplicationsSchema(db) {
@@ -474,6 +522,30 @@ function ensureTeamApplicationsSchema(db) {
     db.exec("ALTER TABLE team_applications ADD COLUMN status TEXT NOT NULL DEFAULT 'main'");
   }
   db.exec("CREATE INDEX IF NOT EXISTS idx_team_applications_status ON team_applications(status)");
+}
+
+function normalizeListValue(value) {
+  return String(value || "")
+    .split(/\r?\n|;/)
+    .map((item) => item.trim())
+    .filter(Boolean);
+}
+
+function getVotingTeamsFromContent(content) {
+  const teams = [];
+  for (let index = 1; index <= 20; index += 1) {
+    const name = String(content[`team${index}Name`] || "").trim();
+    teams.push(name || `Команда ${index}`);
+  }
+  return teams;
+}
+
+function getJuryConfig(content) {
+  const teams = getVotingTeamsFromContent(content);
+  const criteria = normalizeListValue(content.juryScoringCriteria).length
+    ? normalizeListValue(content.juryScoringCriteria)
+    : normalizeListValue(DEFAULT_CONTENT.juryScoringCriteria);
+  return { teams, criteria };
 }
 
 function seedContentDefaults(db) {
@@ -645,17 +717,35 @@ function getTeamApplications(db) {
   });
 }
 
+function getJuryScores(db) {
+  return db.prepare(`
+    SELECT id, juror_user_id, juror_username, team_name, criterion_name, score, created_at, updated_at
+    FROM jury_scores
+    ORDER BY team_name, criterion_name, juror_username
+  `).all().map((row) => ({
+    id: row.id,
+    jurorUserId: row.juror_user_id,
+    jurorUsername: row.juror_username,
+    teamName: row.team_name,
+    criterionName: row.criterion_name,
+    score: Number(row.score || 0),
+    createdAt: row.created_at,
+    updatedAt: row.updated_at,
+  }));
+}
+
 function getState(db) {
   return {
     content: getContent(db),
     tickets: getTickets(db),
     quizEntries: getQuizEntries(db),
     teamApplications: getTeamApplications(db),
+    juryScores: getJuryScores(db),
   };
 }
 
 function getTeamNames(state) {
-  return [state.content.team1Name, state.content.team2Name, state.content.team3Name].filter(Boolean);
+  return getVotingTeamsFromContent(state.content);
 }
 
 function buildStats(state) {
@@ -681,6 +771,25 @@ function buildStats(state) {
       voteTeam: ticket.voteTeam,
     }));
 
+  const juryConfig = getJuryConfig(state.content);
+  const juryTeamTotals = juryConfig.teams.map((team) => {
+    const byCriterion = juryConfig.criteria.map((criterion) => {
+      const total = state.juryScores
+        .filter((entry) => entry.teamName === team && entry.criterionName === criterion)
+        .reduce((sum, entry) => sum + Number(entry.score || 0), 0);
+      return { criterion, total };
+    });
+    const total = byCriterion.reduce((sum, item) => sum + item.total, 0);
+    return { team, total, byCriterion };
+  });
+  const juryCriterionTotals = juryConfig.criteria.map((criterion) => ({
+    criterion,
+    total: state.juryScores
+      .filter((entry) => entry.criterionName === criterion)
+      .reduce((sum, entry) => sum + Number(entry.score || 0), 0),
+  }));
+  const juryJudgesTotal = new Set(state.juryScores.map((entry) => entry.jurorUserId)).size;
+
   return {
     ticketsSold: sold,
     ticketsScanned: scanned,
@@ -689,6 +798,10 @@ function buildStats(state) {
     quizTotal: state.quizEntries.length,
     teamsTotal: state.teamApplications.filter((entry) => entry.status !== "reserve").length,
     teamsReserveTotal: state.teamApplications.filter((entry) => entry.status === "reserve").length,
+    juryScoresTotal: state.juryScores.length,
+    juryJudgesTotal,
+    juryTeamTotals,
+    juryCriterionTotals,
     voteResults,
     quizResults,
     recentTickets,
@@ -1013,12 +1126,29 @@ async function ensureDatabase() {
       );
 
       CREATE INDEX IF NOT EXISTS idx_team_applications_created_at ON team_applications(created_at DESC);
+
+      CREATE TABLE IF NOT EXISTS jury_scores (
+        id TEXT PRIMARY KEY,
+        juror_user_id TEXT NOT NULL,
+        juror_username TEXT NOT NULL,
+        team_name TEXT NOT NULL,
+        criterion_name TEXT NOT NULL,
+        score INTEGER NOT NULL,
+        created_at TEXT NOT NULL,
+        updated_at TEXT NOT NULL
+      );
+
+      CREATE UNIQUE INDEX IF NOT EXISTS idx_jury_scores_unique
+        ON jury_scores(juror_user_id, team_name, criterion_name);
+      CREATE INDEX IF NOT EXISTS idx_jury_scores_team ON jury_scores(team_name);
+      CREATE INDEX IF NOT EXISTS idx_jury_scores_criterion ON jury_scores(criterion_name);
     `);
 
     ensureTeamApplicationsSchema(db);
     await migrateLegacyJsonIfNeeded(db);
     seedContentDefaults(db);
     seedDefaultUsers(db);
+    ensureDefaultJuryUsers(db);
     database = db;
     return db;
   })();
@@ -1035,7 +1165,7 @@ async function handleApi(req, res, pathname) {
     const username = String(body.username || "").trim();
     const password = String(body.password || "");
 
-    if (!["admin", "checkin"].includes(role)) return sendError(res, 400, "Неизвестная зона доступа.");
+    if (!["admin", "checkin", "jury"].includes(role)) return sendError(res, 400, "Неизвестная зона доступа.");
     if (!username || !password) return sendError(res, 400, "Введите логин и пароль.");
 
     const user = findUserForLogin(db, role, username);
@@ -1091,10 +1221,82 @@ async function handleApi(req, res, pathname) {
 
   if (req.method === "GET" && pathname === "/api/tickets") {
     const session = getSession(req);
-    if (!session || !["admin", "checkin"].includes(session.role)) {
+    if (!session || !["admin", "checkin", "jury"].includes(session.role)) {
       return sendError(res, 401, "Требуется авторизация.");
     }
     return sendJson(res, 200, { tickets: getTickets(db) });
+  }
+
+  if (req.method === "GET" && pathname === "/api/jury/config") {
+    if (!requireRole(req, res, "jury")) return;
+    const session = getSession(req);
+    const content = getContent(db);
+    const config = getJuryConfig(content);
+    const myScores = db.prepare(`
+      SELECT team_name, criterion_name, score
+      FROM jury_scores
+      WHERE juror_user_id = ?
+    `).all(session.userId).map((row) => ({
+      teamName: row.team_name,
+      criterionName: row.criterion_name,
+      score: Number(row.score || 0),
+    }));
+    return sendJson(res, 200, { teams: config.teams, criteria: config.criteria, myScores });
+  }
+
+  if (req.method === "POST" && pathname === "/api/jury/scores") {
+    if (!requireRole(req, res, "jury")) return;
+    const session = getSession(req);
+    const body = await parseBody(req);
+    const scores = Array.isArray(body.scores) ? body.scores : [];
+    const content = getContent(db);
+    const config = getJuryConfig(content);
+    const teamSet = new Set(config.teams);
+    const criterionSet = new Set(config.criteria);
+    const uniqueKeySet = new Set();
+
+    if (!config.teams.length || !config.criteria.length) {
+      return sendError(res, 400, "Администратор ещё не настроил команды или критерии.");
+    }
+    if (!scores.length) {
+      return sendError(res, 400, "Передайте оценки.");
+    }
+
+    for (const item of scores) {
+      const teamName = String(item.teamName || "").trim();
+      const criterionName = String(item.criterionName || "").trim();
+      const score = Number(item.score);
+      if (!teamSet.has(teamName)) return sendError(res, 400, "Некорректная команда в оценках.");
+      if (!criterionSet.has(criterionName)) return sendError(res, 400, "Некорректный критерий в оценках.");
+      if (!Number.isInteger(score) || score < 1 || score > 10) return sendError(res, 400, "Оценка должна быть целым числом от 1 до 10.");
+      const uniqueKey = `${teamName}::${criterionName}`;
+      if (uniqueKeySet.has(uniqueKey)) return sendError(res, 400, "Обнаружены дубли по команде и критерию.");
+      uniqueKeySet.add(uniqueKey);
+    }
+
+    const now = new Date().toISOString();
+    runTransaction(db, () => {
+      db.prepare("DELETE FROM jury_scores WHERE juror_user_id = ?").run(session.userId);
+      const insert = db.prepare(`
+        INSERT INTO jury_scores(
+          id, juror_user_id, juror_username, team_name, criterion_name, score, created_at, updated_at
+        ) VALUES(?, ?, ?, ?, ?, ?, ?, ?)
+      `);
+      scores.forEach((item) => {
+        insert.run(
+          crypto.randomUUID(),
+          session.userId,
+          session.username,
+          String(item.teamName).trim(),
+          String(item.criterionName).trim(),
+          Number(item.score),
+          now,
+          now,
+        );
+      });
+    });
+
+    return sendJson(res, 200, { ok: true });
   }
 
   if (req.method === "POST" && pathname === "/api/orders") {
@@ -1329,6 +1531,7 @@ async function serveStatic(res, pathname) {
     "/": "index.html",
     "/admin": "admin.html",
     "/checkin": "checkin.html",
+    "/jury": "jury.html",
   };
   const target = routeMap[pathname] || pathname.slice(1);
   const resolved = path.normalize(path.join(ROOT, target));

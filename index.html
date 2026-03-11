@@ -14,6 +14,13 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+SC:wght@500;600;700&family=Golos+Text:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="styles.css">
+  <!-- Privacy-friendly analytics by Plausible -->
+  <script async src="https://plausible.io/js/pa-OQMv_ChNB0wDyNSD0-_HP.js"></script>
+  <script>
+    window.plausible = window.plausible || function () { (plausible.q = plausible.q || []).push(arguments); };
+    plausible.init = plausible.init || function (i) { plausible.o = i || {}; };
+    plausible.init();
+  </script>
 </head>
 <body>
   <div class="page-shell">
@@ -428,23 +435,7 @@
                 <span id="content-vote-ticket-label">Номер билета</span>
                 <input type="text" name="ticketCode" placeholder="Например, PF26-ABC123" required>
               </label>
-              <div class="team-grid">
-                <label class="team-card">
-                  <input type="radio" name="team" value="Команда Северный пар" required>
-                  <span id="content-team1-name">Команда Северный пар</span>
-                  <small id="content-team1-desc">Сибирские пельмени и таёжные травы</small>
-                </label>
-                <label class="team-card">
-                  <input type="radio" name="team" value="Команда Жар-печь" required>
-                  <span id="content-team2-name">Команда Жар-печь</span>
-                  <small id="content-team2-desc">Огонь, дымок и авторская подача</small>
-                </label>
-                <label class="team-card">
-                  <input type="radio" name="team" value="Команда Морской дым" required>
-                  <span id="content-team3-name">Команда Морской дым</span>
-                  <small id="content-team3-desc">Дальний Восток и северный берег</small>
-                </label>
-              </div>
+              <div class="team-grid team-grid--carousel" id="vote-team-grid"></div>
               <button class="button" type="submit"><span id="content-vote-button">Отдать голос</span></button>
             </form>
             <div id="vote-message" class="info-message">

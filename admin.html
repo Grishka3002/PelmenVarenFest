@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Костровье | админ-панель</title>
+  <title>Пельмень Варень | админ-панель</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+SC:wght@500;600;700&family=Golos+Text:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -72,6 +72,11 @@
           <p class="eyebrow">Резерв</p>
           <strong id="stat-teams-reserve">0</strong>
           <p class="muted">Команд в резерве</p>
+        </article>
+        <article class="admin-stat-card">
+          <p class="eyebrow">Оценки жюри</p>
+          <strong id="stat-jury-scores">0</strong>
+          <p class="muted">Поставлено оценок</p>
         </article>
       </div>
 
@@ -359,6 +364,10 @@
             </div>
             <label><input type="text" name="juryEyebrow" placeholder="Заголовок секции"></label>
             <label class="admin-wide"><textarea name="juryTitle" placeholder="Подзаголовок секции"></textarea></label>
+            <label class="admin-wide">
+              Критерии (по одной строке)
+              <textarea name="juryScoringCriteria" placeholder="Вкус&#10;Подача&#10;Оригинальность&#10;Техника&#10;Презентация"></textarea>
+            </label>
             <label><input type="text" name="juryName1" placeholder="ФИО 1"></label>
             <label><input type="text" name="juryRegalia1" placeholder="Регалии 1"></label>
             <label><input type="text" name="juryPhoto1" placeholder="Путь к фото 1, например images/jury-1.jpg"></label>
@@ -438,6 +447,40 @@
             <label><textarea name="team2Desc" placeholder="Описание команды 2"></textarea></label>
             <label><input type="text" name="team3Name" placeholder="Команда 3"></label>
             <label><textarea name="team3Desc" placeholder="Описание команды 3"></textarea></label>
+            <label><input type="text" name="team4Name" placeholder="Команда 4"></label>
+            <label><textarea name="team4Desc" placeholder="Описание команды 4"></textarea></label>
+            <label><input type="text" name="team5Name" placeholder="Команда 5"></label>
+            <label><textarea name="team5Desc" placeholder="Описание команды 5"></textarea></label>
+            <label><input type="text" name="team6Name" placeholder="Команда 6"></label>
+            <label><textarea name="team6Desc" placeholder="Описание команды 6"></textarea></label>
+            <label><input type="text" name="team7Name" placeholder="Команда 7"></label>
+            <label><textarea name="team7Desc" placeholder="Описание команды 7"></textarea></label>
+            <label><input type="text" name="team8Name" placeholder="Команда 8"></label>
+            <label><textarea name="team8Desc" placeholder="Описание команды 8"></textarea></label>
+            <label><input type="text" name="team9Name" placeholder="Команда 9"></label>
+            <label><textarea name="team9Desc" placeholder="Описание команды 9"></textarea></label>
+            <label><input type="text" name="team10Name" placeholder="Команда 10"></label>
+            <label><textarea name="team10Desc" placeholder="Описание команды 10"></textarea></label>
+            <label><input type="text" name="team11Name" placeholder="Команда 11"></label>
+            <label><textarea name="team11Desc" placeholder="Описание команды 11"></textarea></label>
+            <label><input type="text" name="team12Name" placeholder="Команда 12"></label>
+            <label><textarea name="team12Desc" placeholder="Описание команды 12"></textarea></label>
+            <label><input type="text" name="team13Name" placeholder="Команда 13"></label>
+            <label><textarea name="team13Desc" placeholder="Описание команды 13"></textarea></label>
+            <label><input type="text" name="team14Name" placeholder="Команда 14"></label>
+            <label><textarea name="team14Desc" placeholder="Описание команды 14"></textarea></label>
+            <label><input type="text" name="team15Name" placeholder="Команда 15"></label>
+            <label><textarea name="team15Desc" placeholder="Описание команды 15"></textarea></label>
+            <label><input type="text" name="team16Name" placeholder="Команда 16"></label>
+            <label><textarea name="team16Desc" placeholder="Описание команды 16"></textarea></label>
+            <label><input type="text" name="team17Name" placeholder="Команда 17"></label>
+            <label><textarea name="team17Desc" placeholder="Описание команды 17"></textarea></label>
+            <label><input type="text" name="team18Name" placeholder="Команда 18"></label>
+            <label><textarea name="team18Desc" placeholder="Описание команды 18"></textarea></label>
+            <label><input type="text" name="team19Name" placeholder="Команда 19"></label>
+            <label><textarea name="team19Desc" placeholder="Описание команды 19"></textarea></label>
+            <label><input type="text" name="team20Name" placeholder="Команда 20"></label>
+            <label><textarea name="team20Desc" placeholder="Описание команды 20"></textarea></label>
             </section>
             <section class="admin-tab-panel admin-wide" data-tab-panel="quiz">
             <div class="admin-wide">
@@ -536,6 +579,7 @@
               <select name="role" required>
                 <option value="checkin">Входной контроль</option>
                 <option value="admin">Администратор</option>
+                <option value="jury">Жюри</option>
               </select>
             </label>
             <label>
@@ -548,7 +592,7 @@
             </label>
             <button class="button" type="submit">Создать пользователя</button>
           </form>
-          <div id="admin-user-message" class="info-message">Создавайте отдельные логины для админки и входного контроля. Пароли можно менять без доступа к коду.</div>
+          <div id="admin-user-message" class="info-message">Создавайте отдельные логины для админки, входного контроля и жюри. Пароли можно менять без доступа к коду.</div>
           <div id="admin-users-list" class="admin-users-list"></div>
         </article>
 
@@ -577,6 +621,14 @@
             <div class="payment-actions">
               <button class="button button--secondary" id="admin-refresh-stats" type="button">Обновить статистику</button>
             </div>
+          </article>
+
+          <article class="admin-panel ornament-card">
+            <div class="section-heading">
+              <p class="eyebrow">Оценки жюри</p>
+              <h2>Сумма баллов по каждой команде и каждому критерию.</h2>
+            </div>
+            <div id="admin-jury-summary" class="admin-jury-summary"></div>
           </article>
 
           <article class="admin-panel ornament-card">

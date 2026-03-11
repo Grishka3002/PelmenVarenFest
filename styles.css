@@ -571,6 +571,11 @@ iframe {
   align-items: start;
 }
 
+.vote-layout {
+  grid-template-columns: 1fr;
+  gap: 16px;
+}
+
 .quiz-layout {
   grid-template-columns: minmax(0, 1.2fr) minmax(320px, 0.8fr);
 }
@@ -978,6 +983,14 @@ iframe {
   gap: 12px;
 }
 
+.team-grid--carousel {
+  display: flex;
+  gap: 12px;
+  overflow-x: auto;
+  padding-bottom: 6px;
+  scroll-snap-type: x mandatory;
+}
+
 .team-card {
   position: relative;
   padding: 16px;
@@ -985,6 +998,12 @@ iframe {
   border: 1px solid rgba(36, 22, 14, 0.12);
   background: rgba(255, 249, 241, 0.92);
   cursor: pointer;
+}
+
+.team-card--scroll {
+  min-width: min(300px, 86vw);
+  flex: 0 0 auto;
+  scroll-snap-align: start;
 }
 
 .team-card input {
@@ -996,10 +1015,29 @@ iframe {
 
 .team-card span {
   font-weight: 700;
+  display: block;
 }
 
 .team-card small {
   color: var(--muted);
+  display: block;
+  margin-top: 4px;
+}
+
+.team-card__votes {
+  display: inline-flex;
+  align-self: flex-start;
+  margin-top: 10px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-style: normal;
+  font-size: 0.78rem;
+  color: var(--accent);
+  background: rgba(142, 47, 31, 0.12);
+}
+
+.vote-scoreboard {
+  display: none;
 }
 
 .team-card:has(input:checked) {
@@ -1409,6 +1447,37 @@ iframe {
     scroll-snap-align: start;
   }
 
+  .jury-grid {
+    display: flex;
+    gap: 12px;
+    overflow-x: auto;
+    overflow-y: hidden;
+    padding: 2px 2px 8px;
+    scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .jury-grid .jury-card {
+    flex: 0 0 min(82vw, 320px);
+    scroll-snap-align: start;
+  }
+
+  .team-grid--carousel {
+    display: flex;
+    gap: 10px;
+    overflow-x: auto;
+    overflow-y: hidden;
+    flex-wrap: nowrap;
+    padding: 2px 2px 8px;
+    scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .team-grid--carousel .team-card--scroll {
+    min-width: min(82vw, 320px);
+    scroll-snap-align: start;
+  }
+
   .site-header {
     position: static;
     padding: 12px 0 8px;
@@ -1776,5 +1845,62 @@ iframe {
 
   .ornament-card__date {
     font-size: 2.4rem;
+  }
+}
+
+.jury-score-form {
+  display: grid;
+  gap: 18px;
+}
+
+.jury-team-card {
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  padding: 16px;
+  background: var(--surface);
+}
+
+.jury-team-card h3 {
+  margin: 0 0 12px;
+  font-size: clamp(22px, 2.4vw, 30px);
+}
+
+.jury-score-row {
+  display: grid;
+  grid-template-columns: minmax(220px, 1fr) 140px;
+  gap: 10px;
+  align-items: center;
+  padding: 8px 0;
+}
+
+.jury-score-row select {
+  width: 100%;
+}
+
+.admin-jury-summary {
+  display: grid;
+  gap: 18px;
+}
+
+.admin-jury-summary table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 15px;
+}
+
+.admin-jury-summary th,
+.admin-jury-summary td {
+  border-bottom: 1px solid var(--line);
+  padding: 10px 8px;
+  text-align: left;
+}
+
+.admin-jury-summary tfoot td {
+  font-weight: 700;
+}
+
+@media (max-width: 760px) {
+  .jury-score-row {
+    grid-template-columns: 1fr;
   }
 }

@@ -127,6 +127,8 @@ const DEFAULT_CONTENT = {
   juryName5: "Денис Ладов",
   juryRegalia5: "Бренд-шеф, судья кулинарных чемпионатов.",
   juryPhoto5: "",
+  juryScoringTeams: "Команда Северный пар\nКоманда Жар-печь\nКоманда Морской дым",
+  juryScoringCriteria: "Вкус\nПодача\nОригинальность\nТехника\nПрезентация",
   teamsEyebrow: "Командам",
   teamsTitle: "Подайте заявку на участие в конкурсе фестиваля.",
   teamsLead: "Заполните форму: заявка уходит организаторам и фиксируется в системе.",
@@ -176,6 +178,40 @@ const DEFAULT_CONTENT = {
   team2Desc: "Огонь, дымок и авторская подача",
   team3Name: "Команда Морской дым",
   team3Desc: "Дальний Восток и северный берег",
+  team4Name: "Команда 4",
+  team4Desc: "",
+  team5Name: "Команда 5",
+  team5Desc: "",
+  team6Name: "Команда 6",
+  team6Desc: "",
+  team7Name: "Команда 7",
+  team7Desc: "",
+  team8Name: "Команда 8",
+  team8Desc: "",
+  team9Name: "Команда 9",
+  team9Desc: "",
+  team10Name: "Команда 10",
+  team10Desc: "",
+  team11Name: "Команда 11",
+  team11Desc: "",
+  team12Name: "Команда 12",
+  team12Desc: "",
+  team13Name: "Команда 13",
+  team13Desc: "",
+  team14Name: "Команда 14",
+  team14Desc: "",
+  team15Name: "Команда 15",
+  team15Desc: "",
+  team16Name: "Команда 16",
+  team16Desc: "",
+  team17Name: "Команда 17",
+  team17Desc: "",
+  team18Name: "Команда 18",
+  team18Desc: "",
+  team19Name: "Команда 19",
+  team19Desc: "",
+  team20Name: "Команда 20",
+  team20Desc: "",
   quizEyebrow: "Тест",
   quizTitle: "Какой ты пельмень?",
   quizQ1Title: "1. Какой ритм дня тебе ближе?",
@@ -418,6 +454,7 @@ const paymentSummary = document.querySelector("#payment-summary");
 const resultCard = document.querySelector("#ticket-result");
 const ticketList = document.querySelector("#ticket-list");
 const voteForm = document.querySelector("#vote-form");
+const voteTeamGrid = document.querySelector("#vote-team-grid");
 const voteMessage = document.querySelector("#vote-message");
 const voteResults = document.querySelector("#vote-results");
 const ticketCtaButtons = document.querySelectorAll("[data-ticket-cta]");
@@ -458,6 +495,7 @@ const adminExportReserveTeamsButton = document.querySelector("#admin-export-rese
 const adminResetTeamsButton = document.querySelector("#admin-reset-teams");
 const adminResetTicketsButton = document.querySelector("#admin-reset-tickets");
 const adminResetQuizButton = document.querySelector("#admin-reset-quiz");
+const adminJurySummary = document.querySelector("#admin-jury-summary");
 const adminUserForm = document.querySelector("#admin-user-form");
 const adminUserMessage = document.querySelector("#admin-user-message");
 const adminUsersList = document.querySelector("#admin-users-list");
@@ -469,6 +507,9 @@ const authScreen = document.querySelector("#auth-screen");
 const protectedApp = document.querySelector("#protected-app");
 const logoutButton = document.querySelector("#logout-button");
 const protectedRole = document.body.dataset.protectedRole || "";
+const juryScoreForm = document.querySelector("#jury-score-form");
+const jurySaveButton = document.querySelector("#jury-save-button");
+const juryMessage = document.querySelector("#jury-message");
 const adminStats = {
   ticketsSold: document.querySelector("#stat-tickets-sold"),
   ticketsScanned: document.querySelector("#stat-tickets-scanned"),
@@ -476,6 +517,7 @@ const adminStats = {
   quizTotal: document.querySelector("#stat-quiz-total"),
   teamsTotal: document.querySelector("#stat-teams-total"),
   teamsReserve: document.querySelector("#stat-teams-reserve"),
+  juryScoresTotal: document.querySelector("#stat-jury-scores"),
   votesList: document.querySelector("#admin-vote-results"),
   quizList: document.querySelector("#admin-quiz-results"),
   recentTickets: document.querySelector("#admin-recent-tickets"),
@@ -501,6 +543,12 @@ let scannerState = {
   mode: "",
   lastRawValue: "",
   lastDetectedAt: 0,
+};
+let juryState = {
+  teams: [],
+  criteria: [],
+  scoreMap: new Map(),
+  selectedTeam: "",
 };
 
 function getRandomInt(min, max) {
@@ -673,6 +721,8 @@ const api = {
   getUsers: async () => (await requestJson("/api/admin/users")).users,
   createUser: async (payload) => (await requestJson("/api/admin/users", { method: "POST", body: JSON.stringify(payload) })).user,
   updateUserPassword: async (userId, password) => (await requestJson(`/api/admin/users/${encodeURIComponent(userId)}/password`, { method: "PATCH", body: JSON.stringify({ password }) })).user,
+  getJuryConfig: async () => requestJson("/api/jury/config"),
+  saveJuryScores: async (scores) => requestJson("/api/jury/scores", { method: "POST", body: JSON.stringify({ scores }) }),
 };
 
 function buildQrUrl(ticket) {
@@ -692,6 +742,60 @@ function buildMapUrl() {
 function isEnabled(value, fallback = true) {
   if (value === undefined || value === null || value === "") return fallback;
   return String(value).trim().toLowerCase() === "true";
+}
+
+function parseMultilineList(value) {
+  return String(value || "")
+    .split(/\r?\n|;/)
+    .map((item) => item.trim())
+    .filter(Boolean);
+}
+
+function getVotingTeams(content) {
+  const teams = [];
+  for (let index = 1; index <= 20; index += 1) {
+    const name = String(content[`team${index}Name`] || "").trim();
+    teams.push({
+      name: name || `Команда ${index}`,
+      desc: String(content[`team${index}Desc`] || "").trim(),
+    });
+  }
+  return teams;
+}
+
+function renderVoteTeamCards(content) {
+  if (!voteTeamGrid) return;
+  const selectedTeam = voteForm?.querySelector('input[name="team"]:checked')?.value || "";
+  const teams = getVotingTeams(content);
+  const fullResults = buildVoteResultsForAllTeams(window.__voteResults || [], content);
+  const voteMap = new Map(fullResults.map((item) => [item.team, Number(item.votes || 0)]));
+  voteTeamGrid.innerHTML = teams.map((team, index) => `
+    <label class="team-card team-card--scroll">
+      <input type="radio" name="team" value="${team.name}" ${index === 0 ? "required" : ""} ${selectedTeam === team.name ? "checked" : ""}>
+      <span>${team.name}</span>
+      <small>${team.desc || "Без описания"}</small>
+      <em class="team-card__votes">${Number(voteMap.get(team.name) || 0)} голосов</em>
+    </label>
+  `).join("");
+}
+
+function buildVoteResultsForAllTeams(rawVoteResults, content) {
+  const teams = getVotingTeams(content);
+  const voteMap = new Map(
+    (Array.isArray(rawVoteResults) ? rawVoteResults : [])
+      .map((item) => [String(item.team || "").trim(), Number(item.votes || 0)]),
+  );
+  return teams.map((team) => ({
+    team: team.name,
+    votes: voteMap.get(team.name) || 0,
+  }));
+}
+
+function getRoleTitle(role) {
+  if (role === "admin") return "Администратор";
+  if (role === "checkin") return "Входной контроль";
+  if (role === "jury") return "Жюри";
+  return role;
 }
 
 function applySectionVisibility(content) {
@@ -1171,11 +1275,8 @@ function applyContent(content) {
   applySectionVisibility(merged);
   applyGalleryImages(merged);
   applyJuryPhotos(merged);
+  renderVoteTeamCards(merged);
   startCountdown(merged);
-  const teamInputs = document.querySelectorAll('#vote-form input[name="team"]');
-  if (teamInputs[0]) teamInputs[0].value = merged.team1Name;
-  if (teamInputs[1]) teamInputs[1].value = merged.team2Name;
-  if (teamInputs[2]) teamInputs[2].value = merged.team3Name;
 }
 
 function fillAdminContentForm(content) {
@@ -1195,7 +1296,11 @@ function fillAdminContentForm(content) {
 async function renderVoteResults() {
   if (!voteResults) return;
   const payload = await api.getPublicStats();
-  voteResults.innerHTML = payload.voteResults
+  const content = window.__appContent || DEFAULT_CONTENT;
+  const fullResults = buildVoteResultsForAllTeams(payload.voteResults, content);
+  window.__voteResults = fullResults;
+  renderVoteTeamCards(content);
+  voteResults.innerHTML = fullResults
     .map((item) => `<li><strong>${item.team}</strong><span>${item.votes} голосов</span></li>`)
     .join("");
 }
@@ -1222,9 +1327,12 @@ async function renderAdminStats() {
   adminStats.quizTotal.textContent = String(stats.quizTotal);
   if (adminStats.teamsTotal) adminStats.teamsTotal.textContent = String(stats.teamsTotal || 0);
   if (adminStats.teamsReserve) adminStats.teamsReserve.textContent = String(stats.teamsReserveTotal || 0);
+  if (adminStats.juryScoresTotal) adminStats.juryScoresTotal.textContent = String(stats.juryScoresTotal || 0);
 
   if (adminStats.votesList) {
-    adminStats.votesList.innerHTML = stats.voteResults
+    const content = window.__appContent || DEFAULT_CONTENT;
+    const fullResults = buildVoteResultsForAllTeams(stats.voteResults, content);
+    adminStats.votesList.innerHTML = fullResults
       .map((item) => `<li><strong>${item.team}</strong><span>${item.votes} голосов</span></li>`)
       .join("");
   }
@@ -1240,6 +1348,172 @@ async function renderAdminStats() {
       ? stats.recentTickets.map((ticket) => `<li><strong>${ticket.code}</strong><span>${ticket.name} • ${ticket.accessStatus === "used" ? "вошёл" : "не вошёл"}</span></li>`).join("")
       : "<li><strong>Пока пусто</strong><span>После первых продаж билеты появятся здесь.</span></li>";
   }
+
+  renderAdminJurySummary(stats);
+}
+
+function renderAdminJurySummary(stats) {
+  if (!adminJurySummary) return;
+  const teamRows = Array.isArray(stats.juryTeamTotals) ? stats.juryTeamTotals : [];
+  const criterionRows = Array.isArray(stats.juryCriterionTotals) ? stats.juryCriterionTotals : [];
+
+  if (!teamRows.length || !criterionRows.length) {
+    adminJurySummary.innerHTML = "<p class=\"muted\">Пока нет оценок жюри. Команды берутся автоматически из вкладки «Голосование».</p>";
+    return;
+  }
+
+  const teamTableRows = teamRows
+    .map((row) => {
+      const byCriterion = (row.byCriterion || []).map((item) => `${item.criterion}: ${item.total}`).join(" • ");
+      return `<tr><td>${row.team}</td><td>${row.total}</td><td>${byCriterion || "—"}</td></tr>`;
+    })
+    .join("");
+
+  const criterionTableRows = criterionRows
+    .map((row) => `<tr><td>${row.criterion}</td><td>${row.total}</td></tr>`)
+    .join("");
+
+  adminJurySummary.innerHTML = `
+    <p class="muted">Выставлено оценок: <strong>${Number(stats.juryScoresTotal || 0)}</strong>. Судей с заполненными оценками: <strong>${Number(stats.juryJudgesTotal || 0)}</strong>.</p>
+    <table>
+      <thead>
+        <tr><th>Команда</th><th>Сумма баллов</th><th>По критериям</th></tr>
+      </thead>
+      <tbody>${teamTableRows}</tbody>
+    </table>
+    <table>
+      <thead>
+        <tr><th>Критерий</th><th>Сумма баллов</th></tr>
+      </thead>
+      <tbody>${criterionTableRows}</tbody>
+    </table>
+  `;
+}
+
+function setJuryMessage(message, mode = "") {
+  if (!juryMessage) return;
+  juryMessage.className = `info-message ${mode ? `checkin-result--${mode}` : ""}`.trim();
+  juryMessage.innerHTML = message;
+}
+
+function renderJuryScoreForm() {
+  if (!juryScoreForm) return;
+  const { teams, criteria, scoreMap, selectedTeam } = juryState;
+  if (!teams.length || !criteria.length) {
+    juryScoreForm.innerHTML = "<p class=\"muted\">Администратор ещё не настроил список команд и критериев.</p>";
+    return;
+  }
+
+  const options = Array.from({ length: 10 }, (_, idx) => idx + 1)
+    .map((value) => `<option value="${value}">${value}</option>`)
+    .join("");
+
+  const selected = selectedTeam || teams[0];
+  const rows = criteria.map((criterion, index) => {
+    const key = `${selected}::${criterion}`;
+    const current = scoreMap.get(key) || "";
+    return `
+      <label class="jury-score-row">
+        <span>${criterion}</span>
+        <select data-criterion="${criterion}" name="jury-criterion-${index}" required>
+          <option value="">Оценка</option>
+          ${options.replace(`value="${current}"`, `value="${current}" selected`)}
+        </select>
+      </label>
+    `;
+  }).join("");
+
+  juryScoreForm.innerHTML = `
+    <label class="jury-score-row">
+      <span>Команда</span>
+      <select id="jury-team-select">
+        ${teams.map((team) => `<option value="${team}" ${team === selected ? "selected" : ""}>${team}</option>`).join("")}
+      </select>
+    </label>
+    <article class="jury-team-card">
+      <h3>${selected}</h3>
+      ${rows}
+    </article>
+  `;
+}
+
+function initJuryFlow() {
+  if (!juryScoreForm || !jurySaveButton) return;
+
+  const load = async () => {
+    const config = await api.getJuryConfig();
+    let teams = Array.isArray(config.teams) ? config.teams : [];
+    let criteria = Array.isArray(config.criteria) ? config.criteria : [];
+    if (!teams.length) {
+      const content = await api.getContent();
+      teams = getVotingTeams(content).map((item) => item.name);
+    }
+    if (!criteria.length) {
+      criteria = parseMultilineList(DEFAULT_CONTENT.juryScoringCriteria);
+    }
+    const scoreMap = new Map((Array.isArray(config.myScores) ? config.myScores : [])
+      .map((item) => [`${item.teamName}::${item.criterionName}`, String(item.score)]));
+    juryState = {
+      teams,
+      criteria,
+      scoreMap,
+      selectedTeam: teams[0] || "",
+    };
+    renderJuryScoreForm();
+  };
+
+  juryScoreForm.addEventListener("change", (event) => {
+    const target = event.target;
+    if (!(target instanceof HTMLSelectElement)) return;
+    if (target.id === "jury-team-select") {
+      juryState.selectedTeam = target.value;
+      renderJuryScoreForm();
+      return;
+    }
+    if (!target.dataset.criterion || !juryState.selectedTeam) return;
+    juryState.scoreMap.set(`${juryState.selectedTeam}::${target.dataset.criterion}`, target.value);
+  });
+
+  jurySaveButton.addEventListener("click", async () => {
+    if (!juryState.teams.length || !juryState.criteria.length) {
+      setJuryMessage("<strong>Нечего сохранять.</strong><br>Администратор ещё не настроил команды и критерии.", "warn");
+      return;
+    }
+
+    const selectedTeam = juryState.selectedTeam || juryState.teams[0];
+    for (const criterion of juryState.criteria) {
+      const raw = juryState.scoreMap.get(`${selectedTeam}::${criterion}`) || "";
+      const score = Number(raw);
+      if (!Number.isInteger(score) || score < 1 || score > 10) {
+        setJuryMessage("<strong>Заполните все оценки выбранной команды.</strong><br>Для каждого критерия выберите число от 1 до 10.", "warn");
+        const field = juryScoreForm.querySelector(`select[data-criterion="${criterion}"]`);
+        if (field instanceof HTMLElement) field.focus();
+        return;
+      }
+    }
+
+    const scores = Array.from(juryState.scoreMap.entries())
+      .map(([key, value]) => {
+        const delimiter = key.indexOf("::");
+        return {
+          teamName: key.slice(0, delimiter),
+          criterionName: key.slice(delimiter + 2),
+          score: Number(value),
+        };
+      })
+      .filter((item) => Number.isInteger(item.score) && item.score >= 1 && item.score <= 10);
+
+    try {
+      await api.saveJuryScores(scores);
+      setJuryMessage("<strong>Оценки сохранены.</strong><br>Вы можете изменить их позже и сохранить снова.", "ok");
+    } catch (error) {
+      setJuryMessage(`<strong>Ошибка.</strong><br>${error.message}`, "warn");
+    }
+  });
+
+  void load()
+    .then(() => setJuryMessage("Оценки выставляются по шкале от 1 до 10.", ""))
+    .catch((error) => setJuryMessage(`<strong>Ошибка загрузки.</strong><br>${error.message}`, "warn"));
 }
 
 async function renderAdminUsers() {
@@ -1251,7 +1525,7 @@ async function renderAdminUsers() {
       <article class="admin-user-card">
         <div class="admin-user-card__header">
           <div>
-            <p class="eyebrow">${user.role === "admin" ? "Администратор" : "Входной контроль"}</p>
+            <p class="eyebrow">${getRoleTitle(user.role)}</p>
             <h3>${user.username}</h3>
           </div>
           <p class="muted">Создан: ${new Date(user.createdAt).toLocaleString("ru-RU")}</p>
@@ -1730,7 +2004,7 @@ function initAdminPanel() {
     try {
       const user = await api.createUser(payload);
       adminUserForm.reset();
-      setAdminUserMessage(`<strong>Пользователь создан.</strong><br>${user.username} получил роль «${user.role === "admin" ? "Администратор" : "Входной контроль"}».`, "ok");
+      setAdminUserMessage(`<strong>Пользователь создан.</strong><br>${user.username} получил роль «${getRoleTitle(user.role)}».`, "ok");
       await renderAdminUsers();
     } catch (error) {
       setAdminUserMessage(`<strong>Ошибка.</strong><br>${error.message}`, "warn");
@@ -1757,6 +2031,7 @@ function initProtectedModules() {
     initAdminPanel();
   }
   if (protectedRole === "checkin") initCheckinFlow();
+  if (protectedRole === "jury") initJuryFlow();
   protectedModulesInitialized = true;
 }
 
@@ -1793,6 +2068,9 @@ function initProtectedAuth() {
       if (protectedRole === "checkin") {
         await renderCheckinLog();
       }
+      if (protectedRole === "jury") {
+        setJuryMessage("Оценки выставляются по шкале от 1 до 10.");
+      }
       authForm.reset();
     } catch (error) {
       setProtectedVisibility(false);
@@ -1813,6 +2091,9 @@ function initProtectedAuth() {
         }
         if (protectedRole === "checkin") {
           await renderCheckinLog();
+        }
+        if (protectedRole === "jury") {
+          setJuryMessage("Оценки выставляются по шкале от 1 до 10.");
         }
       }
       return status.authenticated;

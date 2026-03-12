@@ -167,7 +167,9 @@ const DEFAULT_CONTENT = {
   ticketFeature2: "После оплаты билет сразу доступен на странице",
   ticketFeature3: "После сканирования билет можно использовать для голосования",
   ticketNote: "Оплата реализована как клиентский checkout внутри проекта. Для боевого запуска потребуется подключение настоящего эквайринга и серверной базы билетов.",
-  ticketsClosedDisclaimer: "Продажа билетов сейчас временно недоступна. Купить билет можно будет позже.",
+  ticketsClosedDisclaimer: "Продажа билетов сейчас временно закрыта. Вся актуальная информация о старте продажи билетов будет на сайте.",
+  ticketsClosedCtaText: "Подписаться на Маори-Лукьяновка",
+  ticketsClosedCtaUrl: "https://t.me/maori_lukyanovka",
   ticketOfferNote: "Покупая билет, вы принимаете условия публичной оферты.",
   ticketOfferLinkText: "Ознакомиться с офертой",
   ticketOfferLinkUrl: "/offer",
@@ -1011,6 +1013,20 @@ function formatPrice(value) {
   return `${Number(value).toLocaleString("ru-RU")} ₽`;
 }
 
+function normalizeExternalUrl(rawUrl) {
+  const value = String(rawUrl || "").trim();
+  if (!value) return "";
+  if (/^https?:\/\//i.test(value)) return value;
+  return `https://${value.replace(/^\/+/, "")}`;
+}
+
+function openExternalUrl(rawUrl) {
+  const normalizedUrl = normalizeExternalUrl(rawUrl);
+  if (!normalizedUrl) return false;
+  const popup = window.open(normalizedUrl, "_blank", "noopener,noreferrer");
+  return Boolean(popup);
+}
+
 function setStep(step) {
   if (!orderStepLabel || !paymentStepLabel || !ticketsStepLabel) return;
   orderStepLabel.classList.toggle("checkout-step--active", step === "order");
@@ -1031,8 +1047,31 @@ function showCenterDisclaimer(message, duration = 5000) {
     clearTimeout(centerDisclaimerTimerId);
     centerDisclaimerTimerId = null;
   }
-  centerDisclaimer.textContent = String(message || "").trim();
-  if (!centerDisclaimer.textContent) return;
+  const text = String(message || "").trim();
+  if (!text) return;
+  centerDisclaimer.innerHTML = "";
+  const textNode = document.createElement("p");
+  textNode.className = "center-disclaimer__text";
+  textNode.textContent = text;
+  centerDisclaimer.appendChild(textNode);
+
+  const content = window.__appContent || DEFAULT_CONTENT;
+  const ctaText = String(content.ticketsClosedCtaText || DEFAULT_CONTENT.ticketsClosedCtaText).trim();
+  const ctaUrl = normalizeExternalUrl(content.ticketsClosedCtaUrl || DEFAULT_CONTENT.ticketsClosedCtaUrl);
+  if (ctaText && ctaUrl && text === String(content.ticketsClosedDisclaimer || DEFAULT_CONTENT.ticketsClosedDisclaimer).trim()) {
+    const link = document.createElement("a");
+    link.className = "button";
+    link.href = ctaUrl;
+    link.target = "_blank";
+    link.rel = "noopener noreferrer";
+    link.textContent = ctaText;
+    link.addEventListener("click", (event) => {
+      event.preventDefault();
+      event.stopPropagation();
+      openExternalUrl(ctaUrl);
+    });
+    centerDisclaimer.appendChild(link);
+  }
   centerDisclaimer.hidden = false;
   centerDisclaimer.classList.add("center-disclaimer--visible");
   centerDisclaimerTimerId = window.setTimeout(() => {
@@ -1059,7 +1098,7 @@ function showTeamRegisteredPopup(content) {
   const message = String(content.teamsRegisteredPopupMessage || DEFAULT_CONTENT.teamsRegisteredPopupMessage).trim();
   const caption = String(content.teamsRegisteredPopupCaption || DEFAULT_CONTENT.teamsRegisteredPopupCaption).trim();
   const linkText = String(content.teamsRegisteredPopupLinkText || DEFAULT_CONTENT.teamsRegisteredPopupLinkText).trim();
-  const linkUrl = String(content.teamsRegisteredPopupLinkUrl || DEFAULT_CONTENT.teamsRegisteredPopupLinkUrl).trim();
+  const linkUrl = normalizeExternalUrl(content.teamsRegisteredPopupLinkUrl || DEFAULT_CONTENT.teamsRegisteredPopupLinkUrl);
 
   teamRegisteredPopupMessage.textContent = message;
   if (teamRegisteredPopupCaption) {
@@ -1069,8 +1108,15 @@ function showTeamRegisteredPopup(content) {
   teamRegisteredPopupLink.textContent = linkText || DEFAULT_CONTENT.teamsRegisteredPopupLinkText;
   if (linkUrl) {
     teamRegisteredPopupLink.href = linkUrl;
+    teamRegisteredPopupLink.onclick = (event) => {
+      event.preventDefault();
+      event.stopPropagation();
+      openExternalUrl(linkUrl);
+      window.setTimeout(() => hideTeamRegisteredPopup(), 120);
+    };
     teamRegisteredPopupLink.hidden = false;
   } else {
+    teamRegisteredPopupLink.onclick = null;
     teamRegisteredPopupLink.hidden = true;
   }
 

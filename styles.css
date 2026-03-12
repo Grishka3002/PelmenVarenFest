@@ -822,10 +822,18 @@ iframe {
   opacity: 0;
   pointer-events: none;
   transition: opacity 0.2s ease;
+  display: grid;
+  gap: 12px;
+  justify-items: center;
 }
 
 .center-disclaimer--visible {
   opacity: 1;
+  pointer-events: auto;
+}
+
+.center-disclaimer__text {
+  margin: 0;
 }
 
 .tap-popup {

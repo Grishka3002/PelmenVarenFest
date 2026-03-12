@@ -7,6 +7,9 @@
     "qrcode": "^1.5.4"
   },
   "scripts": {
-    "start": "node server.js"
+    "start": "node server.js",
+    "load:test": "node load-test.js",
+    "load:orders": "node write-stress.js --mode orders",
+    "load:vote": "node write-stress.js --mode vote"
   }
 }

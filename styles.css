@@ -828,6 +828,43 @@ iframe {
   opacity: 1;
 }
 
+.tap-popup {
+  position: fixed;
+  inset: 0;
+  z-index: 160;
+  display: grid;
+  place-items: center;
+  background: rgba(25, 14, 9, 0.24);
+}
+
+.tap-popup[hidden] {
+  display: none !important;
+}
+
+.tap-popup__card {
+  width: min(94vw, 620px);
+  background: rgba(255, 250, 245, 0.98);
+  border: 1px solid rgba(36, 22, 14, 0.16);
+  border-radius: 22px;
+  box-shadow: var(--shadow);
+  padding: 20px;
+  display: grid;
+  gap: 14px;
+}
+
+.tap-popup__message {
+  margin: 0;
+  font-size: 1rem;
+  line-height: 1.45;
+  color: var(--ink);
+}
+
+.tap-popup__caption {
+  margin: -4px 0 0;
+  font-size: 0.92rem;
+  color: var(--muted);
+}
+
 .parking-note {
   margin: 14px 0 0;
 }

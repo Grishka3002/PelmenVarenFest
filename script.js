@@ -154,6 +154,10 @@ const DEFAULT_CONTENT = {
   teamsRegulationUrl: "/docs/regulation.pdf",
   teamsSuccessMessage: "Заявка отправлена. Организаторы свяжутся с вами.",
   teamsReserveMessage: "Вы добавлены в резерв. Организатор свяжется с вами при появлении места в основном списке.",
+  teamsRegisteredPopupMessage: "Команда зарегистрирована. Следите за новостями и обновлениями в нашем Telegram-канале.",
+  teamsRegisteredPopupCaption: "Подпишитесь, чтобы не пропустить новости фестиваля.",
+  teamsRegisteredPopupLinkText: "Перейти в Telegram-канал",
+  teamsRegisteredPopupLinkUrl: "https://t.me/",
   ticketsEyebrow: "Билеты",
   ticketsTitle: "Оплата, персональные QR-коды и готовность к контролю на входе.",
   ticketPriceLabel: "Стандарт",
@@ -463,6 +467,10 @@ const quizForm = document.querySelector("#quiz-form");
 const quizResult = document.querySelector("#quiz-result");
 const quizProgress = document.querySelector("#quiz-progress");
 const centerDisclaimer = document.querySelector("#center-disclaimer");
+const teamRegisteredPopup = document.querySelector("#team-registered-popup");
+const teamRegisteredPopupMessage = document.querySelector("#team-registered-popup-message");
+const teamRegisteredPopupCaption = document.querySelector("#team-registered-popup-caption");
+const teamRegisteredPopupLink = document.querySelector("#team-registered-popup-link");
 const orderStepLabel = document.querySelector("#order-step-label");
 const paymentStepLabel = document.querySelector("#payment-step-label");
 const ticketsStepLabel = document.querySelector("#tickets-step-label");
@@ -492,9 +500,11 @@ const adminExportQuizButton = document.querySelector("#admin-export-quiz");
 const adminExportTicketsButton = document.querySelector("#admin-export-tickets");
 const adminExportTeamsButton = document.querySelector("#admin-export-teams");
 const adminExportReserveTeamsButton = document.querySelector("#admin-export-reserve-teams");
+const adminExportJuryScoresButton = document.querySelector("#admin-export-jury-scores");
 const adminResetTeamsButton = document.querySelector("#admin-reset-teams");
 const adminResetTicketsButton = document.querySelector("#admin-reset-tickets");
 const adminResetQuizButton = document.querySelector("#admin-reset-quiz");
+const adminResetJuryScoresButton = document.querySelector("#admin-reset-jury-scores");
 const adminJurySummary = document.querySelector("#admin-jury-summary");
 const adminUserForm = document.querySelector("#admin-user-form");
 const adminUserMessage = document.querySelector("#admin-user-message");
@@ -528,6 +538,8 @@ let lastCreatedOrderTickets = [];
 let protectedModulesInitialized = false;
 let countdownTimerId = null;
 let centerDisclaimerTimerId = null;
+let teamRegisteredPopupClickHandler = null;
+let teamRegisteredPopupTimerId = null;
 let galleryState = {
   index: 0,
   slides: [],
@@ -716,6 +728,7 @@ const api = {
   resetTickets: async () => requestJson("/api/reset/tickets", { method: "POST", body: JSON.stringify({}) }),
   resetQuiz: async () => requestJson("/api/reset/quiz", { method: "POST", body: JSON.stringify({}) }),
   resetTeams: async () => requestJson("/api/reset/teams", { method: "POST", body: JSON.stringify({}) }),
+  resetJuryScores: async () => requestJson("/api/reset/jury-scores", { method: "POST", body: JSON.stringify({}) }),
   getPublicStats: async () => requestJson("/api/public-stats"),
   getStats: async () => (await requestJson("/api/stats")).stats,
   getUsers: async () => (await requestJson("/api/admin/users")).users,
@@ -1028,6 +1041,62 @@ function showCenterDisclaimer(message, duration = 5000) {
   }, duration);
 }
 
+function hideTeamRegisteredPopup() {
+  if (!teamRegisteredPopup) return;
+  teamRegisteredPopup.hidden = true;
+  if (teamRegisteredPopupTimerId) {
+    clearTimeout(teamRegisteredPopupTimerId);
+    teamRegisteredPopupTimerId = null;
+  }
+  if (teamRegisteredPopupClickHandler) {
+    document.removeEventListener("click", teamRegisteredPopupClickHandler, true);
+    teamRegisteredPopupClickHandler = null;
+  }
+}
+
+function showTeamRegisteredPopup(content) {
+  if (!teamRegisteredPopup || !teamRegisteredPopupMessage || !teamRegisteredPopupLink) return;
+  const message = String(content.teamsRegisteredPopupMessage || DEFAULT_CONTENT.teamsRegisteredPopupMessage).trim();
+  const caption = String(content.teamsRegisteredPopupCaption || DEFAULT_CONTENT.teamsRegisteredPopupCaption).trim();
+  const linkText = String(content.teamsRegisteredPopupLinkText || DEFAULT_CONTENT.teamsRegisteredPopupLinkText).trim();
+  const linkUrl = String(content.teamsRegisteredPopupLinkUrl || DEFAULT_CONTENT.teamsRegisteredPopupLinkUrl).trim();
+
+  teamRegisteredPopupMessage.textContent = message;
+  if (teamRegisteredPopupCaption) {
+    teamRegisteredPopupCaption.textContent = caption;
+    teamRegisteredPopupCaption.hidden = !caption;
+  }
+  teamRegisteredPopupLink.textContent = linkText || DEFAULT_CONTENT.teamsRegisteredPopupLinkText;
+  if (linkUrl) {
+    teamRegisteredPopupLink.href = linkUrl;
+    teamRegisteredPopupLink.hidden = false;
+  } else {
+    teamRegisteredPopupLink.hidden = true;
+  }
+
+  teamRegisteredPopup.hidden = false;
+
+  if (teamRegisteredPopupClickHandler) {
+    document.removeEventListener("click", teamRegisteredPopupClickHandler, true);
+  }
+  teamRegisteredPopupClickHandler = (event) => {
+    const target = event?.target;
+    if (target instanceof Element && target.closest("#team-registered-popup-link")) {
+      window.setTimeout(() => hideTeamRegisteredPopup(), 120);
+      return;
+    }
+    hideTeamRegisteredPopup();
+  };
+  window.setTimeout(() => {
+    if (teamRegisteredPopup.hidden) return;
+    document.addEventListener("click", teamRegisteredPopupClickHandler, true);
+  }, 0);
+
+  teamRegisteredPopupTimerId = window.setTimeout(() => {
+    hideTeamRegisteredPopup();
+  }, 20000);
+}
+
 function initTeamApplyFlow() {
   if (!teamApplyToggle || !teamApplyPanel || !teamApplyForm) return;
 
@@ -1068,6 +1137,7 @@ function initTeamApplyFlow() {
         : String(content.teamsSuccessMessage || DEFAULT_CONTENT.teamsSuccessMessage);
       setTeamApplyMessage(successText, "ok");
       teamApplyForm.reset();
+      showTeamRegisteredPopup(content);
     } catch (error) {
       setTeamApplyMessage(error.message || "Не удалось отправить заявку. Попробуйте ещё раз.", "warn");
     }
@@ -1968,6 +2038,15 @@ function initAdminPanel() {
     }
   });
 
+  adminExportJuryScoresButton?.addEventListener("click", async () => {
+    try {
+      await downloadFile("/api/export/jury-scores.csv", "jury-scores.csv");
+      setAdminMessage("<strong>Экспорт готов.</strong><br>Таблица баллов жюри скачана.", "ok");
+    } catch (error) {
+      setAdminMessage(`<strong>Ошибка экспорта.</strong><br>${error.message}`, "warn");
+    }
+  });
+
   adminResetTeamsButton?.addEventListener("click", async () => {
     try {
       await api.resetTeams();
@@ -1993,6 +2072,16 @@ function initAdminPanel() {
       await api.resetQuiz();
       await renderAdminStats();
       setAdminMessage("<strong>Тест сброшен.</strong><br>История прохождений очищена.", "ok");
+    } catch (error) {
+      setAdminMessage(`<strong>Ошибка сброса.</strong><br>${error.message}`, "warn");
+    }
+  });
+
+  adminResetJuryScoresButton?.addEventListener("click", async () => {
+    try {
+      await api.resetJuryScores();
+      await renderAdminStats();
+      setAdminMessage("<strong>Баллы жюри сброшены.</strong><br>Все оценки удалены.", "ok");
     } catch (error) {
       setAdminMessage(`<strong>Ошибка сброса.</strong><br>${error.message}`, "warn");
     }
@@ -2106,6 +2195,7 @@ function initProtectedAuth() {
 
 async function init() {
   setProtectedVisibility(!protectedRole);
+  hideTeamRegisteredPopup();
   initPelmenMiniGame();
   initGalleryCarousel();
   try {

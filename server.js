@@ -155,6 +155,10 @@ const DEFAULT_CONTENT = {
   teamsRegulationUrl: "/docs/regulation.pdf",
   teamsSuccessMessage: "Заявка отправлена. Организаторы свяжутся с вами.",
   teamsReserveMessage: "Вы добавлены в резерв. Организатор свяжется с вами при появлении места в основном списке.",
+  teamsRegisteredPopupMessage: "Команда зарегистрирована. Следите за новостями и обновлениями в нашем Telegram-канале.",
+  teamsRegisteredPopupCaption: "Подпишитесь, чтобы не пропустить новости фестиваля.",
+  teamsRegisteredPopupLinkText: "Перейти в Telegram-канал",
+  teamsRegisteredPopupLinkUrl: "https://t.me/",
   ticketsEyebrow: "Билеты",
   ticketsTitle: "Оплата, персональные QR-коды и готовность к контролю на входе.",
   ticketPriceLabel: "Стандарт",
@@ -883,6 +887,23 @@ function buildTeamsExportCsv(state, mode = "all") {
   return rows.map((row) => row.map(escapeCsv).join(";")).join("\n");
 }
 
+function buildJuryScoresExportCsv(state) {
+  const rows = [
+    ["Время", "Судья", "Команда", "Критерий", "Балл"],
+    ...state.juryScores
+      .slice()
+      .sort((a, b) => new Date(b.updatedAt || b.createdAt) - new Date(a.updatedAt || a.createdAt))
+      .map((entry) => [
+        entry.updatedAt || entry.createdAt || "",
+        entry.jurorUsername,
+        entry.teamName,
+        entry.criterionName,
+        entry.score,
+      ]),
+  ];
+  return rows.map((row) => row.map(escapeCsv).join(";")).join("\n");
+}
+
 function buildTicketQrPayload(ticket) {
   return `KOSTROVIE:${ticket.code}`;
 }
@@ -1487,6 +1508,12 @@ async function handleApi(req, res, pathname) {
     return sendJson(res, 200, { ok: true });
   }
 
+  if (req.method === "POST" && pathname === "/api/reset/jury-scores") {
+    if (!requireRole(req, res, "admin")) return;
+    db.exec("DELETE FROM jury_scores");
+    return sendJson(res, 200, { ok: true });
+  }
+
   if (req.method === "GET" && /^\/api\/tickets\/[^/]+\/pdf$/.test(pathname)) {
     const code = decodeURIComponent(pathname.split("/")[3] || "").trim();
     const ticket = getTicketByCode(db, code);
@@ -1521,6 +1548,11 @@ async function handleApi(req, res, pathname) {
   if (req.method === "GET" && pathname === "/api/export/teams-reserve.csv") {
     if (!requireRole(req, res, "admin")) return;
     return sendCsv(res, "teams-reserve.csv", buildTeamsExportCsv(getState(db), "reserve"));
+  }
+
+  if (req.method === "GET" && pathname === "/api/export/jury-scores.csv") {
+    if (!requireRole(req, res, "admin")) return;
+    return sendCsv(res, "jury-scores.csv", buildJuryScoresExportCsv(getState(db)));
   }
 
   return sendError(res, 404, "Маршрут не найден.");

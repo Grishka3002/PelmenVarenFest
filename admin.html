@@ -411,6 +411,10 @@
             <label class="admin-wide"><textarea name="teamsApplyDisclaimer" placeholder="Дисклеймер на 5 секунд при нажатии «Подать заявку»"></textarea></label>
             <label class="admin-wide"><input type="text" name="teamsSuccessMessage" placeholder="Текст после успешной отправки"></label>
             <label class="admin-wide"><input type="text" name="teamsReserveMessage" placeholder="Текст, если команда добавлена в резерв"></label>
+            <label class="admin-wide"><textarea name="teamsRegisteredPopupMessage" placeholder="Текст поп-апа после регистрации команды"></textarea></label>
+            <label class="admin-wide"><input type="text" name="teamsRegisteredPopupCaption" placeholder="Подпись над кнопкой в поп-апе"></label>
+            <label><input type="text" name="teamsRegisteredPopupLinkText" placeholder="Текст ссылки в поп-апе"></label>
+            <label><input type="text" name="teamsRegisteredPopupLinkUrl" placeholder="Ссылка на Telegram-канал"></label>
             <label><input type="text" name="teamsRegulationText" placeholder="Текст ссылки на положение"></label>
             <label><input type="text" name="teamsRegulationUrl" placeholder="Ссылка на положение конкурса"></label>
             </section>
@@ -629,6 +633,10 @@
               <h2>Сумма баллов по каждой команде и каждому критерию.</h2>
             </div>
             <div id="admin-jury-summary" class="admin-jury-summary"></div>
+            <div class="payment-actions">
+              <button class="button button--secondary" id="admin-export-jury-scores" type="button">Скачать таблицу баллов</button>
+              <button class="button button--secondary" id="admin-reset-jury-scores" type="button">Сбросить баллы</button>
+            </div>
           </article>
 
           <article class="admin-panel ornament-card">

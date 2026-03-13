@@ -1,5 +1,6 @@
 ﻿const TICKET_PRICE = 600;
 const QR_ENDPOINT = "https://api.qrserver.com/v1/create-qr-code/?size=320x320&data=";
+
 const PELMEN_SESSION_KEY = "pelmen_game_seen_v1";
 const STATIC_MAP = { lat: 43.174647, lon: 132.713618, zoom: 12 };
 const PELMEN_STAGE_TOTAL = 7;
@@ -15,7 +16,7 @@ const QUIZ_RESULTS = {
     text: "Масштабный, громкий и харизматичный. Тебя невозможно не заметить, а любая сцена рядом с тобой становится главной.",
   },
   momo: {
-    title: "Ты момо",
+    title: "Ты момо - непальский пельмешек",
     text: "Лёгкий, любознательный и открытый новому. Ты любишь необычные сочетания, быстро находишь скрытые жемчужины и умеешь увлекать за собой.",
   },
   varenik: {

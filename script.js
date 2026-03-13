@@ -135,6 +135,7 @@ const DEFAULT_CONTENT = {
   teamsApplyButton: "Подать заявку",
   teamsFormTitle: "Заявка команды",
   teamsLeaderLabel: "ФИО руководителя команды",
+  teamsOrganizationLabel: "Организация",
   teamsPhoneLabel: "Контактный телефон",
   teamsParticipantsLabel: "5 ФИО участников (включая капитана)",
   teamsNominationsLabel: "Выберите номинации (можно несколько)",
@@ -362,6 +363,7 @@ const CONTENT_BINDINGS = {
   teamsApplyButton: { id: "content-teams-apply-button", html: false },
   teamsFormTitle: { id: "content-teams-form-title", html: false },
   teamsLeaderLabel: { id: "content-teams-leader-label", html: false },
+  teamsOrganizationLabel: { id: "content-teams-organization-label", html: false },
   teamsPhoneLabel: { id: "content-teams-phone-label", html: false },
   teamsParticipantsLabel: { id: "content-teams-participants-label", html: false },
   teamsNominationsLabel: { id: "content-teams-nominations-label", html: false },
@@ -1161,6 +1163,7 @@ function initTeamApplyFlow() {
     const nominations = formData.getAll("nominations").map((item) => String(item || "").trim()).filter(Boolean);
     const payload = {
       leaderName: String(formData.get("leaderName") || "").trim(),
+      organization: String(formData.get("organization") || "").trim(),
       phone: String(formData.get("phone") || "").trim(),
       participants: String(formData.get("participants") || "").trim(),
       nominations,
@@ -2086,8 +2089,8 @@ function initAdminPanel() {
 
   adminExportJuryScoresButton?.addEventListener("click", async () => {
     try {
-      await downloadFile("/api/export/jury-scores.csv", "jury-scores.csv");
-      setAdminMessage("<strong>Экспорт готов.</strong><br>Таблица баллов жюри скачана.", "ok");
+      await downloadFile("/api/export/jury-scores.xlsx", "jury-scores.xlsx");
+      setAdminMessage("<strong>Экспорт готов.</strong><br>Скачан Excel-файл с листами `Scores` и `Summary`.", "ok");
     } catch (error) {
       setAdminMessage(`<strong>Ошибка экспорта.</strong><br>${error.message}`, "warn");
     }

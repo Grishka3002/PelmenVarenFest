@@ -136,6 +136,7 @@ const DEFAULT_CONTENT = {
   teamsApplyButton: "Подать заявку",
   teamsFormTitle: "Заявка команды",
   teamsLeaderLabel: "ФИО руководителя команды",
+  teamsOrganizationLabel: "Организация",
   teamsPhoneLabel: "Контактный телефон",
   teamsParticipantsLabel: "5 ФИО участников (включая капитана)",
   teamsNominationsLabel: "Выберите номинации (можно несколько)",
@@ -319,6 +320,15 @@ function sendCsv(res, filename, content) {
   res.end(`\uFEFF${content}`);
 }
 
+function sendXlsx(res, filename, buffer) {
+  res.writeHead(200, {
+    "Content-Type": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    "Content-Disposition": `attachment; filename="${filename}"`,
+    "Content-Length": buffer.length,
+  });
+  res.end(buffer);
+}
+
 function sendPdf(res, filename, buffer) {
   res.writeHead(200, {
     "Content-Type": "application/pdf",
@@ -337,6 +347,15 @@ function escapeCsv(value) {
   return `"${stringValue.replace(/"/g, '""')}"`;
 }
 
+function escapeXml(value) {
+  return String(value ?? "")
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&apos;");
+}
+
 function escapeHtml(value) {
   return String(value ?? "")
     .replace(/&/g, "&amp;")
@@ -346,6 +365,207 @@ function escapeHtml(value) {
 
 function escapeHtmlAttribute(value) {
   return escapeHtml(value).replace(/"/g, "&quot;");
+}
+
+function excelColumnName(index) {
+  let current = index + 1;
+  let name = "";
+  while (current > 0) {
+    const remainder = (current - 1) % 26;
+    name = String.fromCharCode(65 + remainder) + name;
+    current = Math.floor((current - 1) / 26);
+  }
+  return name;
+}
+
+function buildXlsxCell(value, rowIndex, columnIndex) {
+  const cellRef = `${excelColumnName(columnIndex)}${rowIndex + 1}`;
+  if (typeof value === "number" && Number.isFinite(value)) {
+    return `<c r="${cellRef}"><v>${value}</v></c>`;
+  }
+  return `<c r="${cellRef}" t="inlineStr"><is><t xml:space="preserve">${escapeXml(value)}</t></is></c>`;
+}
+
+function buildXlsxSheetXml(rows) {
+  const body = rows
+    .map((row, rowIndex) => `<row r="${rowIndex + 1}">${row.map((value, columnIndex) => buildXlsxCell(value, rowIndex, columnIndex)).join("")}</row>`)
+    .join("");
+  return [
+    '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>',
+    '<worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main">',
+    `<sheetData>${body}</sheetData>`,
+    "</worksheet>",
+  ].join("");
+}
+
+function buildXlsxWorkbookXml(sheetNames) {
+  const sheets = sheetNames
+    .map((name, index) => `<sheet name="${escapeXml(name)}" sheetId="${index + 1}" r:id="rId${index + 1}"/>`)
+    .join("");
+  return [
+    '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>',
+    '<workbook xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships">',
+    `<sheets>${sheets}</sheets>`,
+    "</workbook>",
+  ].join("");
+}
+
+function buildXlsxWorkbookRelsXml(sheetCount) {
+  const relationships = [];
+  for (let index = 0; index < sheetCount; index += 1) {
+    relationships.push(`<Relationship Id="rId${index + 1}" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet" Target="worksheets/sheet${index + 1}.xml"/>`);
+  }
+  relationships.push(`<Relationship Id="rId${sheetCount + 1}" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles" Target="styles.xml"/>`);
+  return [
+    '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>',
+    '<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">',
+    relationships.join(""),
+    "</Relationships>",
+  ].join("");
+}
+
+function buildXlsxRootRelsXml() {
+  return [
+    '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>',
+    '<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">',
+    '<Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="xl/workbook.xml"/>',
+    "</Relationships>",
+  ].join("");
+}
+
+function buildXlsxContentTypesXml(sheetCount) {
+  const overrides = [
+    '<Override PartName="/xl/workbook.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml"/>',
+    '<Override PartName="/xl/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.styles+xml"/>',
+  ];
+  for (let index = 0; index < sheetCount; index += 1) {
+    overrides.push(`<Override PartName="/xl/worksheets/sheet${index + 1}.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/>`);
+  }
+  return [
+    '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>',
+    '<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types">',
+    '<Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/>',
+    '<Default Extension="xml" ContentType="application/xml"/>',
+    overrides.join(""),
+    "</Types>",
+  ].join("");
+}
+
+function buildXlsxStylesXml() {
+  return [
+    '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>',
+    '<styleSheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main">',
+    '<fonts count="1"><font><sz val="11"/><name val="Calibri"/></font></fonts>',
+    '<fills count="2"><fill><patternFill patternType="none"/></fill><fill><patternFill patternType="gray125"/></fill></fills>',
+    '<borders count="1"><border><left/><right/><top/><bottom/><diagonal/></border></borders>',
+    '<cellStyleXfs count="1"><xf numFmtId="0" fontId="0" fillId="0" borderId="0"/></cellStyleXfs>',
+    '<cellXfs count="1"><xf numFmtId="0" fontId="0" fillId="0" borderId="0" xfId="0"/></cellXfs>',
+    '<cellStyles count="1"><cellStyle name="Normal" xfId="0" builtinId="0"/></cellStyles>',
+    "</styleSheet>",
+  ].join("");
+}
+
+function makeCrcTable() {
+  const table = new Uint32Array(256);
+  for (let index = 0; index < 256; index += 1) {
+    let crc = index;
+    for (let bit = 0; bit < 8; bit += 1) {
+      crc = (crc & 1) ? (0xedb88320 ^ (crc >>> 1)) : (crc >>> 1);
+    }
+    table[index] = crc >>> 0;
+  }
+  return table;
+}
+
+const CRC_TABLE = makeCrcTable();
+
+function crc32(buffer) {
+  let crc = 0xffffffff;
+  for (const byte of buffer) {
+    crc = CRC_TABLE[(crc ^ byte) & 0xff] ^ (crc >>> 8);
+  }
+  return (crc ^ 0xffffffff) >>> 0;
+}
+
+function zipStoreFiles(files) {
+  const localParts = [];
+  const centralParts = [];
+  let offset = 0;
+
+  files.forEach((file) => {
+    const nameBuffer = Buffer.from(file.name, "utf8");
+    const contentBuffer = Buffer.isBuffer(file.content) ? file.content : Buffer.from(file.content, "utf8");
+    const crc = crc32(contentBuffer);
+
+    const localHeader = Buffer.alloc(30);
+    localHeader.writeUInt32LE(0x04034b50, 0);
+    localHeader.writeUInt16LE(20, 4);
+    localHeader.writeUInt16LE(0, 6);
+    localHeader.writeUInt16LE(0, 8);
+    localHeader.writeUInt16LE(0, 10);
+    localHeader.writeUInt16LE(0, 12);
+    localHeader.writeUInt32LE(crc, 14);
+    localHeader.writeUInt32LE(contentBuffer.length, 18);
+    localHeader.writeUInt32LE(contentBuffer.length, 22);
+    localHeader.writeUInt16LE(nameBuffer.length, 26);
+    localHeader.writeUInt16LE(0, 28);
+    localParts.push(localHeader, nameBuffer, contentBuffer);
+
+    const centralHeader = Buffer.alloc(46);
+    centralHeader.writeUInt32LE(0x02014b50, 0);
+    centralHeader.writeUInt16LE(20, 4);
+    centralHeader.writeUInt16LE(20, 6);
+    centralHeader.writeUInt16LE(0, 8);
+    centralHeader.writeUInt16LE(0, 10);
+    centralHeader.writeUInt16LE(0, 12);
+    centralHeader.writeUInt16LE(0, 14);
+    centralHeader.writeUInt32LE(crc, 16);
+    centralHeader.writeUInt32LE(contentBuffer.length, 20);
+    centralHeader.writeUInt32LE(contentBuffer.length, 24);
+    centralHeader.writeUInt16LE(nameBuffer.length, 28);
+    centralHeader.writeUInt16LE(0, 30);
+    centralHeader.writeUInt16LE(0, 32);
+    centralHeader.writeUInt16LE(0, 34);
+    centralHeader.writeUInt16LE(0, 36);
+    centralHeader.writeUInt32LE(0, 38);
+    centralHeader.writeUInt32LE(offset, 42);
+    centralParts.push(centralHeader, nameBuffer);
+
+    offset += localHeader.length + nameBuffer.length + contentBuffer.length;
+  });
+
+  const centralDirectory = Buffer.concat(centralParts);
+  const centralOffset = offset;
+  const endRecord = Buffer.alloc(22);
+  endRecord.writeUInt32LE(0x06054b50, 0);
+  endRecord.writeUInt16LE(0, 4);
+  endRecord.writeUInt16LE(0, 6);
+  endRecord.writeUInt16LE(files.length, 8);
+  endRecord.writeUInt16LE(files.length, 10);
+  endRecord.writeUInt32LE(centralDirectory.length, 12);
+  endRecord.writeUInt32LE(centralOffset, 16);
+  endRecord.writeUInt16LE(0, 20);
+
+  return Buffer.concat([...localParts, centralDirectory, endRecord]);
+}
+
+function buildXlsxWorkbook(sheets) {
+  const files = [
+    { name: "[Content_Types].xml", content: buildXlsxContentTypesXml(sheets.length) },
+    { name: "_rels/.rels", content: buildXlsxRootRelsXml() },
+    { name: "xl/workbook.xml", content: buildXlsxWorkbookXml(sheets.map((sheet) => sheet.name)) },
+    { name: "xl/_rels/workbook.xml.rels", content: buildXlsxWorkbookRelsXml(sheets.length) },
+    { name: "xl/styles.xml", content: buildXlsxStylesXml() },
+  ];
+
+  sheets.forEach((sheet, index) => {
+    files.push({
+      name: `xl/worksheets/sheet${index + 1}.xml`,
+      content: buildXlsxSheetXml(sheet.rows),
+    });
+  });
+
+  return zipStoreFiles(files);
 }
 
 function parseCookies(req) {
@@ -524,8 +744,12 @@ function ensureDefaultJuryUsers(db) {
 function ensureTeamApplicationsSchema(db) {
   const columns = db.prepare("PRAGMA table_info(team_applications)").all();
   const hasStatus = columns.some((column) => column.name === "status");
+  const hasOrganization = columns.some((column) => column.name === "organization");
   if (!hasStatus) {
     db.exec("ALTER TABLE team_applications ADD COLUMN status TEXT NOT NULL DEFAULT 'main'");
+  }
+  if (!hasOrganization) {
+    db.exec("ALTER TABLE team_applications ADD COLUMN organization TEXT NOT NULL DEFAULT ''");
   }
   db.exec("CREATE INDEX IF NOT EXISTS idx_team_applications_status ON team_applications(status)");
 }
@@ -710,6 +934,7 @@ function getTeamApplications(db) {
     return {
       id: row.id,
       leaderName: row.leader_name,
+      organization: row.organization || "",
       phone: row.phone,
       participants: row.participants,
       nominations: Array.isArray(nominations) ? nominations : [],
@@ -864,6 +1089,7 @@ function buildTeamsExportCsv(state, mode = "all") {
       "ID заявки",
       "Статус",
       "ФИО руководителя",
+      "Организация",
       "Телефон",
       "Участники",
       "Номинации",
@@ -877,6 +1103,7 @@ function buildTeamsExportCsv(state, mode = "all") {
       entry.id,
       entry.status === "reserve" ? "Резерв" : "Основной список",
       entry.leaderName,
+      entry.organization,
       entry.phone,
       entry.participants,
       entry.nominations.join(", "),
@@ -904,6 +1131,46 @@ function buildJuryScoresExportCsv(state) {
       ]),
   ];
   return rows.map((row) => row.map(escapeCsv).join(";")).join("\n");
+}
+
+function buildJuryScoresExportExcel(state) {
+  const detailedEntries = state.juryScores
+    .slice()
+    .sort((a, b) => new Date(b.updatedAt || b.createdAt) - new Date(a.updatedAt || a.createdAt));
+
+  const teamNames = Array.from(new Set(detailedEntries.map((entry) => entry.teamName))).sort((a, b) => a.localeCompare(b, "ru"));
+  const jurorNames = Array.from(new Set(detailedEntries.map((entry) => entry.jurorUsername))).sort((a, b) => a.localeCompare(b, "ru"));
+  const detailRows = [
+    ["Время", "Судья", "Команда", "Критерий", "Балл"],
+    ...detailedEntries.map((entry) => [
+      entry.updatedAt || entry.createdAt || "",
+      entry.jurorUsername,
+      entry.teamName,
+      entry.criterionName,
+      Number(entry.score || 0),
+    ]),
+  ];
+  const summaryRows = [
+    ["Строка", "Баллы"],
+  ];
+
+  teamNames.forEach((teamName) => {
+    const teamEntries = detailedEntries.filter((entry) => entry.teamName === teamName);
+    const total = teamEntries.reduce((sum, entry) => sum + Number(entry.score || 0), 0);
+    summaryRows.push([teamName, total]);
+
+    jurorNames.forEach((jurorName) => {
+      const jurorTotal = teamEntries
+        .filter((entry) => entry.jurorUsername === jurorName)
+        .reduce((sum, entry) => sum + Number(entry.score || 0), 0);
+      summaryRows.push([`${teamName} (${jurorName})`, jurorTotal]);
+    });
+  });
+
+  return buildXlsxWorkbook([
+    { name: "Scores", rows: detailRows },
+    { name: "Summary", rows: summaryRows },
+  ]);
 }
 
 function buildTicketQrPayload(ticket) {
@@ -1137,6 +1404,7 @@ async function ensureDatabase() {
       CREATE TABLE IF NOT EXISTS team_applications (
         id TEXT PRIMARY KEY,
         leader_name TEXT NOT NULL,
+        organization TEXT NOT NULL,
         phone TEXT NOT NULL,
         participants TEXT NOT NULL,
         nominations TEXT NOT NULL,
@@ -1414,6 +1682,7 @@ async function handleApi(req, res, pathname) {
   if (req.method === "POST" && pathname === "/api/team-applications") {
     const body = await parseBody(req);
     const leaderName = String(body.leaderName || "").trim();
+    const organization = String(body.organization || "").trim();
     const phone = String(body.phone || "").trim();
     const participants = String(body.participants || "").trim();
     const nominations = Array.isArray(body.nominations)
@@ -1424,7 +1693,7 @@ async function handleApi(req, res, pathname) {
     const equipmentMode = String(body.equipmentMode || "").trim();
     const wishes = String(body.wishes || "").trim();
 
-    if (!leaderName || !phone || !participants || !nominations.length || !dishDescription || !concept || !equipmentMode) {
+    if (!leaderName || !organization || !phone || !participants || !nominations.length || !dishDescription || !concept || !equipmentMode) {
       return sendError(res, 400, "Заполните обязательные поля заявки.");
     }
     if (!["need_all", "own"].includes(equipmentMode)) {
@@ -1441,11 +1710,12 @@ async function handleApi(req, res, pathname) {
     const id = crypto.randomUUID();
     db.prepare(`
       INSERT INTO team_applications(
-        id, leader_name, phone, participants, nominations, dish_description, concept, equipment_mode, wishes, status, created_at
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        id, leader_name, organization, phone, participants, nominations, dish_description, concept, equipment_mode, wishes, status, created_at
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `).run(
       id,
       leaderName,
+      organization,
       phone,
       participants,
       JSON.stringify(nominations),
@@ -1552,9 +1822,9 @@ async function handleApi(req, res, pathname) {
     return sendCsv(res, "teams-reserve.csv", buildTeamsExportCsv(getState(db), "reserve"));
   }
 
-  if (req.method === "GET" && pathname === "/api/export/jury-scores.csv") {
+  if (req.method === "GET" && pathname === "/api/export/jury-scores.xlsx") {
     if (!requireRole(req, res, "admin")) return;
-    return sendCsv(res, "jury-scores.csv", buildJuryScoresExportCsv(getState(db)));
+    return sendXlsx(res, "jury-scores.xlsx", buildJuryScoresExportExcel(getState(db)));
   }
 
   return sendError(res, 404, "Маршрут не найден.");

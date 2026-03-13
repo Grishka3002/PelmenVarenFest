@@ -42,6 +42,20 @@
         <button id="logout-button" class="button button--secondary" type="button">Выйти</button>
       </div>
 
+      <article class="admin-panel ornament-card admin-dashboard-actions">
+        <div class="section-heading">
+          <p class="eyebrow">Дашборд</p>
+          <h2>Быстрый экспорт основных данных.</h2>
+        </div>
+        <div class="payment-actions admin-actions admin-actions--dashboard">
+          <button class="button" id="admin-export-quiz" type="button">Скачать тест CSV</button>
+          <button class="button button--secondary" id="admin-export-tickets" type="button">Скачать билеты CSV</button>
+          <button class="button button--secondary" id="admin-export-teams" type="button">Скачать команды CSV</button>
+          <button class="button button--secondary" id="admin-export-reserve-teams" type="button">Скачать резерв CSV</button>
+          <button class="button button--secondary" id="admin-export-jury-scores" type="button">Скачать таблицу баллов</button>
+        </div>
+      </article>
+
       <div class="admin-stats">
         <article class="admin-stat-card">
           <p class="eyebrow">Билеты</p>
@@ -394,6 +408,7 @@
             <label><input type="text" name="teamsApplyButton" placeholder="Текст кнопки подачи заявки"></label>
             <label><input type="text" name="teamsFormTitle" placeholder="Заголовок формы"></label>
             <label><input type="text" name="teamsLeaderLabel" placeholder="Вопрос: ФИО руководителя"></label>
+            <label><input type="text" name="teamsOrganizationLabel" placeholder="Вопрос: организация"></label>
             <label><input type="text" name="teamsPhoneLabel" placeholder="Вопрос: телефон"></label>
             <label class="admin-wide"><input type="text" name="teamsParticipantsLabel" placeholder="Вопрос: участники"></label>
             <label class="admin-wide"><input type="text" name="teamsNominationsLabel" placeholder="Вопрос: номинации"></label>
@@ -636,26 +651,21 @@
             </div>
             <div id="admin-jury-summary" class="admin-jury-summary"></div>
             <div class="payment-actions">
-              <button class="button button--secondary" id="admin-export-jury-scores" type="button">Скачать таблицу баллов</button>
               <button class="button button--secondary" id="admin-reset-jury-scores" type="button">Сбросить баллы</button>
             </div>
           </article>
 
           <article class="admin-panel ornament-card">
             <div class="section-heading">
-              <p class="eyebrow">Экспорт</p>
-              <h2>Скачать отчёты по тесту, билетам и командам.</h2>
+              <p class="eyebrow">Сброс данных</p>
+              <h2>Управление накопленной статистикой и заявками.</h2>
             </div>
             <div class="payment-actions admin-actions admin-actions--stacked">
-              <button class="button" id="admin-export-quiz" type="button">Скачать тест CSV</button>
-              <button class="button button--secondary" id="admin-export-tickets" type="button">Скачать билеты CSV</button>
-              <button class="button button--secondary" id="admin-export-teams" type="button">Скачать команды CSV</button>
-              <button class="button button--secondary" id="admin-export-reserve-teams" type="button">Скачать резерв CSV</button>
               <button class="button button--secondary" id="admin-reset-teams" type="button">Сбросить команды</button>
               <button class="button button--secondary" id="admin-reset-tickets" type="button">Сбросить билеты</button>
               <button class="button button--secondary" id="admin-reset-quiz" type="button">Сбросить тест</button>
             </div>
-            <p class="muted">Тест: время прохождения и результат. Билеты: время покупки, статус, номер, ФИО, количество и стоимость. Команды: все поля заявки.</p>
+            <p class="muted">Экспорт теперь вынесен наверх дашборда. Здесь оставлены только действия сброса.</p>
           </article>
         </div>
       </div>

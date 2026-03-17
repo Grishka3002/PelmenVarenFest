@@ -1,6 +1,5 @@
 ﻿const TICKET_PRICE = 600;
 const QR_ENDPOINT = "https://api.qrserver.com/v1/create-qr-code/?size=320x320&data=";
-
 const PELMEN_SESSION_KEY = "pelmen_game_seen_v1";
 const STATIC_MAP = { lat: 43.174647, lon: 132.713618, zoom: 12 };
 const PELMEN_STAGE_TOTAL = 7;
@@ -16,7 +15,7 @@ const QUIZ_RESULTS = {
     text: "Масштабный, громкий и харизматичный. Тебя невозможно не заметить, а любая сцена рядом с тобой становится главной.",
   },
   momo: {
-    title: "Ты момо - непальский пельмешек",
+    title: "Ты момо",
     text: "Лёгкий, любознательный и открытый новому. Ты любишь необычные сочетания, быстро находишь скрытые жемчужины и умеешь увлекать за собой.",
   },
   varenik: {
@@ -136,6 +135,7 @@ const DEFAULT_CONTENT = {
   teamsApplyButton: "Подать заявку",
   teamsFormTitle: "Заявка команды",
   teamsLeaderLabel: "ФИО руководителя команды",
+  teamsNameLabel: "Название команды",
   teamsOrganizationLabel: "Организация",
   teamsPhoneLabel: "Контактный телефон",
   teamsParticipantsLabel: "5 ФИО участников (включая капитана)",
@@ -364,6 +364,7 @@ const CONTENT_BINDINGS = {
   teamsApplyButton: { id: "content-teams-apply-button", html: false },
   teamsFormTitle: { id: "content-teams-form-title", html: false },
   teamsLeaderLabel: { id: "content-teams-leader-label", html: false },
+  teamsNameLabel: { id: "content-teams-name-label", html: false },
   teamsOrganizationLabel: { id: "content-teams-organization-label", html: false },
   teamsPhoneLabel: { id: "content-teams-phone-label", html: false },
   teamsParticipantsLabel: { id: "content-teams-participants-label", html: false },
@@ -1164,6 +1165,7 @@ function initTeamApplyFlow() {
     const nominations = formData.getAll("nominations").map((item) => String(item || "").trim()).filter(Boolean);
     const payload = {
       leaderName: String(formData.get("leaderName") || "").trim(),
+      teamName: String(formData.get("teamName") || "").trim(),
       organization: String(formData.get("organization") || "").trim(),
       phone: String(formData.get("phone") || "").trim(),
       participants: String(formData.get("participants") || "").trim(),

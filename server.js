@@ -136,6 +136,7 @@ const DEFAULT_CONTENT = {
   teamsApplyButton: "Подать заявку",
   teamsFormTitle: "Заявка команды",
   teamsLeaderLabel: "ФИО руководителя команды",
+  teamsNameLabel: "Название команды",
   teamsOrganizationLabel: "Организация",
   teamsPhoneLabel: "Контактный телефон",
   teamsParticipantsLabel: "5 ФИО участников (включая капитана)",
@@ -744,9 +745,13 @@ function ensureDefaultJuryUsers(db) {
 function ensureTeamApplicationsSchema(db) {
   const columns = db.prepare("PRAGMA table_info(team_applications)").all();
   const hasStatus = columns.some((column) => column.name === "status");
+  const hasTeamName = columns.some((column) => column.name === "team_name");
   const hasOrganization = columns.some((column) => column.name === "organization");
   if (!hasStatus) {
     db.exec("ALTER TABLE team_applications ADD COLUMN status TEXT NOT NULL DEFAULT 'main'");
+  }
+  if (!hasTeamName) {
+    db.exec("ALTER TABLE team_applications ADD COLUMN team_name TEXT NOT NULL DEFAULT ''");
   }
   if (!hasOrganization) {
     db.exec("ALTER TABLE team_applications ADD COLUMN organization TEXT NOT NULL DEFAULT ''");
@@ -934,6 +939,7 @@ function getTeamApplications(db) {
     return {
       id: row.id,
       leaderName: row.leader_name,
+      teamName: row.team_name || "",
       organization: row.organization || "",
       phone: row.phone,
       participants: row.participants,
@@ -1089,6 +1095,7 @@ function buildTeamsExportCsv(state, mode = "all") {
       "ID заявки",
       "Статус",
       "ФИО руководителя",
+      "Название команды",
       "Организация",
       "Телефон",
       "Участники",
@@ -1103,6 +1110,7 @@ function buildTeamsExportCsv(state, mode = "all") {
       entry.id,
       entry.status === "reserve" ? "Резерв" : "Основной список",
       entry.leaderName,
+      entry.teamName,
       entry.organization,
       entry.phone,
       entry.participants,
@@ -1404,6 +1412,7 @@ async function ensureDatabase() {
       CREATE TABLE IF NOT EXISTS team_applications (
         id TEXT PRIMARY KEY,
         leader_name TEXT NOT NULL,
+        team_name TEXT NOT NULL,
         organization TEXT NOT NULL,
         phone TEXT NOT NULL,
         participants TEXT NOT NULL,
@@ -1682,6 +1691,7 @@ async function handleApi(req, res, pathname) {
   if (req.method === "POST" && pathname === "/api/team-applications") {
     const body = await parseBody(req);
     const leaderName = String(body.leaderName || "").trim();
+    const teamName = String(body.teamName || "").trim();
     const organization = String(body.organization || "").trim();
     const phone = String(body.phone || "").trim();
     const participants = String(body.participants || "").trim();
@@ -1693,7 +1703,7 @@ async function handleApi(req, res, pathname) {
     const equipmentMode = String(body.equipmentMode || "").trim();
     const wishes = String(body.wishes || "").trim();
 
-    if (!leaderName || !organization || !phone || !participants || !nominations.length || !dishDescription || !concept || !equipmentMode) {
+    if (!leaderName || !teamName || !organization || !phone || !participants || !nominations.length || !dishDescription || !concept || !equipmentMode) {
       return sendError(res, 400, "Заполните обязательные поля заявки.");
     }
     if (!["need_all", "own"].includes(equipmentMode)) {
@@ -1710,11 +1720,12 @@ async function handleApi(req, res, pathname) {
     const id = crypto.randomUUID();
     db.prepare(`
       INSERT INTO team_applications(
-        id, leader_name, organization, phone, participants, nominations, dish_description, concept, equipment_mode, wishes, status, created_at
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        id, leader_name, team_name, organization, phone, participants, nominations, dish_description, concept, equipment_mode, wishes, status, created_at
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `).run(
       id,
       leaderName,
+      teamName,
       organization,
       phone,
       participants,

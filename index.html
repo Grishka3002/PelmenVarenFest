@@ -355,6 +355,9 @@
               <span id="content-ticket-offer-note">Покупая билет, вы принимаете условия публичной оферты.</span>
               <a id="content-ticket-offer-link" href="/offer" target="_blank" rel="noopener noreferrer">Ознакомиться с офертой</a>
             </p>
+            <div class="section-cta section-cta--left">
+              <a class="button button--secondary" href="#legal-info">Ознакомиться с документами</a>
+            </div>
           </div>
 
           <div class="ticket-widget ornament-card">
@@ -391,29 +394,10 @@
 
             <form id="payment-form" class="ticket-form" hidden>
               <div class="payment-summary" id="payment-summary"></div>
-              <label>
-                Номер карты
-                <input type="text" name="cardNumber" placeholder="1111 2222 3333 4444" inputmode="numeric" maxlength="19" required>
-              </label>
-              <div class="payment-grid">
-                <label>
-                  Срок
-                  <input type="text" name="expiry" placeholder="12/28" maxlength="5" required>
-                </label>
-                <label>
-                  CVV
-                  <input type="password" name="cvv" placeholder="123" maxlength="3" inputmode="numeric" required>
-                </label>
-              </div>
-              <label>
-                Имя на карте
-                <input type="text" name="cardHolder" placeholder="ALINA IVANOVA" required>
-              </label>
               <div class="payment-actions">
-                <button class="button button--ticket" id="pay-button" type="submit">Оплатить</button>
                 <button class="button button--secondary" id="back-to-order" type="button">Изменить заказ</button>
               </div>
-              <p class="muted">Демо-чекаут: данные карты не отправляются во внешний сервис и используются только для имитации успешной оплаты.</p>
+              <p class="muted">На следующем шаге откроется защищенная страница Robokassa. В тестовом режиме оплата проходит на стороне платежного сервиса, а билеты появятся здесь после подтверждения оплаты.</p>
             </form>
 
             <div id="ticket-result" class="ticket-result" hidden>
@@ -539,12 +523,54 @@
           </article>
           <article class="contact-card">
             <h3 id="content-contact-org-title">Организаторы</h3>
-            <p id="content-contact-org-phone">+7 (999) 000-12-34</p>
-            <p id="content-contact-org-email">hello@kostroviefest.ru</p>
+            <p id="content-contact-org-phone">+7 (914) 792-58-26</p>
+            <p id="content-contact-org-email">Katerina.gerashchenko@gmail.com</p>
           </article>
           <article class="contact-card">
             <h3 id="content-contact-ticket-title">Входной контроль</h3>
             <p id="content-contact-ticket-note">Входной контроль доступен по отдельной закрытой ссылке.</p>
+          </article>
+        </div>
+      </section>
+
+      <section class="section section--accent legal-section" id="legal-info">
+        <div class="section-heading">
+          <p class="eyebrow">Оплата и документы</p>
+          <h2>Информация для покупателя, условия оказания услуг и обязательные юридические сведения.</h2>
+        </div>
+        <div class="contacts-grid legal-grid">
+          <article class="contact-card">
+            <h3>Что входит в билет</h3>
+            <p>Электронный билет дает право разового посещения фестиваля «Пельмень Варень» в выбранную дату. После оплаты покупатель получает электронный билет с уникальным номером и QR-кодом для прохода на площадку.</p>
+            <p>Актуальная стоимость билета указана в разделе «Билеты» на этой странице.</p>
+          </article>
+          <article class="contact-card">
+            <h3>Как оформить заказ</h3>
+            <p>Покупатель заполняет форму заказа на сайте, указывает имя, e-mail, телефон и количество билетов, затем переходит на защищенную страницу оплаты Robokassa.</p>
+            <p>После успешной оплаты электронные билеты формируются автоматически и становятся доступны для скачивания на сайте.</p>
+          </article>
+          <article class="contact-card">
+            <h3>Оплата и оказание услуги</h3>
+            <p>Оплата принимается банковской картой через платежный сервис Robokassa. Услуга считается оказанной после предоставления покупателю оплаченного электронного билета.</p>
+            <p>Срок предоставления услуги: сразу после подтверждения оплаты платежной системой.</p>
+          </article>
+          <article class="contact-card">
+            <h3>Отказ от покупки и возврат</h3>
+            <p>Покупатель вправе отказаться от покупки до момента начала мероприятия. Для возврата необходимо направить обращение организатору по контактам, указанным ниже, с номером заказа, номером билета и данными покупателя.</p>
+            <p>Обращение рассматривается организатором в течение 3 рабочих дней. При подтверждении возврата денежные средства перечисляются тем же способом оплаты в срок до 10 рабочих дней, в зависимости от банка-эмитента.</p>
+            <p>Если услуга уже оказана полностью, возврат осуществляется по правилам законодательства РФ и условиям публичной оферты.</p>
+          </article>
+          <article class="contact-card">
+            <h3>Контакты и реквизиты</h3>
+            <p><strong>Телефон:</strong> <span id="content-contact-org-phone-copy">+7 (914) 792-58-26</span></p>
+            <p><strong>E-mail:</strong> <span id="content-contact-org-email-copy">Katerina.gerashchenko@gmail.com</span></p>
+            <p><strong>Самозанятый:</strong> ГЕРАЩЕНКО ЕКАТЕРИНА ГЕОРГИЕВНА</p>
+            <p><strong>ИНН:</strong> 253905392205</p>
+          </article>
+          <article class="contact-card">
+            <h3>Документы</h3>
+            <p><a href="/offer">Публичная оферта</a></p>
+            <p><a href="/privacy">Политика обработки персональных данных</a></p>
           </article>
         </div>
       </section>

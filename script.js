@@ -270,8 +270,8 @@ const DEFAULT_CONTENT = {
   contactsEyebrow: "Контакты",
   contactsTitle: "Блок для связи с гостями, партнёрами и прессой.",
   contactOrgTitle: "Организаторы",
-  contactOrgPhone: "+7 (999) 000-12-34",
-  contactOrgEmail: "hello@kostroviefest.ru",
+  contactOrgPhone: "+7 (914) 792-58-26",
+  contactOrgEmail: "Katerina.gerashchenko@gmail.com",
   contactPressTitle: "Партнёры и медиа",
   contactPressEmail: "press@kostroviefest.ru",
   contactPressSocial: "@kostrovie_fest",
@@ -459,7 +459,6 @@ const teamApplyForm = document.querySelector("#team-apply-form");
 const teamApplyMessage = document.querySelector("#team-apply-message");
 const paymentForm = document.querySelector("#payment-form");
 const backToOrderButton = document.querySelector("#back-to-order");
-const payButton = document.querySelector("#pay-button");
 const paymentSummary = document.querySelector("#payment-summary");
 const resultCard = document.querySelector("#ticket-result");
 const ticketList = document.querySelector("#ticket-list");
@@ -727,6 +726,11 @@ const api = {
   resetContent: async () => (await requestJson("/api/content", { method: "DELETE" })).content,
   getTickets: async () => (await requestJson("/api/tickets")).tickets,
   createOrder: async (order) => requestJson("/api/orders", { method: "POST", body: JSON.stringify(order) }),
+  getOrder: async (orderId) => requestJson(`/api/orders/${encodeURIComponent(orderId)}`),
+  confirmRobokassaSuccess: async (params) => {
+    const search = new URLSearchParams(params);
+    return requestJson(`/api/payments/robokassa/success?${search.toString()}`);
+  },
   createTeamApplication: async (payload) => requestJson("/api/team-applications", { method: "POST", body: JSON.stringify(payload) }),
   checkin: async (code) => requestJson("/api/checkin", { method: "POST", body: JSON.stringify({ code }) }),
   vote: async (code, team) => requestJson("/api/vote", { method: "POST", body: JSON.stringify({ code, team }) }),
@@ -1208,11 +1212,6 @@ function initTicketCtaGuard() {
   });
 }
 
-function validatePaymentData(data) {
-  const cleanNumber = String(data.cardNumber || "").replace(/\s+/g, "");
-  return cleanNumber.length >= 16 && /^\d{2}\/\d{2}$/.test(data.expiry) && /^\d{3}$/.test(data.cvv) && String(data.cardHolder || "").trim().length >= 4;
-}
-
 function setVoteMessage(message, mode) {
   if (!voteMessage) return;
   voteMessage.className = `info-message ${mode ? `checkin-result--${mode}` : ""}`.trim();
@@ -1312,8 +1311,103 @@ function renderPaymentSummary(order) {
   paymentSummary.innerHTML = `
     <strong>${order.name}</strong><br>
     ${order.quantity} билет(а) • ${formatPrice(total)}<br>
-    ${order.email}
+    ${order.email}<br>
+    После подтверждения вы перейдете на страницу тестовой оплаты Robokassa.
   `;
+}
+
+async function restorePaidOrderFromQuery() {
+  const params = new URLSearchParams(window.location.search);
+  const orderId = String(params.get("Shp_orderId") || params.get("order") || "").trim();
+  const paymentState = String(params.get("payment") || "").trim();
+  const paymentFailedByHash = window.location.hash === "#payment-failed";
+  const robokassaInvId = String(params.get("InvId") || "").trim();
+  const robokassaOutSum = String(params.get("OutSum") || "").trim();
+  const robokassaSignature = String(params.get("SignatureValue") || "").trim();
+
+  if (!orderId) {
+    if (paymentState === "failed" || paymentFailedByHash) {
+      ticketForm.hidden = true;
+      paymentForm.hidden = false;
+      resultCard.hidden = true;
+      renderPaymentSummary({
+        name: "Оплата не завершена",
+        quantity: 1,
+        email: "Robokassa вернула пользователя без подтверждения оплаты.",
+      });
+      setStep("payment");
+      if (paymentFailedByHash) {
+        window.history.replaceState({}, "", window.location.pathname + window.location.search);
+      }
+    }
+    return;
+  }
+
+  ticketForm.hidden = true;
+  paymentForm.hidden = false;
+  resultCard.hidden = true;
+  renderPaymentSummary({
+    name: "Проверяем оплату",
+    quantity: 1,
+    email: "Ожидаем подтверждение Robokassa и выдачу билетов.",
+  });
+  setStep("payment");
+
+  if (robokassaInvId && robokassaOutSum && robokassaSignature) {
+    try {
+      const response = await api.confirmRobokassaSuccess({
+        InvId: robokassaInvId,
+        OutSum: robokassaOutSum,
+        SignatureValue: robokassaSignature,
+        Shp_orderId: orderId,
+      });
+      if (response.order?.status === "paid" && Array.isArray(response.tickets) && response.tickets.length) {
+        lastCreatedOrderTickets = response.tickets;
+        renderOrderTickets(lastCreatedOrderTickets);
+        paymentForm.hidden = true;
+        ticketForm.hidden = false;
+        ticketForm.reset();
+        pendingOrder = null;
+        const paramsToClear = ["Shp_orderId", "payment", "InvId", "OutSum", "SignatureValue"];
+        paramsToClear.forEach((key) => params.delete(key));
+        const nextQuery = params.toString();
+        window.history.replaceState({}, "", `${window.location.pathname}${nextQuery ? `?${nextQuery}` : ""}`);
+        return;
+      }
+    } catch (error) {
+      // fallback to polling below
+    }
+  }
+
+  const startedAt = Date.now();
+  while (Date.now() - startedAt < 20000) {
+    try {
+      const response = await api.getOrder(orderId);
+      if (response.order?.status === "paid" && Array.isArray(response.tickets) && response.tickets.length) {
+        lastCreatedOrderTickets = response.tickets;
+        renderOrderTickets(lastCreatedOrderTickets);
+        paymentForm.hidden = true;
+        ticketForm.hidden = false;
+        ticketForm.reset();
+        pendingOrder = null;
+        await renderVoteResults();
+        const paramsToClear = ["Shp_orderId", "payment", "InvId", "OutSum", "SignatureValue"];
+        paramsToClear.forEach((key) => params.delete(key));
+        const nextQuery = params.toString();
+        window.history.replaceState({}, "", `${window.location.pathname}${nextQuery ? `?${nextQuery}` : ""}`);
+        return;
+      }
+    } catch (error) {
+      // keep polling until timeout
+    }
+    await new Promise((resolve) => window.setTimeout(resolve, 1500));
+  }
+
+  renderPaymentSummary({
+    name: "Оплата обрабатывается",
+    quantity: 1,
+    email: "Robokassa еще не прислала подтверждение. Обновите страницу через несколько секунд.",
+  });
 }
 
 function applyContent(content) {
@@ -1809,48 +1903,33 @@ function initTicketFlow() {
 
   if (lastCreatedOrderTickets.length) renderOrderTickets(lastCreatedOrderTickets);
 
-  ticketForm.addEventListener("submit", (event) => {
+  ticketForm.addEventListener("submit", async (event) => {
     event.preventDefault();
     pendingOrder = Object.fromEntries(new FormData(ticketForm).entries());
-    renderPaymentSummary(pendingOrder);
-    ticketForm.hidden = true;
-    paymentForm.hidden = false;
     resultCard.hidden = true;
-    setStep("payment");
-  });
-
-  paymentForm.addEventListener("submit", async (event) => {
-    event.preventDefault();
-    const paymentData = Object.fromEntries(new FormData(paymentForm).entries());
-    if (!pendingOrder || !validatePaymentData(paymentData)) {
-      renderPaymentSummary({
-        name: "Проверьте данные карты",
-        quantity: pendingOrder?.quantity || 1,
-        email: "Заполните номер, срок, CVV и имя держателя.",
-      });
-      return;
-    }
 
     try {
-      payButton.textContent = "Оплата выполняется";
-      const response = await api.createOrder({ ...pendingOrder, ...paymentData });
-      lastCreatedOrderTickets = response.tickets;
-      renderOrderTickets(lastCreatedOrderTickets);
-      paymentForm.hidden = true;
-      ticketForm.hidden = false;
-      paymentForm.reset();
-      ticketForm.reset();
-      pendingOrder = null;
-      await renderVoteResults();
-      await renderAdminStats();
+      const submitButton = ticketForm.querySelector('button[type="submit"]');
+      if (submitButton instanceof HTMLButtonElement) {
+        submitButton.textContent = "Переходим в Robokassa";
+        submitButton.disabled = true;
+      }
+      const response = await api.createOrder({ ...pendingOrder });
+      window.location.href = response.paymentUrl;
     } catch (error) {
+      paymentForm.hidden = false;
+      ticketForm.hidden = true;
       renderPaymentSummary({
         name: "Ошибка оплаты",
         quantity: pendingOrder?.quantity || 1,
         email: error.message,
       });
-    } finally {
-      if (payButton) payButton.textContent = "Оплатить";
+      setStep("payment");
+      const submitButton = ticketForm.querySelector('button[type="submit"]');
+      if (submitButton instanceof HTMLButtonElement) {
+        submitButton.textContent = "Перейти к оплате";
+        submitButton.disabled = false;
+      }
     }
   });
 
@@ -1860,6 +1939,8 @@ function initTicketFlow() {
     resultCard.hidden = true;
     setStep("order");
   });
+
+  restorePaidOrderFromQuery();
 }
 
 function initVoteFlow() {

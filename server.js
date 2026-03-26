@@ -21,6 +21,12 @@ const SESSION_TTL_MS = Number(process.env.SESSION_TTL_HOURS || 12) * 60 * 60 * 1
 const TICKET_PRICE = 600;
 const TEAM_MAIN_LIMIT = 20;
 const STATIC_MAP = { lat: "43.174647", lon: "132.713618", zoom: "12" };
+const ROBOKASSA_LOGIN = String(process.env.ROBOKASSA_LOGIN || "").trim();
+const ROBOKASSA_PASS1 = String(process.env.ROBOKASSA_PASS1 || "").trim();
+const ROBOKASSA_PASS2 = String(process.env.ROBOKASSA_PASS2 || "").trim();
+const ROBOKASSA_TEST_MODE = String(process.env.ROBOKASSA_TEST_MODE || "1").trim() !== "0";
+const ROBOKASSA_HASH_ALGO = String(process.env.ROBOKASSA_HASH_ALGO || "md5").trim().toLowerCase();
+const PUBLIC_BASE_URL = String(process.env.PUBLIC_BASE_URL || "").trim().replace(/\/+$/, "");
 const QUIZ_RESULTS = {
   pelmeni: "Ты пельмень сибирский",
   khinkali: "Ты хинкали",
@@ -271,8 +277,8 @@ const DEFAULT_CONTENT = {
   contactsEyebrow: "Контакты",
   contactsTitle: "Блок для связи с гостями, партнёрами и прессой.",
   contactOrgTitle: "Организаторы",
-  contactOrgPhone: "+7 (999) 000-12-34",
-  contactOrgEmail: "hello@kostroviefest.ru",
+  contactOrgPhone: "+7 (914) 792-58-26",
+  contactOrgEmail: "Katerina.gerashchenko@gmail.com",
   contactPressTitle: "Партнёры и медиа",
   contactPressEmail: "press@kostroviefest.ru",
   contactPressSocial: "@kostrovie_fest",
@@ -304,7 +310,19 @@ function parseBody(req) {
     const chunks = [];
     for await (const chunk of req) chunks.push(chunk);
     if (!chunks.length) return {};
-    return JSON.parse(Buffer.concat(chunks).toString("utf8"));
+    const raw = Buffer.concat(chunks).toString("utf8");
+    const contentType = String(req.headers["content-type"] || "").toLowerCase();
+    if (contentType.includes("application/json")) {
+      return JSON.parse(raw);
+    }
+    if (contentType.includes("application/x-www-form-urlencoded")) {
+      return Object.fromEntries(new URLSearchParams(raw).entries());
+    }
+    try {
+      return JSON.parse(raw);
+    } catch (error) {
+      return Object.fromEntries(new URLSearchParams(raw).entries());
+    }
   })();
 }
 
@@ -366,6 +384,60 @@ function escapeHtml(value) {
 
 function escapeHtmlAttribute(value) {
   return escapeHtml(value).replace(/"/g, "&quot;");
+}
+
+function hashValue(value, algorithm = ROBOKASSA_HASH_ALGO) {
+  return crypto.createHash(algorithm).update(String(value), "utf8").digest("hex");
+}
+
+function getSortedShpEntries(source) {
+  return Object.entries(source || {})
+    .filter(([key]) => /^Shp_/i.test(key))
+    .sort(([a], [b]) => a.localeCompare(b));
+}
+
+function buildRobokassaSignature(parts, password, shpEntries = []) {
+  const payload = [...parts, password, ...shpEntries.map(([key, value]) => `${key}=${value}`)].join(":");
+  return hashValue(payload);
+}
+
+function getPublicBaseUrl(req) {
+  if (PUBLIC_BASE_URL) return PUBLIC_BASE_URL;
+  const proto = String(req.headers["x-forwarded-proto"] || "http").split(",")[0].trim() || "http";
+  const host = String(req.headers["x-forwarded-host"] || req.headers.host || "").split(",")[0].trim();
+  return host ? `${proto}://${host}` : "";
+}
+
+function isRobokassaConfigured() {
+  return Boolean(ROBOKASSA_LOGIN && ROBOKASSA_PASS1 && ROBOKASSA_PASS2);
+}
+
+function formatRobokassaAmount(value) {
+  return Number(value).toFixed(2);
+}
+
+function buildRobokassaPaymentUrl(req, order) {
+  const baseUrl = "https://auth.robokassa.ru/Merchant/Index.aspx";
+  const shpEntries = [["Shp_orderId", order.id]];
+  const outSum = formatRobokassaAmount(order.totalAmount);
+  const signature = buildRobokassaSignature(
+    [ROBOKASSA_LOGIN, outSum, order.invId],
+    ROBOKASSA_PASS1,
+    shpEntries,
+  );
+  const description = `Билеты на фестиваль Пельмень Варень (${order.quantity})`;
+  const params = new URLSearchParams({
+    MerchantLogin: ROBOKASSA_LOGIN,
+    OutSum: outSum,
+    InvId: order.invId,
+    Description: description,
+    SignatureValue: signature,
+    Culture: "ru",
+    Email: order.email,
+    IsTest: ROBOKASSA_TEST_MODE ? "1" : "0",
+    Shp_orderId: order.id,
+  });
+  return `${baseUrl}?${params.toString()}`;
 }
 
 function excelColumnName(index) {
@@ -569,6 +641,121 @@ function buildXlsxWorkbook(sheets) {
   return zipStoreFiles(files);
 }
 
+function normalizeOrderRecord(order) {
+  return {
+    id: String(order.id || crypto.randomUUID()),
+    invId: String(order.invId || `${Date.now()}${Math.floor(Math.random() * 1000)}`),
+    name: String(order.name || "").trim(),
+    email: String(order.email || "").trim(),
+    phone: String(order.phone || "").trim(),
+    quantity: Math.max(1, Number(order.quantity || 1)),
+    totalAmount: Number(order.totalAmount || 0),
+    status: String(order.status || "pending"),
+    paymentReference: String(order.paymentReference || ""),
+    createdAt: String(order.createdAt || new Date().toISOString()),
+    updatedAt: String(order.updatedAt || order.createdAt || new Date().toISOString()),
+    paidAt: order.paidAt ? String(order.paidAt) : null,
+  };
+}
+
+function insertOrder(db, order, options = {}) {
+  const normalized = normalizeOrderRecord(order);
+  const mode = options.replace ? "INSERT OR REPLACE" : "INSERT";
+  db.prepare(`${mode} INTO orders(
+    id, inv_id, name, email, phone, quantity, total_amount, status, payment_reference, created_at, updated_at, paid_at
+  ) VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`)
+    .run(
+      normalized.id,
+      normalized.invId,
+      normalized.name,
+      normalized.email,
+      normalized.phone,
+      normalized.quantity,
+      normalized.totalAmount,
+      normalized.status,
+      normalized.paymentReference,
+      normalized.createdAt,
+      normalized.updatedAt,
+      normalized.paidAt,
+    );
+}
+
+function mapOrderRow(row) {
+  return {
+    id: row.id,
+    invId: row.inv_id,
+    name: row.name,
+    email: row.email,
+    phone: row.phone,
+    quantity: row.quantity,
+    totalAmount: row.total_amount,
+    status: row.status,
+    paymentReference: row.payment_reference,
+    createdAt: row.created_at,
+    updatedAt: row.updated_at,
+    paidAt: row.paid_at,
+  };
+}
+
+function getOrderById(db, orderId) {
+  const row = db.prepare("SELECT * FROM orders WHERE id = ?").get(orderId);
+  return row ? mapOrderRow(row) : null;
+}
+
+function getOrderByInvId(db, invId) {
+  const row = db.prepare("SELECT * FROM orders WHERE inv_id = ?").get(String(invId));
+  return row ? mapOrderRow(row) : null;
+}
+
+function updateOrderPaymentStatus(db, orderId, payload) {
+  const nextUpdatedAt = new Date().toISOString();
+  db.prepare(`
+    UPDATE orders
+    SET status = ?, payment_reference = ?, updated_at = ?, paid_at = COALESCE(?, paid_at)
+    WHERE id = ?
+  `).run(
+    String(payload.status || "paid"),
+    String(payload.paymentReference || ""),
+    nextUpdatedAt,
+    payload.paidAt ? String(payload.paidAt) : null,
+    orderId,
+  );
+  return getOrderById(db, orderId);
+}
+
+function issueTicketsForPaidOrder(db, order) {
+  const existingTickets = getTicketsByOrderId(db, order.id);
+  if (existingTickets.length) return existingTickets;
+
+  const paidAt = order.paidAt || new Date().toISOString();
+  const tickets = [];
+  for (let index = 0; index < order.quantity; index += 1) {
+    const ticket = {
+      id: crypto.randomUUID(),
+      orderId: order.id,
+      code: createTicketCode(db),
+      name: order.name,
+      email: order.email,
+      phone: order.phone,
+      quantityInOrder: order.quantity,
+      orderIndex: index + 1,
+      price: TICKET_PRICE,
+      orderTotal: order.totalAmount,
+      paymentStatus: "paid",
+      accessStatus: "new",
+      voteTeam: null,
+      paidAt,
+      createdAt: order.createdAt,
+      paymentReference: order.paymentReference || `Robokassa #${order.invId}`,
+      usedAt: null,
+      votedAt: null,
+    };
+    insertTicket(db, ticket);
+    tickets.push(ticket);
+  }
+  return tickets;
+}
+
 function parseCookies(req) {
   const header = req.headers.cookie || "";
   return header.split(";").reduce((acc, part) => {
@@ -757,6 +944,27 @@ function ensureTeamApplicationsSchema(db) {
     db.exec("ALTER TABLE team_applications ADD COLUMN organization TEXT NOT NULL DEFAULT ''");
   }
   db.exec("CREATE INDEX IF NOT EXISTS idx_team_applications_status ON team_applications(status)");
+}
+
+function ensureOrdersSchema(db) {
+  db.exec(`
+    CREATE TABLE IF NOT EXISTS orders (
+      id TEXT PRIMARY KEY,
+      inv_id TEXT NOT NULL UNIQUE,
+      name TEXT NOT NULL,
+      email TEXT NOT NULL,
+      phone TEXT NOT NULL,
+      quantity INTEGER NOT NULL,
+      total_amount INTEGER NOT NULL,
+      status TEXT NOT NULL,
+      payment_reference TEXT NOT NULL,
+      created_at TEXT NOT NULL,
+      updated_at TEXT NOT NULL,
+      paid_at TEXT
+    )
+  `);
+  db.exec("CREATE INDEX IF NOT EXISTS idx_orders_status ON orders(status)");
+  db.exec("CREATE INDEX IF NOT EXISTS idx_orders_created_at ON orders(created_at DESC)");
 }
 
 function normalizeListValue(value) {
@@ -1401,6 +1609,24 @@ async function ensureDatabase() {
       CREATE INDEX IF NOT EXISTS idx_tickets_code ON tickets(code);
       CREATE INDEX IF NOT EXISTS idx_tickets_created_at ON tickets(created_at DESC);
 
+      CREATE TABLE IF NOT EXISTS orders (
+        id TEXT PRIMARY KEY,
+        inv_id TEXT NOT NULL UNIQUE,
+        name TEXT NOT NULL,
+        email TEXT NOT NULL,
+        phone TEXT NOT NULL,
+        quantity INTEGER NOT NULL,
+        total_amount INTEGER NOT NULL,
+        status TEXT NOT NULL,
+        payment_reference TEXT NOT NULL,
+        created_at TEXT NOT NULL,
+        updated_at TEXT NOT NULL,
+        paid_at TEXT
+      );
+
+      CREATE INDEX IF NOT EXISTS idx_orders_status ON orders(status);
+      CREATE INDEX IF NOT EXISTS idx_orders_created_at ON orders(created_at DESC);
+
       CREATE TABLE IF NOT EXISTS quiz_entries (
         id TEXT PRIMARY KEY,
         type TEXT NOT NULL,
@@ -1444,6 +1670,7 @@ async function ensureDatabase() {
       CREATE INDEX IF NOT EXISTS idx_jury_scores_criterion ON jury_scores(criterion_name);
     `);
 
+    ensureOrdersSchema(db);
     ensureTeamApplicationsSchema(db);
     await migrateLegacyJsonIfNeeded(db);
     seedContentDefaults(db);
@@ -1602,49 +1829,147 @@ async function handleApi(req, res, pathname) {
   if (req.method === "POST" && pathname === "/api/orders") {
     const body = await parseBody(req);
     const quantity = Number(body.quantity);
-    const cardNumber = String(body.cardNumber || "").replace(/\s+/g, "");
 
     if (!body.name || !body.email || !body.phone || !quantity || quantity < 1 || quantity > 4) {
       return sendError(res, 400, "Некорректные данные заказа.");
     }
-    if (cardNumber.length < 16) {
-      return sendError(res, 400, "Некорректные данные оплаты.");
+    if (!isRobokassaConfigured()) {
+      return sendError(res, 503, "Robokassa еще не настроена. Добавьте тестовые данные в переменные окружения.");
     }
 
-    const orderId = crypto.randomUUID();
     const createdAt = new Date().toISOString();
-    const orderTotal = quantity * TICKET_PRICE;
-    const last4 = cardNumber.slice(-4);
-    const tickets = [];
-
-    runTransaction(db, () => {
-      for (let index = 0; index < quantity; index += 1) {
-        const ticket = {
-          id: crypto.randomUUID(),
-          orderId,
-          code: createTicketCode(db),
-          name: String(body.name).trim(),
-          email: String(body.email).trim(),
-          phone: String(body.phone).trim(),
-          quantityInOrder: quantity,
-          orderIndex: index + 1,
-          price: TICKET_PRICE,
-          orderTotal,
-          paymentStatus: "paid",
-          accessStatus: "new",
-          voteTeam: null,
-          paidAt: createdAt,
-          createdAt,
-          paymentReference: `**** **** **** ${last4}`,
-          usedAt: null,
-          votedAt: null,
-        };
-        insertTicket(db, ticket);
-        tickets.push(ticket);
-      }
+    const order = normalizeOrderRecord({
+      id: crypto.randomUUID(),
+      invId: `${Date.now()}${Math.floor(Math.random() * 1000)}`.slice(0, 18),
+      name: String(body.name).trim(),
+      email: String(body.email).trim(),
+      phone: String(body.phone).trim(),
+      quantity,
+      totalAmount: quantity * TICKET_PRICE,
+      status: "pending",
+      paymentReference: "",
+      createdAt,
+      updatedAt: createdAt,
+      paidAt: null,
     });
 
-    return sendJson(res, 201, { orderId, tickets });
+    insertOrder(db, order);
+    return sendJson(res, 201, {
+      orderId: order.id,
+      invId: order.invId,
+      paymentUrl: buildRobokassaPaymentUrl(req, order),
+      isTestMode: ROBOKASSA_TEST_MODE,
+    });
+  }
+
+  if (req.method === "GET" && /^\/api\/orders\/[^/]+$/.test(pathname) && !pathname.endsWith("/pdf")) {
+    const orderId = decodeURIComponent(pathname.split("/")[3] || "").trim();
+    const order = getOrderById(db, orderId);
+    if (!order) return sendError(res, 404, "Заказ не найден.");
+    const tickets = order.status === "paid" ? getTicketsByOrderId(db, order.id) : [];
+    return sendJson(res, 200, { order, tickets });
+  }
+
+  if ((req.method === "POST" || req.method === "GET") && pathname === "/api/payments/robokassa/result") {
+    const params = req.method === "POST"
+      ? await parseBody(req)
+      : Object.fromEntries(new URL(req.url, `http://${req.headers.host}`).searchParams.entries());
+    const outSum = String(params.OutSum || params.outsum || "").trim();
+    const invId = String(params.InvId || params.invid || "").trim();
+    const signature = String(params.SignatureValue || params.signaturevalue || "").trim().toLowerCase();
+    const shpEntries = getSortedShpEntries(params).map(([key, value]) => [key, String(value || "").trim()]);
+
+    if (!outSum || !invId || !signature) {
+      return sendError(res, 400, "Недостаточно параметров Robokassa.");
+    }
+
+    const expectedSignature = buildRobokassaSignature([outSum, invId], ROBOKASSA_PASS2, shpEntries).toLowerCase();
+    if (expectedSignature !== signature) {
+      return sendError(res, 400, "Некорректная подпись Robokassa.");
+    }
+
+    const order = getOrderByInvId(db, invId);
+    if (!order) {
+      return sendError(res, 404, "Заказ не найден.");
+    }
+    if (formatRobokassaAmount(order.totalAmount) !== outSum) {
+      return sendError(res, 400, "Сумма платежа не совпадает с заказом.");
+    }
+
+    const orderIdFromShp = shpEntries.find(([key]) => key === "Shp_orderId")?.[1] || "";
+    if (orderIdFromShp && orderIdFromShp !== order.id) {
+      return sendError(res, 400, "ID заказа не совпадает.");
+    }
+
+    if (order.status !== "paid") {
+      const paidAt = new Date().toISOString();
+      runTransaction(db, () => {
+        updateOrderPaymentStatus(db, order.id, {
+          status: "paid",
+          paymentReference: `Robokassa #${order.invId}`,
+          paidAt,
+        });
+        issueTicketsForPaidOrder(db, {
+          ...order,
+          status: "paid",
+          paymentReference: `Robokassa #${order.invId}`,
+          paidAt,
+        });
+      });
+    }
+
+    res.writeHead(200, { "Content-Type": "text/plain; charset=utf-8" });
+    res.end(`OK${invId}`);
+    return;
+  }
+
+  if (req.method === "GET" && pathname === "/api/payments/robokassa/success") {
+    const params = Object.fromEntries(new URL(req.url, `http://${req.headers.host}`).searchParams.entries());
+    const outSum = String(params.OutSum || "").trim();
+    const invId = String(params.InvId || "").trim();
+    const signature = String(params.SignatureValue || "").trim().toLowerCase();
+    const shpEntries = getSortedShpEntries(params).map(([key, value]) => [key, String(value || "").trim()]);
+
+    if (!outSum || !invId || !signature) {
+      return sendError(res, 400, "Недостаточно параметров SuccessURL.");
+    }
+
+    const expectedSignature = buildRobokassaSignature([outSum, invId], ROBOKASSA_PASS1, shpEntries).toLowerCase();
+    if (expectedSignature !== signature) {
+      return sendError(res, 400, "Некорректная подпись SuccessURL.");
+    }
+
+    const order = getOrderByInvId(db, invId);
+    if (!order) return sendError(res, 404, "Заказ не найден.");
+    if (formatRobokassaAmount(order.totalAmount) !== outSum) {
+      return sendError(res, 400, "Сумма платежа не совпадает с заказом.");
+    }
+
+    const orderIdFromShp = shpEntries.find(([key]) => key === "Shp_orderId")?.[1] || "";
+    if (orderIdFromShp && orderIdFromShp !== order.id) {
+      return sendError(res, 400, "ID заказа не совпадает.");
+    }
+
+    let nextOrder = order;
+    let tickets = getTicketsByOrderId(db, order.id);
+    if (order.status !== "paid" || !tickets.length) {
+      const paidAt = new Date().toISOString();
+      runTransaction(db, () => {
+        nextOrder = updateOrderPaymentStatus(db, order.id, {
+          status: "paid",
+          paymentReference: `Robokassa #${order.invId}`,
+          paidAt,
+        });
+        tickets = issueTicketsForPaidOrder(db, {
+          ...order,
+          status: "paid",
+          paymentReference: `Robokassa #${order.invId}`,
+          paidAt,
+        });
+      });
+    }
+
+    return sendJson(res, 200, { ok: true, order: nextOrder, tickets });
   }
 
   if (req.method === "POST" && pathname === "/api/checkin") {
@@ -1847,6 +2172,8 @@ async function serveStatic(res, pathname) {
     "/admin": "admin.html",
     "/checkin": "checkin.html",
     "/jury": "jury.html",
+    "/offer": "offer.html",
+    "/privacy": "privacy.html",
   };
   const target = routeMap[pathname] || pathname.slice(1);
   const resolved = path.normalize(path.join(ROOT, target));

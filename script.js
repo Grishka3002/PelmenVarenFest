@@ -655,9 +655,8 @@ function spawnPelmenMiniGame() {
       return;
     }
     setPelmenStage(image, hint, stage);
-    movePelmenMiniGameRandom(root);
-    if (stage === PELMEN_STAGE_TOTAL) {
-      window.setTimeout(() => hidePelmenMiniGame(root), 700);
+    if (stage < PELMEN_STAGE_TOTAL) {
+      movePelmenMiniGameRandom(root);
     }
   });
 

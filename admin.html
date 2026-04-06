@@ -110,8 +110,10 @@
             <button class="admin-tab" type="button" data-tab-target="program">Программа</button>
             <button class="admin-tab" type="button" data-tab-target="gallery">Галерея</button>
             <button class="admin-tab" type="button" data-tab-target="jury">Жюри</button>
+            <button class="admin-tab" type="button" data-tab-target="partners">Партнёры</button>
             <button class="admin-tab" type="button" data-tab-target="teams">Командам</button>
             <button class="admin-tab" type="button" data-tab-target="tickets">Билеты</button>
+            <button class="admin-tab" type="button" data-tab-target="legal">Гостям</button>
             <button class="admin-tab" type="button" data-tab-target="vote">Голосование</button>
             <button class="admin-tab" type="button" data-tab-target="quiz">Тест</button>
             <button class="admin-tab" type="button" data-tab-target="contacts">Контакты</button>
@@ -398,6 +400,53 @@
             <label><input type="text" name="juryRegalia5" placeholder="Регалии 5"></label>
             <label><input type="text" name="juryPhoto5" placeholder="Путь к фото 5, например images/jury-5.jpg"></label>
             </section>
+            <section class="admin-tab-panel admin-wide" data-tab-panel="partners">
+            <div class="admin-wide">
+              <p class="eyebrow">Партнёры</p>
+            </div>
+            <label><input type="text" name="partnersEyebrow" placeholder="Заголовок секции"></label>
+            <label class="admin-wide"><textarea name="partnersTitle" placeholder="Подзаголовок секции"></textarea></label>
+            <label><input type="text" name="partner1Name" placeholder="Партнёр 1: название"></label>
+            <label><input type="text" name="partner1Level" placeholder="Партнёр 1: уровень"></label>
+            <label><textarea name="partner1Description" placeholder="Партнёр 1: описание"></textarea></label>
+            <label><input type="text" name="partner1Logo" placeholder="Партнёр 1: путь к логотипу"></label>
+            <label><input type="text" name="partner2Name" placeholder="Партнёр 2: название"></label>
+            <label><input type="text" name="partner2Level" placeholder="Партнёр 2: уровень"></label>
+            <label><textarea name="partner2Description" placeholder="Партнёр 2: описание"></textarea></label>
+            <label><input type="text" name="partner2Logo" placeholder="Партнёр 2: путь к логотипу"></label>
+            <label><input type="text" name="partner3Name" placeholder="Партнёр 3: название"></label>
+            <label><input type="text" name="partner3Level" placeholder="Партнёр 3: уровень"></label>
+            <label><textarea name="partner3Description" placeholder="Партнёр 3: описание"></textarea></label>
+            <label><input type="text" name="partner3Logo" placeholder="Партнёр 3: путь к логотипу"></label>
+            <label><input type="text" name="partner4Name" placeholder="Партнёр 4: название"></label>
+            <label><input type="text" name="partner4Level" placeholder="Партнёр 4: уровень"></label>
+            <label><textarea name="partner4Description" placeholder="Партнёр 4: описание"></textarea></label>
+            <label><input type="text" name="partner4Logo" placeholder="Партнёр 4: путь к логотипу"></label>
+            <label><input type="text" name="partner5Name" placeholder="Партнёр 5: название"></label>
+            <label><input type="text" name="partner5Level" placeholder="Партнёр 5: уровень"></label>
+            <label><textarea name="partner5Description" placeholder="Партнёр 5: описание"></textarea></label>
+            <label><input type="text" name="partner5Logo" placeholder="Партнёр 5: путь к логотипу"></label>
+            <label><input type="text" name="partner6Name" placeholder="Партнёр 6: название"></label>
+            <label><input type="text" name="partner6Level" placeholder="Партнёр 6: уровень"></label>
+            <label><textarea name="partner6Description" placeholder="Партнёр 6: описание"></textarea></label>
+            <label><input type="text" name="partner6Logo" placeholder="Партнёр 6: путь к логотипу"></label>
+            <label><input type="text" name="partner7Name" placeholder="Партнёр 7: название"></label>
+            <label><input type="text" name="partner7Level" placeholder="Партнёр 7: уровень"></label>
+            <label><textarea name="partner7Description" placeholder="Партнёр 7: описание"></textarea></label>
+            <label><input type="text" name="partner7Logo" placeholder="Партнёр 7: путь к логотипу"></label>
+            <label><input type="text" name="partner8Name" placeholder="Партнёр 8: название"></label>
+            <label><input type="text" name="partner8Level" placeholder="Партнёр 8: уровень"></label>
+            <label><textarea name="partner8Description" placeholder="Партнёр 8: описание"></textarea></label>
+            <label><input type="text" name="partner8Logo" placeholder="Партнёр 8: путь к логотипу"></label>
+            <label><input type="text" name="partner9Name" placeholder="Партнёр 9: название"></label>
+            <label><input type="text" name="partner9Level" placeholder="Партнёр 9: уровень"></label>
+            <label><textarea name="partner9Description" placeholder="Партнёр 9: описание"></textarea></label>
+            <label><input type="text" name="partner9Logo" placeholder="Партнёр 9: путь к логотипу"></label>
+            <label><input type="text" name="partner10Name" placeholder="Партнёр 10: название"></label>
+            <label><input type="text" name="partner10Level" placeholder="Партнёр 10: уровень"></label>
+            <label><textarea name="partner10Description" placeholder="Партнёр 10: описание"></textarea></label>
+            <label><input type="text" name="partner10Logo" placeholder="Партнёр 10: путь к логотипу"></label>
+            </section>
             <section class="admin-tab-panel admin-wide" data-tab-panel="teams">
             <div class="admin-wide">
               <p class="eyebrow">Командам</p>
@@ -453,6 +502,48 @@
             <label class="admin-wide"><textarea name="ticketOfferNote" placeholder="Текст о принятии публичной оферты"></textarea></label>
             <label><input type="text" name="ticketOfferLinkText" placeholder="Текст ссылки на оферту"></label>
             <label><input type="text" name="ticketOfferLinkUrl" placeholder="Ссылка на оферту (например /offer или https://...)"></label>
+            </section>
+            <section class="admin-tab-panel admin-wide" data-tab-panel="legal">
+            <div class="admin-wide">
+              <p class="eyebrow">Информация для гостей</p>
+            </div>
+            <label>
+              Строка над блоком
+              <input type="text" name="legalEyebrow" placeholder="Оплата и документы">
+            </label>
+            <label class="admin-wide">
+              Заголовок блока
+              <textarea name="legalTitle" placeholder="Информация для гостей фестиваля"></textarea>
+            </label>
+            <label><input type="text" name="legalCard1Title" placeholder="Карточка 1: заголовок"></label>
+            <label><textarea name="legalCard1Text1" placeholder="Карточка 1: абзац 1"></textarea></label>
+            <label class="admin-wide"><textarea name="legalCard1Text2" placeholder="Карточка 1: абзац 2"></textarea></label>
+            <label><input type="text" name="legalCard2Title" placeholder="Карточка 2: заголовок"></label>
+            <label><textarea name="legalCard2Text1" placeholder="Карточка 2: абзац 1"></textarea></label>
+            <label class="admin-wide"><textarea name="legalCard2Text2" placeholder="Карточка 2: абзац 2"></textarea></label>
+            <label><input type="text" name="legalCard3Title" placeholder="Карточка 3: заголовок"></label>
+            <label><textarea name="legalCard3Text1" placeholder="Карточка 3: абзац 1"></textarea></label>
+            <label class="admin-wide"><textarea name="legalCard3Text2" placeholder="Карточка 3: абзац 2"></textarea></label>
+            <label><input type="text" name="legalCard4Title" placeholder="Карточка 4: заголовок"></label>
+            <label><textarea name="legalCard4Text1" placeholder="Карточка 4: абзац 1"></textarea></label>
+            <label><textarea name="legalCard4Text2" placeholder="Карточка 4: абзац 2"></textarea></label>
+            <label class="admin-wide"><textarea name="legalCard4Text3" placeholder="Карточка 4: абзац 3"></textarea></label>
+            <label><input type="text" name="legalContactsTitle" placeholder="Карточка 5: заголовок"></label>
+            <label><input type="text" name="legalContactsPhoneLabel" placeholder="Подпись телефона"></label>
+            <label><input type="text" name="legalContactsPhoneValue" placeholder="Телефон"></label>
+            <label><input type="text" name="legalContactsEmailLabel" placeholder="Подпись e-mail"></label>
+            <label><input type="text" name="legalContactsEmailValue" placeholder="E-mail"></label>
+            <label><input type="text" name="legalContactsSelfEmployedLabel" placeholder="Подпись СМЗ"></label>
+            <label><input type="text" name="legalContactsSelfEmployedValue" placeholder="ФИО"></label>
+            <label><input type="text" name="legalContactsInnLabel" placeholder="Подпись ИНН"></label>
+            <label><input type="text" name="legalContactsInnValue" placeholder="ИНН"></label>
+            <label><input type="text" name="legalDocsTitle" placeholder="Карточка 6: заголовок"></label>
+            <label><input type="text" name="legalDocsOfferText" placeholder="Текст ссылки: публичная оферта"></label>
+            <label><input type="text" name="legalDocsOfferUrl" placeholder="Ссылка на публичную оферту"></label>
+            <label><input type="text" name="legalDocsRulesText" placeholder="Текст ссылки: правила"></label>
+            <label><input type="text" name="legalDocsRulesUrl" placeholder="Ссылка на правила поведения"></label>
+            <label><input type="text" name="legalDocsPrivacyText" placeholder="Текст ссылки: политика"></label>
+            <label><input type="text" name="legalDocsPrivacyUrl" placeholder="Ссылка на политику данных"></label>
             </section>
             <section class="admin-tab-panel admin-wide" data-tab-panel="vote">
             <div class="admin-wide">
@@ -576,6 +667,7 @@
             <label class="admin-toggle"><input type="checkbox" name="showProgram"> <span>Показывать блок «Программа»</span></label>
             <label class="admin-toggle"><input type="checkbox" name="showGallery"> <span>Показывать блок «Фотоальбом»</span></label>
             <label class="admin-toggle"><input type="checkbox" name="showJury"> <span>Показывать блок «Жюри»</span></label>
+            <label class="admin-toggle"><input type="checkbox" name="showPartners"> <span>Показывать блок «Партнёры»</span></label>
             <label class="admin-toggle"><input type="checkbox" name="showTeams"> <span>Показывать блок «Командам»</span></label>
             <label class="admin-toggle"><input type="checkbox" name="showTickets"> <span>Показывать блок «Билеты»</span></label>
             <label class="admin-toggle"><input type="checkbox" name="showVote"> <span>Показывать блок «Голосование»</span></label>

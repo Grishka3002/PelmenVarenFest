@@ -127,6 +127,48 @@ const DEFAULT_CONTENT = {
   juryName5: "Денис Ладов",
   juryRegalia5: "Бренд-шеф, судья кулинарных чемпионатов.",
   juryPhoto5: "",
+  partnersEyebrow: "Партнёры",
+  partnersTitle: "Люди и компании, которые помогают фестивалю состояться.",
+  partner1Name: "",
+  partner1Level: "",
+  partner1Description: "",
+  partner1Logo: "",
+  partner2Name: "",
+  partner2Level: "",
+  partner2Description: "",
+  partner2Logo: "",
+  partner3Name: "",
+  partner3Level: "",
+  partner3Description: "",
+  partner3Logo: "",
+  partner4Name: "",
+  partner4Level: "",
+  partner4Description: "",
+  partner4Logo: "",
+  partner5Name: "",
+  partner5Level: "",
+  partner5Description: "",
+  partner5Logo: "",
+  partner6Name: "",
+  partner6Level: "",
+  partner6Description: "",
+  partner6Logo: "",
+  partner7Name: "",
+  partner7Level: "",
+  partner7Description: "",
+  partner7Logo: "",
+  partner8Name: "",
+  partner8Level: "",
+  partner8Description: "",
+  partner8Logo: "",
+  partner9Name: "",
+  partner9Level: "",
+  partner9Description: "",
+  partner9Logo: "",
+  partner10Name: "",
+  partner10Level: "",
+  partner10Description: "",
+  partner10Logo: "",
   juryScoringTeams: "Команда Северный пар\nКоманда Жар-печь\nКоманда Морской дым",
   juryScoringCriteria: "Вкус\nПодача\nОригинальность\nТехника\nПрезентация",
   teamsEyebrow: "Командам",
@@ -175,6 +217,37 @@ const DEFAULT_CONTENT = {
   ticketOfferNote: "Покупая билет, вы принимаете условия публичной оферты.",
   ticketOfferLinkText: "Ознакомиться с офертой",
   ticketOfferLinkUrl: "/offer",
+  legalEyebrow: "Оплата и документы",
+  legalTitle: "Информация для гостей фестиваля",
+  legalCard1Title: "Что входит в билет",
+  legalCard1Text1: "Электронный билет дает право разового посещения фестиваля «Пельмень Варень» в выбранную дату. После оплаты покупатель получает электронный билет с уникальным номером и QR-кодом для прохода на площадку.",
+  legalCard1Text2: "Актуальная стоимость билета указана в разделе «Билеты» на этой странице.",
+  legalCard2Title: "Как оформить заказ",
+  legalCard2Text1: "Покупатель заполняет форму заказа на сайте, указывает имя, e-mail, телефон и количество билетов, затем переходит на защищенную страницу оплаты Robokassa.",
+  legalCard2Text2: "После успешной оплаты электронные билеты формируются автоматически и становятся доступны для скачивания на сайте.",
+  legalCard3Title: "Оплата и оказание услуги",
+  legalCard3Text1: "Оплата принимается банковской картой через платежный сервис Robokassa. Услуга считается оказанной после предоставления покупателю оплаченного электронного билета.",
+  legalCard3Text2: "Срок предоставления услуги: сразу после подтверждения оплаты платежной системой.",
+  legalCard4Title: "Отказ от покупки и возврат",
+  legalCard4Text1: "Покупатель вправе отказаться от покупки до момента начала мероприятия. Для возврата необходимо направить обращение организатору по контактам, указанным ниже, с номером заказа, номером билета и данными покупателя.",
+  legalCard4Text2: "Обращение рассматривается организатором в течение 3 рабочих дней. При подтверждении возврата денежные средства перечисляются тем же способом оплаты в срок до 10 рабочих дней, в зависимости от банка-эмитента.",
+  legalCard4Text3: "Если услуга уже оказана полностью, возврат осуществляется по правилам законодательства РФ и условиям публичной оферты.",
+  legalContactsTitle: "Контакты и реквизиты",
+  legalContactsPhoneLabel: "Телефон:",
+  legalContactsPhoneValue: "+7 (914) 792-58-26",
+  legalContactsEmailLabel: "E-mail:",
+  legalContactsEmailValue: "Katerina.gerashchenko@gmail.com",
+  legalContactsSelfEmployedLabel: "Самозанятый:",
+  legalContactsSelfEmployedValue: "ГЕРАЩЕНКО ЕКАТЕРИНА ГЕОРГИЕВНА",
+  legalContactsInnLabel: "ИНН:",
+  legalContactsInnValue: "253905392205",
+  legalDocsTitle: "Документы",
+  legalDocsOfferText: "Публичная оферта",
+  legalDocsOfferUrl: "https://disk.yandex.ru/i/mhC9SWzujcxQEQ",
+  legalDocsRulesText: "Правила поведения на фестивале",
+  legalDocsRulesUrl: "https://disk.yandex.ru/i/JHPvBiIw1BtPHg",
+  legalDocsPrivacyText: "Политика обработки персональных данных",
+  legalDocsPrivacyUrl: "/privacy",
   voteEyebrow: "Голосование",
   voteTitle: "Проголосовать может только гость, чей билет уже отсканирован на входе.",
   voteTicketLabel: "Номер билета",
@@ -262,6 +335,7 @@ const DEFAULT_CONTENT = {
   showProgram: "true",
   showGallery: "true",
   showJury: "true",
+  showPartners: "true",
   showTeams: "true",
   showTickets: "true",
   showVote: "true",
@@ -358,6 +432,8 @@ const CONTENT_BINDINGS = {
   juryRegalia4: { id: "content-jury-regalia4", html: false },
   juryName5: { id: "content-jury-name5", html: false },
   juryRegalia5: { id: "content-jury-regalia5", html: false },
+  partnersEyebrow: { id: "content-partners-eyebrow", html: false },
+  partnersTitle: { id: "content-partners-title", html: false },
   teamsEyebrow: { id: "content-teams-eyebrow", html: false },
   teamsTitle: { id: "content-teams-title", html: false },
   teamsLead: { id: "content-teams-lead", html: false },
@@ -392,6 +468,34 @@ const CONTENT_BINDINGS = {
   ticketNote: { id: "content-ticket-note", html: false },
   ticketOfferNote: { id: "content-ticket-offer-note", html: false },
   ticketOfferLinkText: { id: "content-ticket-offer-link", html: false },
+  legalEyebrow: { id: "content-legal-eyebrow", html: false },
+  legalTitle: { id: "content-legal-title", html: false },
+  legalCard1Title: { id: "content-legal-card1-title", html: false },
+  legalCard1Text1: { id: "content-legal-card1-text1", html: false },
+  legalCard1Text2: { id: "content-legal-card1-text2", html: false },
+  legalCard2Title: { id: "content-legal-card2-title", html: false },
+  legalCard2Text1: { id: "content-legal-card2-text1", html: false },
+  legalCard2Text2: { id: "content-legal-card2-text2", html: false },
+  legalCard3Title: { id: "content-legal-card3-title", html: false },
+  legalCard3Text1: { id: "content-legal-card3-text1", html: false },
+  legalCard3Text2: { id: "content-legal-card3-text2", html: false },
+  legalCard4Title: { id: "content-legal-card4-title", html: false },
+  legalCard4Text1: { id: "content-legal-card4-text1", html: false },
+  legalCard4Text2: { id: "content-legal-card4-text2", html: false },
+  legalCard4Text3: { id: "content-legal-card4-text3", html: false },
+  legalContactsTitle: { id: "content-legal-contacts-title", html: false },
+  legalContactsPhoneLabel: { id: "content-legal-contacts-phone-label", html: false },
+  legalContactsPhoneValue: { id: "content-legal-contacts-phone-value", html: false },
+  legalContactsEmailLabel: { id: "content-legal-contacts-email-label", html: false },
+  legalContactsEmailValue: { id: "content-legal-contacts-email-value", html: false },
+  legalContactsSelfEmployedLabel: { id: "content-legal-contacts-self-employed-label", html: false },
+  legalContactsSelfEmployedValue: { id: "content-legal-contacts-self-employed-value", html: false },
+  legalContactsInnLabel: { id: "content-legal-contacts-inn-label", html: false },
+  legalContactsInnValue: { id: "content-legal-contacts-inn-value", html: false },
+  legalDocsTitle: { id: "content-legal-docs-title", html: false },
+  legalDocsOfferText: { id: "content-legal-docs-offer-link", html: false },
+  legalDocsRulesText: { id: "content-legal-docs-rules-link", html: false },
+  legalDocsPrivacyText: { id: "content-legal-docs-privacy-link", html: false },
   voteEyebrow: { id: "content-vote-eyebrow", html: false },
   voteTitle: { id: "content-vote-title", html: false },
   voteTicketLabel: { id: "content-vote-ticket-label", html: false },
@@ -476,6 +580,11 @@ const teamRegisteredPopup = document.querySelector("#team-registered-popup");
 const teamRegisteredPopupMessage = document.querySelector("#team-registered-popup-message");
 const teamRegisteredPopupCaption = document.querySelector("#team-registered-popup-caption");
 const teamRegisteredPopupLink = document.querySelector("#team-registered-popup-link");
+const partnerPopup = document.querySelector("#partner-popup");
+const partnerPopupLevel = document.querySelector("#partner-popup-level");
+const partnerPopupTitle = document.querySelector("#partner-popup-title");
+const partnerPopupLogo = document.querySelector("#partner-popup-logo");
+const partnerPopupDescription = document.querySelector("#partner-popup-description");
 const orderStepLabel = document.querySelector("#order-step-label");
 const paymentStepLabel = document.querySelector("#payment-step-label");
 const ticketsStepLabel = document.querySelector("#tickets-step-label");
@@ -496,6 +605,8 @@ const startScanButton = document.querySelector("#start-scan");
 const stopScanButton = document.querySelector("#stop-scan");
 const cameraStatus = document.querySelector("#camera-status");
 const galleryCarousel = document.querySelector("#gallery-carousel");
+const partnersCarousel = document.querySelector("#partners-carousel");
+const partnersTrack = document.querySelector("#partners-track");
 
 const adminContentForm = document.querySelector("#admin-content-form");
 const adminMessage = document.querySelector("#admin-message");
@@ -550,6 +661,17 @@ let galleryState = {
   slides: [],
   dots: [],
   track: null,
+};
+let partnersState = {
+  focusTimerId: null,
+  focusCards: [],
+  carousel: null,
+  autoplayTimerId: null,
+  resetTimerId: null,
+  currentIndex: 0,
+  mode: "",
+  loopLength: 0,
+  sourcePartners: [],
 };
 let scannerState = {
   stream: null,
@@ -785,6 +907,267 @@ function getVotingTeams(content) {
   return teams;
 }
 
+function getPartners(content) {
+  const partners = [];
+  for (let index = 1; index <= 10; index += 1) {
+    const name = String(content[`partner${index}Name`] || "").trim();
+    const level = String(content[`partner${index}Level`] || "").trim();
+    const description = String(content[`partner${index}Description`] || "").trim();
+    const logo = sanitizeAssetPath(content[`partner${index}Logo`]);
+    if (!name && !level && !description && !logo) continue;
+    partners.push({ name, level, description, logo });
+  }
+  return partners;
+}
+
+function buildPartnerInitials(name) {
+  const words = String(name || "")
+    .trim()
+    .split(/\s+/)
+    .filter(Boolean)
+    .slice(0, 2);
+  if (!words.length) return "PV";
+  return words.map((word) => word[0]?.toUpperCase() || "").join("");
+}
+
+function buildPartnerCard(partner, duplicate = false) {
+  const card = document.createElement("button");
+  card.className = "partner-card";
+  card.type = "button";
+  if (duplicate) card.setAttribute("aria-hidden", "true");
+
+  const logo = document.createElement("div");
+  logo.className = "partner-card__logo";
+  if (partner.logo) {
+    const image = document.createElement("img");
+    image.src = partner.logo;
+    image.alt = partner.name ? `Логотип ${partner.name}` : "Логотип партнёра";
+    image.loading = "lazy";
+    logo.appendChild(image);
+  } else {
+    const fallback = document.createElement("span");
+    fallback.className = "partner-card__logo-fallback";
+    fallback.textContent = buildPartnerInitials(partner.name);
+    logo.appendChild(fallback);
+  }
+
+  const content = document.createElement("div");
+  content.className = "partner-card__content";
+
+  if (partner.level) {
+    const level = document.createElement("p");
+    level.className = "partner-card__level";
+    level.textContent = partner.level;
+    content.appendChild(level);
+  }
+
+  const title = document.createElement("h3");
+  title.textContent = partner.name || "Партнёр фестиваля";
+  content.appendChild(title);
+
+  card.append(logo, content);
+  return card;
+}
+
+function stopPartnerFocusTracking() {
+  if (partnersState.focusTimerId) {
+    clearInterval(partnersState.focusTimerId);
+    partnersState.focusTimerId = null;
+  }
+}
+
+function stopPartnerAutoplay() {
+  if (partnersState.autoplayTimerId) {
+    clearInterval(partnersState.autoplayTimerId);
+    partnersState.autoplayTimerId = null;
+  }
+}
+
+function stopPartnerResetTimer() {
+  if (partnersState.resetTimerId) {
+    clearTimeout(partnersState.resetTimerId);
+    partnersState.resetTimerId = null;
+  }
+}
+
+function updatePartnerFocus() {
+  if (!partnersState.carousel || !partnersState.focusCards.length) return;
+  if (partnersState.mode === "slider") {
+    partnersState.focusCards.forEach((card, index) => {
+      card.classList.toggle("partner-card--active", index === partnersState.currentIndex);
+    });
+    return;
+  }
+  const carouselRect = partnersState.carousel.getBoundingClientRect();
+  const centerX = carouselRect.left + carouselRect.width / 2;
+  let closestCard = null;
+  let minDistance = Number.POSITIVE_INFINITY;
+
+  partnersState.focusCards.forEach((card) => {
+    const rect = card.getBoundingClientRect();
+    const distance = Math.abs(rect.left + rect.width / 2 - centerX);
+    if (distance < minDistance) {
+      minDistance = distance;
+      closestCard = card;
+    }
+  });
+
+  partnersState.focusCards.forEach((card) => {
+    card.classList.toggle("partner-card--active", card === closestCard);
+  });
+}
+
+function centerPartnerCard(index, smooth = true) {
+  if (!partnersState.carousel || !partnersState.focusCards.length) return;
+  const total = partnersState.focusCards.length;
+  const safeIndex = ((index % total) + total) % total;
+  const card = partnersState.focusCards[safeIndex];
+  if (!card) return;
+  partnersState.currentIndex = safeIndex;
+  const targetLeft = Math.max(0, card.offsetLeft - ((partnersState.carousel.clientWidth - card.offsetWidth) / 2));
+  partnersState.carousel.scrollTo({
+    left: targetLeft,
+    behavior: smooth ? "smooth" : "auto",
+  });
+  updatePartnerFocus();
+}
+
+function openPartnerPopup(partner) {
+  if (!partnerPopup || !partner) return;
+  if (partnerPopupLevel) partnerPopupLevel.textContent = partner.level || "";
+  if (partnerPopupTitle) partnerPopupTitle.textContent = partner.name || "Партнёр фестиваля";
+  if (partnerPopupDescription) partnerPopupDescription.textContent = partner.description || "Описание скоро появится.";
+  if (partnerPopupLogo) {
+    partnerPopupLogo.innerHTML = "";
+    if (partner.logo) {
+      const image = document.createElement("img");
+      image.src = partner.logo;
+      image.alt = partner.name ? `Логотип ${partner.name}` : "Логотип партнёра";
+      image.loading = "lazy";
+      partnerPopupLogo.appendChild(image);
+    } else {
+      const fallback = document.createElement("span");
+      fallback.className = "partner-card__logo-fallback";
+      fallback.textContent = buildPartnerInitials(partner.name);
+      partnerPopupLogo.appendChild(fallback);
+    }
+  }
+  partnerPopup.hidden = false;
+}
+
+function closePartnerPopup() {
+  if (partnerPopup) partnerPopup.hidden = true;
+}
+
+function normalizePartnerLoopPosition() {
+  stopPartnerResetTimer();
+  if (partnersState.mode !== "slider" || !partnersState.loopLength) return;
+  const loopStart = partnersState.loopLength;
+  const loopEnd = partnersState.loopLength * 2;
+  if (partnersState.currentIndex < loopEnd) return;
+  partnersState.resetTimerId = window.setTimeout(() => {
+    partnersState.currentIndex -= partnersState.loopLength;
+    centerPartnerCard(partnersState.currentIndex, false);
+  }, 900);
+}
+
+function startPartnerAutoplay() {
+  stopPartnerAutoplay();
+  if (partnersState.mode !== "slider" || partnersState.focusCards.length <= 1) return;
+  partnersState.autoplayTimerId = window.setInterval(() => {
+    centerPartnerCard(partnersState.currentIndex + 1, true);
+    normalizePartnerLoopPosition();
+  }, 6000);
+}
+
+function schedulePartnerAutoplayResume() {
+  stopPartnerAutoplay();
+  window.setTimeout(() => {
+    if (partnersState.mode === "slider" && !partnerPopup?.hidden) return;
+    startPartnerAutoplay();
+  }, 7000);
+}
+
+function bindPartnerCardClicks() {
+  if (!partnersState.focusCards.length) return;
+  partnersState.focusCards.forEach((card, index) => {
+    const realIndex = Number(card.dataset.partnerRealIndex || 0);
+    card.addEventListener("click", () => {
+      stopPartnerAutoplay();
+      stopPartnerResetTimer();
+      if (partnersState.currentIndex === index) {
+        openPartnerPopup(partnersState.sourcePartners[realIndex]);
+        return;
+      }
+      closePartnerPopup();
+      centerPartnerCard(index, true);
+      normalizePartnerLoopPosition();
+      schedulePartnerAutoplayResume();
+    });
+  });
+}
+
+function renderPartners(content) {
+  if (!partnersCarousel || !partnersTrack) return;
+  stopPartnerFocusTracking();
+  stopPartnerAutoplay();
+  stopPartnerResetTimer();
+  partnersTrack.innerHTML = "";
+  partnersCarousel.classList.remove("partners-carousel--slider", "partners-carousel--static");
+  partnersTrack.classList.remove("partners-track--slider", "partners-track--static");
+  partnersTrack.style.removeProperty("--partners-duration");
+  partnersState.focusCards = [];
+  partnersState.carousel = partnersCarousel;
+  partnersState.currentIndex = 0;
+  partnersState.mode = "";
+  partnersState.loopLength = 0;
+  partnersState.sourcePartners = [];
+
+  const section = document.querySelector("#partners");
+  const navLink = document.querySelector('[data-nav-key="partners"]');
+  const partners = getPartners(content);
+  const shouldShow = isEnabled(content.showPartners, true) && partners.length > 0;
+  if (section) section.hidden = !shouldShow;
+  if (navLink) navLink.hidden = !shouldShow;
+  if (!shouldShow) return;
+  partnersState.sourcePartners = partners;
+
+  if (partners.length <= 5) {
+    partnersState.mode = "static";
+    partnersCarousel.classList.add("partners-carousel--static");
+    partnersTrack.classList.add("partners-track--static");
+    partners.forEach((partner, index) => {
+      const card = buildPartnerCard(partner);
+      card.dataset.partnerRealIndex = String(index);
+      partnersTrack.appendChild(card);
+    });
+    partnersState.focusCards = Array.from(partnersTrack.querySelectorAll(".partner-card"));
+    bindPartnerCardClicks();
+    updatePartnerFocus();
+    if (partnersState.focusCards.length > 1) {
+      partnersState.focusTimerId = window.setInterval(updatePartnerFocus, 220);
+    }
+    return;
+  }
+
+  partnersState.mode = "slider";
+  partnersState.loopLength = partners.length;
+  partnersCarousel.classList.add("partners-carousel--slider");
+  partnersTrack.classList.add("partners-track--slider");
+  const allPartners = [...partners, ...partners, ...partners];
+  allPartners.forEach((partner, index) => {
+    const card = buildPartnerCard(partner, index < partners.length || index >= partners.length * 2);
+    card.dataset.partnerRealIndex = String(index % partners.length);
+    partnersTrack.appendChild(card);
+  });
+  partnersState.focusCards = Array.from(partnersTrack.querySelectorAll(".partner-card"));
+  bindPartnerCardClicks();
+  window.requestAnimationFrame(() => {
+    centerPartnerCard(partners.length, false);
+    startPartnerAutoplay();
+  });
+}
+
 function renderVoteTeamCards(content) {
   if (!voteTeamGrid) return;
   const selectedTeam = voteForm?.querySelector('input[name="team"]:checked')?.value || "";
@@ -828,6 +1211,7 @@ function applySectionVisibility(content) {
     program: isEnabled(content.showProgram, true),
     gallery: isEnabled(content.showGallery, true),
     jury: isEnabled(content.showJury, true),
+    partners: isEnabled(content.showPartners, true),
     teams: isEnabled(content.showTeams, true),
     tickets: isEnabled(content.showTickets, true),
     vote: isEnabled(content.showVote, true),
@@ -1469,6 +1853,22 @@ function applyContent(content) {
       galleryMoreLink.setAttribute("aria-disabled", "true");
     }
   }
+  [
+    ["#content-legal-docs-offer-link", merged.legalDocsOfferUrl],
+    ["#content-legal-docs-rules-link", merged.legalDocsRulesUrl],
+    ["#content-legal-docs-privacy-link", merged.legalDocsPrivacyUrl],
+  ].forEach(([selector, href]) => {
+    const link = document.querySelector(selector);
+    if (!link) return;
+    const normalizedHref = String(href || "").trim();
+    if (normalizedHref) {
+      link.setAttribute("href", normalizedHref);
+      link.removeAttribute("aria-disabled");
+    } else {
+      link.setAttribute("href", "#");
+      link.setAttribute("aria-disabled", "true");
+    }
+  });
   if (teamApplyForm) {
     const nominationMap = {
       nomination1: merged.teamsNomination1,
@@ -1490,6 +1890,7 @@ function applyContent(content) {
   applySectionVisibility(merged);
   applyGalleryImages(merged);
   applyJuryPhotos(merged);
+  renderPartners(merged);
   renderVoteTeamCards(merged);
   startCountdown(merged);
 }
@@ -2328,6 +2729,14 @@ function initProtectedAuth() {
 async function init() {
   setProtectedVisibility(!protectedRole);
   hideTeamRegisteredPopup();
+  if (partnerPopup) {
+    partnerPopup.addEventListener("click", (event) => {
+      if (event.target === partnerPopup) {
+        closePartnerPopup();
+        if (partnersState.mode === "slider") startPartnerAutoplay();
+      }
+    });
+  }
   initPelmenMiniGame();
   initGalleryCarousel();
   try {

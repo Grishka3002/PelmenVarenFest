@@ -21,11 +21,11 @@ const SESSION_TTL_MS = Number(process.env.SESSION_TTL_HOURS || 12) * 60 * 60 * 1
 const TICKET_PRICE = 600;
 const TEAM_MAIN_LIMIT = 20;
 const STATIC_MAP = { lat: "43.174647", lon: "132.713618", zoom: "12" };
-const ROBOKASSA_LOGIN = String(process.env.ROBOKASSA_LOGIN || "").trim();
-const ROBOKASSA_PASS1 = String(process.env.ROBOKASSA_PASS1 || "").trim();
-const ROBOKASSA_PASS2 = String(process.env.ROBOKASSA_PASS2 || "").trim();
-const ROBOKASSA_TEST_MODE = String(process.env.ROBOKASSA_TEST_MODE || "1").trim() !== "0";
-const ROBOKASSA_HASH_ALGO = String(process.env.ROBOKASSA_HASH_ALGO || "md5").trim().toLowerCase();
+const YOOKASSA_SHOP_ID = String(process.env.YOOKASSA_SHOP_ID || "").trim();
+const YOOKASSA_SECRET_KEY = String(process.env.YOOKASSA_SECRET_KEY || "").trim();
+const YOOKASSA_RETURN_URL = String(process.env.YOOKASSA_RETURN_URL || "").trim();
+const YOOKASSA_WEBHOOK_URL = String(process.env.YOOKASSA_WEBHOOK_URL || "").trim();
+const YOOKASSA_API_BASE = "https://api.yookassa.ru/v3";
 const PUBLIC_BASE_URL = String(process.env.PUBLIC_BASE_URL || "").trim().replace(/\/+$/, "");
 const QUIZ_RESULTS = {
   pelmeni: "Ты пельмень сибирский",
@@ -230,10 +230,10 @@ const DEFAULT_CONTENT = {
   legalCard1Text1: "Электронный билет дает право разового посещения фестиваля «Пельмень Варень» в выбранную дату. После оплаты покупатель получает электронный билет с уникальным номером и QR-кодом для прохода на площадку.",
   legalCard1Text2: "Актуальная стоимость билета указана в разделе «Билеты» на этой странице.",
   legalCard2Title: "Как оформить заказ",
-  legalCard2Text1: "Покупатель заполняет форму заказа на сайте, указывает имя, e-mail, телефон и количество билетов, затем переходит на защищенную страницу оплаты Robokassa.",
+  legalCard2Text1: "Покупатель заполняет форму заказа на сайте, указывает имя, e-mail, телефон и количество билетов, затем переходит на защищенную страницу оплаты ЮKassa.",
   legalCard2Text2: "После успешной оплаты электронные билеты формируются автоматически и становятся доступны для скачивания на сайте.",
   legalCard3Title: "Оплата и оказание услуги",
-  legalCard3Text1: "Оплата принимается банковской картой через платежный сервис Robokassa. Услуга считается оказанной после предоставления покупателю оплаченного электронного билета.",
+  legalCard3Text1: "Оплата принимается банковской картой через платежный сервис ЮKassa. Услуга считается оказанной после предоставления покупателю оплаченного электронного билета.",
   legalCard3Text2: "Срок предоставления услуги: сразу после подтверждения оплаты платежной системой.",
   legalCard4Title: "Отказ от покупки и возврат",
   legalCard4Text1: "Покупатель вправе отказаться от покупки до момента начала мероприятия. Для возврата необходимо направить обращение организатору по контактам, указанным ниже, с номером заказа, номером билета и данными покупателя.",
@@ -460,21 +460,6 @@ function escapeHtmlAttribute(value) {
   return escapeHtml(value).replace(/"/g, "&quot;");
 }
 
-function hashValue(value, algorithm = ROBOKASSA_HASH_ALGO) {
-  return crypto.createHash(algorithm).update(String(value), "utf8").digest("hex");
-}
-
-function getSortedShpEntries(source) {
-  return Object.entries(source || {})
-    .filter(([key]) => /^Shp_/i.test(key))
-    .sort(([a], [b]) => a.localeCompare(b));
-}
-
-function buildRobokassaSignature(parts, password, shpEntries = []) {
-  const payload = [...parts, password, ...shpEntries.map(([key, value]) => `${key}=${value}`)].join(":");
-  return hashValue(payload);
-}
-
 function getPublicBaseUrl(req) {
   if (PUBLIC_BASE_URL) return PUBLIC_BASE_URL;
   const proto = String(req.headers["x-forwarded-proto"] || "http").split(",")[0].trim() || "http";
@@ -482,36 +467,135 @@ function getPublicBaseUrl(req) {
   return host ? `${proto}://${host}` : "";
 }
 
-function isRobokassaConfigured() {
-  return Boolean(ROBOKASSA_LOGIN && ROBOKASSA_PASS1 && ROBOKASSA_PASS2);
+function isYooKassaConfigured() {
+  return Boolean(YOOKASSA_SHOP_ID && YOOKASSA_SECRET_KEY);
 }
 
-function formatRobokassaAmount(value) {
+function formatPaymentAmount(value) {
   return Number(value).toFixed(2);
 }
 
-function buildRobokassaPaymentUrl(req, order) {
-  const baseUrl = "https://auth.robokassa.ru/Merchant/Index.aspx";
-  const shpEntries = [["Shp_orderId", order.id]];
-  const outSum = formatRobokassaAmount(order.totalAmount);
-  const signature = buildRobokassaSignature(
-    [ROBOKASSA_LOGIN, outSum, order.invId],
-    ROBOKASSA_PASS1,
-    shpEntries,
-  );
-  const description = `Билеты на фестиваль Пельмень Варень (${order.quantity})`;
-  const params = new URLSearchParams({
-    MerchantLogin: ROBOKASSA_LOGIN,
-    OutSum: outSum,
-    InvId: order.invId,
-    Description: description,
-    SignatureValue: signature,
-    Culture: "ru",
-    Email: order.email,
-    IsTest: ROBOKASSA_TEST_MODE ? "1" : "0",
-    Shp_orderId: order.id,
+function getYooKassaReturnUrl(req, order) {
+  const baseUrl = YOOKASSA_RETURN_URL || `${getPublicBaseUrl(req)}/`;
+  const url = new URL(baseUrl);
+  url.searchParams.set("order", order.id);
+  return url.toString();
+}
+
+function getYooKassaWebhookUrl(req) {
+  return YOOKASSA_WEBHOOK_URL || `${getPublicBaseUrl(req)}/api/payments/yookassa/webhook`;
+}
+
+function getYooKassaPaymentId(paymentReference) {
+  return String(paymentReference || "").trim().replace(/^YooKassa\s*#\s*/i, "");
+}
+
+function formatStoredPaymentReference(paymentReference) {
+  const raw = String(paymentReference || "").trim();
+  if (!raw) return "";
+  return raw.includes("#") ? raw : `YooKassa #${raw}`;
+}
+
+async function requestYooKassa(endpoint, options = {}) {
+  const method = options.method || "GET";
+  const headers = {
+    Authorization: `Basic ${Buffer.from(`${YOOKASSA_SHOP_ID}:${YOOKASSA_SECRET_KEY}`, "utf8").toString("base64")}`,
+    Accept: "application/json",
+    ...options.headers,
+  };
+  let body;
+  if (options.body !== undefined) {
+    headers["Content-Type"] = "application/json";
+    body = JSON.stringify(options.body);
+  }
+  if (options.idempotenceKey) {
+    headers["Idempotence-Key"] = String(options.idempotenceKey);
+  }
+
+  const response = await fetch(`${YOOKASSA_API_BASE}${endpoint}`, {
+    method,
+    headers,
+    body,
   });
-  return `${baseUrl}?${params.toString()}`;
+  const text = await response.text();
+  const payload = text ? JSON.parse(text) : null;
+  if (!response.ok) {
+    const message = payload?.description || payload?.error_description || payload?.type || `ЮKassa вернула ошибку ${response.status}.`;
+    throw new Error(message);
+  }
+  return payload;
+}
+
+async function createYooKassaPayment(req, order) {
+  return requestYooKassa("/payments", {
+    method: "POST",
+    idempotenceKey: order.id,
+    body: {
+      amount: {
+        value: formatPaymentAmount(order.totalAmount),
+        currency: "RUB",
+      },
+      capture: true,
+      confirmation: {
+        type: "redirect",
+        return_url: getYooKassaReturnUrl(req, order),
+      },
+      description: `Билеты на фестиваль Пельмень Варень (${order.quantity})`,
+      metadata: {
+        orderId: order.id,
+        invId: order.invId,
+      },
+    },
+  });
+}
+
+async function getYooKassaPayment(paymentId) {
+  return requestYooKassa(`/payments/${encodeURIComponent(paymentId)}`);
+}
+
+async function syncOrderWithYooKassaPayment(db, order) {
+  if (!order || !isYooKassaConfigured()) {
+    return { order, tickets: order?.status === "paid" ? getTicketsByOrderId(db, order.id) : [], payment: null };
+  }
+
+  const paymentId = getYooKassaPaymentId(order.paymentReference);
+  if (!paymentId) {
+    return { order, tickets: order.status === "paid" ? getTicketsByOrderId(db, order.id) : [], payment: null };
+  }
+
+  const payment = await getYooKassaPayment(paymentId);
+  const paymentStatus = String(payment?.status || "").trim();
+  const metadataOrderId = String(payment?.metadata?.orderId || "").trim();
+  if (metadataOrderId && metadataOrderId !== order.id) {
+    throw new Error("ЮKassa вернула платеж для другого заказа.");
+  }
+
+  if (paymentStatus === "succeeded" && order.status !== "paid") {
+    const paidAt = payment?.captured_at || payment?.created_at || new Date().toISOString();
+    runTransaction(db, () => {
+      updateOrderPaymentStatus(db, order.id, {
+        status: "paid",
+        paymentReference: payment.id,
+        paidAt,
+      });
+      issueTicketsForPaidOrder(db, {
+        ...order,
+        status: "paid",
+        paymentReference: payment.id,
+        paidAt,
+      });
+    });
+  } else if (paymentStatus === "canceled" && order.status === "pending") {
+    updateOrderPaymentStatus(db, order.id, {
+      status: "canceled",
+      paymentReference: payment.id,
+      paidAt: null,
+    });
+  }
+
+  const nextOrder = getOrderById(db, order.id);
+  const tickets = nextOrder?.status === "paid" ? getTicketsByOrderId(db, order.id) : [];
+  return { order: nextOrder, tickets, payment };
 }
 
 function excelColumnName(index) {
@@ -776,11 +860,6 @@ function getOrderById(db, orderId) {
   return row ? mapOrderRow(row) : null;
 }
 
-function getOrderByInvId(db, invId) {
-  const row = db.prepare("SELECT * FROM orders WHERE inv_id = ?").get(String(invId));
-  return row ? mapOrderRow(row) : null;
-}
-
 function updateOrderPaymentStatus(db, orderId, payload) {
   const nextUpdatedAt = new Date().toISOString();
   db.prepare(`
@@ -820,7 +899,7 @@ function issueTicketsForPaidOrder(db, order) {
       voteTeam: null,
       paidAt,
       createdAt: order.createdAt,
-      paymentReference: order.paymentReference || `Robokassa #${order.invId}`,
+      paymentReference: formatStoredPaymentReference(order.paymentReference) || `Заказ #${order.invId}`,
       usedAt: null,
       votedAt: null,
     };
@@ -1907,8 +1986,8 @@ async function handleApi(req, res, pathname) {
     if (!body.name || !body.email || !body.phone || !quantity || quantity < 1 || quantity > 4) {
       return sendError(res, 400, "Некорректные данные заказа.");
     }
-    if (!isRobokassaConfigured()) {
-      return sendError(res, 503, "Robokassa еще не настроена. Добавьте тестовые данные в переменные окружения.");
+    if (!isYooKassaConfigured()) {
+      return sendError(res, 503, "ЮKassa еще не настроена. Добавьте shopId и secret key в переменные окружения.");
     }
 
     const createdAt = new Date().toISOString();
@@ -1928,122 +2007,66 @@ async function handleApi(req, res, pathname) {
     });
 
     insertOrder(db, order);
-    return sendJson(res, 201, {
-      orderId: order.id,
-      invId: order.invId,
-      paymentUrl: buildRobokassaPaymentUrl(req, order),
-      isTestMode: ROBOKASSA_TEST_MODE,
-    });
+    try {
+      const payment = await createYooKassaPayment(req, order);
+      const paymentUrl = String(payment?.confirmation?.confirmation_url || "").trim();
+      const paymentId = String(payment?.id || "").trim();
+      if (!paymentUrl || !paymentId) {
+        throw new Error("ЮKassa не вернула ссылку на оплату.");
+      }
+      updateOrderPaymentStatus(db, order.id, {
+        status: "pending",
+        paymentReference: paymentId,
+        paidAt: null,
+      });
+      return sendJson(res, 201, {
+        orderId: order.id,
+        paymentId,
+        paymentUrl,
+        webhookUrl: getYooKassaWebhookUrl(req),
+      });
+    } catch (error) {
+      return sendError(res, 502, error.message || "Не удалось создать платеж в ЮKassa.");
+    }
   }
 
   if (req.method === "GET" && /^\/api\/orders\/[^/]+$/.test(pathname) && !pathname.endsWith("/pdf")) {
     const orderId = decodeURIComponent(pathname.split("/")[3] || "").trim();
-    const order = getOrderById(db, orderId);
+    let order = getOrderById(db, orderId);
     if (!order) return sendError(res, 404, "Заказ не найден.");
-    const tickets = order.status === "paid" ? getTicketsByOrderId(db, order.id) : [];
+    let tickets = order.status === "paid" ? getTicketsByOrderId(db, order.id) : [];
+    if (order.status === "pending" && order.paymentReference && isYooKassaConfigured()) {
+      try {
+        const synced = await syncOrderWithYooKassaPayment(db, order);
+        order = synced.order || order;
+        tickets = synced.tickets;
+      } catch (error) {
+        // keep local status if provider is temporarily unavailable
+      }
+    }
     return sendJson(res, 200, { order, tickets });
   }
 
-  if ((req.method === "POST" || req.method === "GET") && pathname === "/api/payments/robokassa/result") {
-    const params = req.method === "POST"
-      ? await parseBody(req)
-      : Object.fromEntries(new URL(req.url, `http://${req.headers.host}`).searchParams.entries());
-    const outSum = String(params.OutSum || params.outsum || "").trim();
-    const invId = String(params.InvId || params.invid || "").trim();
-    const signature = String(params.SignatureValue || params.signaturevalue || "").trim().toLowerCase();
-    const shpEntries = getSortedShpEntries(params).map(([key, value]) => [key, String(value || "").trim()]);
+  if (req.method === "POST" && pathname === "/api/payments/yookassa/webhook") {
+    const notification = await parseBody(req);
+    const event = String(notification?.event || "").trim();
+    const paymentId = String(notification?.object?.id || "").trim();
 
-    if (!outSum || !invId || !signature) {
-      return sendError(res, 400, "Недостаточно параметров Robokassa.");
+    if (!paymentId || !["payment.succeeded", "payment.canceled", "payment.waiting_for_capture"].includes(event)) {
+      return sendJson(res, 200, { ok: true });
     }
 
-    const expectedSignature = buildRobokassaSignature([outSum, invId], ROBOKASSA_PASS2, shpEntries).toLowerCase();
-    if (expectedSignature !== signature) {
-      return sendError(res, 400, "Некорректная подпись Robokassa.");
+    try {
+      const payment = await getYooKassaPayment(paymentId);
+      const orderId = String(payment?.metadata?.orderId || "").trim();
+      if (!orderId) return sendJson(res, 200, { ok: true });
+      const order = getOrderById(db, orderId);
+      if (!order) return sendJson(res, 200, { ok: true });
+      await syncOrderWithYooKassaPayment(db, order);
+      return sendJson(res, 200, { ok: true });
+    } catch (error) {
+      return sendError(res, 400, error.message || "Не удалось обработать webhook ЮKassa.");
     }
-
-    const order = getOrderByInvId(db, invId);
-    if (!order) {
-      return sendError(res, 404, "Заказ не найден.");
-    }
-    if (formatRobokassaAmount(order.totalAmount) !== outSum) {
-      return sendError(res, 400, "Сумма платежа не совпадает с заказом.");
-    }
-
-    const orderIdFromShp = shpEntries.find(([key]) => key === "Shp_orderId")?.[1] || "";
-    if (orderIdFromShp && orderIdFromShp !== order.id) {
-      return sendError(res, 400, "ID заказа не совпадает.");
-    }
-
-    if (order.status !== "paid") {
-      const paidAt = new Date().toISOString();
-      runTransaction(db, () => {
-        updateOrderPaymentStatus(db, order.id, {
-          status: "paid",
-          paymentReference: `Robokassa #${order.invId}`,
-          paidAt,
-        });
-        issueTicketsForPaidOrder(db, {
-          ...order,
-          status: "paid",
-          paymentReference: `Robokassa #${order.invId}`,
-          paidAt,
-        });
-      });
-    }
-
-    res.writeHead(200, { "Content-Type": "text/plain; charset=utf-8" });
-    res.end(`OK${invId}`);
-    return;
-  }
-
-  if (req.method === "GET" && pathname === "/api/payments/robokassa/success") {
-    const params = Object.fromEntries(new URL(req.url, `http://${req.headers.host}`).searchParams.entries());
-    const outSum = String(params.OutSum || "").trim();
-    const invId = String(params.InvId || "").trim();
-    const signature = String(params.SignatureValue || "").trim().toLowerCase();
-    const shpEntries = getSortedShpEntries(params).map(([key, value]) => [key, String(value || "").trim()]);
-
-    if (!outSum || !invId || !signature) {
-      return sendError(res, 400, "Недостаточно параметров SuccessURL.");
-    }
-
-    const expectedSignature = buildRobokassaSignature([outSum, invId], ROBOKASSA_PASS1, shpEntries).toLowerCase();
-    if (expectedSignature !== signature) {
-      return sendError(res, 400, "Некорректная подпись SuccessURL.");
-    }
-
-    const order = getOrderByInvId(db, invId);
-    if (!order) return sendError(res, 404, "Заказ не найден.");
-    if (formatRobokassaAmount(order.totalAmount) !== outSum) {
-      return sendError(res, 400, "Сумма платежа не совпадает с заказом.");
-    }
-
-    const orderIdFromShp = shpEntries.find(([key]) => key === "Shp_orderId")?.[1] || "";
-    if (orderIdFromShp && orderIdFromShp !== order.id) {
-      return sendError(res, 400, "ID заказа не совпадает.");
-    }
-
-    let nextOrder = order;
-    let tickets = getTicketsByOrderId(db, order.id);
-    if (order.status !== "paid" || !tickets.length) {
-      const paidAt = new Date().toISOString();
-      runTransaction(db, () => {
-        nextOrder = updateOrderPaymentStatus(db, order.id, {
-          status: "paid",
-          paymentReference: `Robokassa #${order.invId}`,
-          paidAt,
-        });
-        tickets = issueTicketsForPaidOrder(db, {
-          ...order,
-          status: "paid",
-          paymentReference: `Robokassa #${order.invId}`,
-          paidAt,
-        });
-      });
-    }
-
-    return sendJson(res, 200, { ok: true, order: nextOrder, tickets });
   }
 
   if (req.method === "POST" && pathname === "/api/checkin") {

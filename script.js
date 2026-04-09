@@ -223,10 +223,10 @@ const DEFAULT_CONTENT = {
   legalCard1Text1: "Электронный билет дает право разового посещения фестиваля «Пельмень Варень» в выбранную дату. После оплаты покупатель получает электронный билет с уникальным номером и QR-кодом для прохода на площадку.",
   legalCard1Text2: "Актуальная стоимость билета указана в разделе «Билеты» на этой странице.",
   legalCard2Title: "Как оформить заказ",
-  legalCard2Text1: "Покупатель заполняет форму заказа на сайте, указывает имя, e-mail, телефон и количество билетов, затем переходит на защищенную страницу оплаты Robokassa.",
+  legalCard2Text1: "Покупатель заполняет форму заказа на сайте, указывает имя, e-mail, телефон и количество билетов, затем переходит на защищенную страницу оплаты ЮKassa.",
   legalCard2Text2: "После успешной оплаты электронные билеты формируются автоматически и становятся доступны для скачивания на сайте.",
   legalCard3Title: "Оплата и оказание услуги",
-  legalCard3Text1: "Оплата принимается банковской картой через платежный сервис Robokassa. Услуга считается оказанной после предоставления покупателю оплаченного электронного билета.",
+  legalCard3Text1: "Оплата принимается банковской картой через платежный сервис ЮKassa. Услуга считается оказанной после предоставления покупателю оплаченного электронного билета.",
   legalCard3Text2: "Срок предоставления услуги: сразу после подтверждения оплаты платежной системой.",
   legalCard4Title: "Отказ от покупки и возврат",
   legalCard4Text1: "Покупатель вправе отказаться от покупки до момента начала мероприятия. Для возврата необходимо направить обращение организатору по контактам, указанным ниже, с номером заказа, номером билета и данными покупателя.",
@@ -848,10 +848,6 @@ const api = {
   getTickets: async () => (await requestJson("/api/tickets")).tickets,
   createOrder: async (order) => requestJson("/api/orders", { method: "POST", body: JSON.stringify(order) }),
   getOrder: async (orderId) => requestJson(`/api/orders/${encodeURIComponent(orderId)}`),
-  confirmRobokassaSuccess: async (params) => {
-    const search = new URLSearchParams(params);
-    return requestJson(`/api/payments/robokassa/success?${search.toString()}`);
-  },
   createTeamApplication: async (payload) => requestJson("/api/team-applications", { method: "POST", body: JSON.stringify(payload) }),
   checkin: async (code) => requestJson("/api/checkin", { method: "POST", body: JSON.stringify({ code }) }),
   vote: async (code, team) => requestJson("/api/vote", { method: "POST", body: JSON.stringify({ code, team }) }),
@@ -1695,33 +1691,26 @@ function renderPaymentSummary(order) {
     <strong>${order.name}</strong><br>
     ${order.quantity} билет(а) • ${formatPrice(total)}<br>
     ${order.email}<br>
-    После подтверждения вы перейдете на страницу тестовой оплаты Robokassa.
+    После подтверждения вы перейдете на страницу оплаты ЮKassa.
   `;
 }
 
 async function restorePaidOrderFromQuery() {
   const params = new URLSearchParams(window.location.search);
-  const orderId = String(params.get("Shp_orderId") || params.get("order") || "").trim();
+  const orderId = String(params.get("order") || "").trim();
   const paymentState = String(params.get("payment") || "").trim();
-  const paymentFailedByHash = window.location.hash === "#payment-failed";
-  const robokassaInvId = String(params.get("InvId") || "").trim();
-  const robokassaOutSum = String(params.get("OutSum") || "").trim();
-  const robokassaSignature = String(params.get("SignatureValue") || "").trim();
 
   if (!orderId) {
-    if (paymentState === "failed" || paymentFailedByHash) {
+    if (paymentState === "failed") {
       ticketForm.hidden = true;
       paymentForm.hidden = false;
       resultCard.hidden = true;
       renderPaymentSummary({
         name: "Оплата не завершена",
         quantity: 1,
-        email: "Robokassa вернула пользователя без подтверждения оплаты.",
+        email: "Платеж не был подтвержден. Вы можете вернуться к оформлению и попробовать снова.",
       });
       setStep("payment");
-      if (paymentFailedByHash) {
-        window.history.replaceState({}, "", window.location.pathname + window.location.search);
-      }
     }
     return;
   }
@@ -1732,35 +1721,9 @@ async function restorePaidOrderFromQuery() {
   renderPaymentSummary({
     name: "Проверяем оплату",
     quantity: 1,
-    email: "Ожидаем подтверждение Robokassa и выдачу билетов.",
+    email: "Ожидаем подтверждение ЮKassa и выдачу билетов.",
   });
   setStep("payment");
-
-  if (robokassaInvId && robokassaOutSum && robokassaSignature) {
-    try {
-      const response = await api.confirmRobokassaSuccess({
-        InvId: robokassaInvId,
-        OutSum: robokassaOutSum,
-        SignatureValue: robokassaSignature,
-        Shp_orderId: orderId,
-      });
-      if (response.order?.status === "paid" && Array.isArray(response.tickets) && response.tickets.length) {
-        lastCreatedOrderTickets = response.tickets;
-        renderOrderTickets(lastCreatedOrderTickets);
-        paymentForm.hidden = true;
-        ticketForm.hidden = false;
-        ticketForm.reset();
-        pendingOrder = null;
-        const paramsToClear = ["Shp_orderId", "payment", "InvId", "OutSum", "SignatureValue"];
-        paramsToClear.forEach((key) => params.delete(key));
-        const nextQuery = params.toString();
-        window.history.replaceState({}, "", `${window.location.pathname}${nextQuery ? `?${nextQuery}` : ""}`);
-        return;
-      }
-    } catch (error) {
-      // fallback to polling below
-    }
-  }
 
   const startedAt = Date.now();
   while (Date.now() - startedAt < 20000) {
@@ -1774,10 +1737,18 @@ async function restorePaidOrderFromQuery() {
         ticketForm.reset();
         pendingOrder = null;
         await renderVoteResults();
-        const paramsToClear = ["Shp_orderId", "payment", "InvId", "OutSum", "SignatureValue"];
+        const paramsToClear = ["order", "payment"];
         paramsToClear.forEach((key) => params.delete(key));
         const nextQuery = params.toString();
         window.history.replaceState({}, "", `${window.location.pathname}${nextQuery ? `?${nextQuery}` : ""}`);
+        return;
+      }
+      if (response.order?.status === "canceled") {
+        renderPaymentSummary({
+          name: "Оплата отменена",
+          quantity: response.order?.quantity || 1,
+          email: "ЮKassa сообщила, что платеж был отменен. Вы можете оформить заказ заново.",
+        });
         return;
       }
     } catch (error) {
@@ -1789,7 +1760,7 @@ async function restorePaidOrderFromQuery() {
   renderPaymentSummary({
     name: "Оплата обрабатывается",
     quantity: 1,
-    email: "Robokassa еще не прислала подтверждение. Обновите страницу через несколько секунд.",
+    email: "ЮKassa еще не прислала подтверждение. Обновите страницу через несколько секунд.",
   });
 }
 
@@ -2311,7 +2282,7 @@ function initTicketFlow() {
     try {
       const submitButton = ticketForm.querySelector('button[type="submit"]');
       if (submitButton instanceof HTMLButtonElement) {
-        submitButton.textContent = "Переходим в Robokassa";
+        submitButton.textContent = "Переходим в ЮKassa";
         submitButton.disabled = true;
       }
       const response = await api.createOrder({ ...pendingOrder });

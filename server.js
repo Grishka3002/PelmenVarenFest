@@ -27,6 +27,7 @@ const YOOKASSA_RETURN_URL = String(process.env.YOOKASSA_RETURN_URL || "").trim()
 const YOOKASSA_WEBHOOK_URL = String(process.env.YOOKASSA_WEBHOOK_URL || "").trim();
 const YOOKASSA_API_BASE = "https://api.yookassa.ru/v3";
 const PUBLIC_BASE_URL = String(process.env.PUBLIC_BASE_URL || "").trim().replace(/\/+$/, "");
+const JURY_COUNT = 3;
 const QUIZ_RESULTS = {
   pelmeni: "Ты пельмень сибирский",
   khinkali: "Ты хинкали",
@@ -118,7 +119,7 @@ const DEFAULT_CONTENT = {
   galleryImage4: "",
   galleryImage5: "",
   juryEyebrow: "Жюри",
-  juryTitle: "Пять экспертов оценивают команды и фестивальные подачи.",
+  juryTitle: "Три эксперта оценивают команды и фестивальные подачи.",
   juryName1: "Александр Невский",
   juryRegalia1: "Шеф-повар, эксперт по региональной кухне Дальнего Востока.",
   juryPhoto1: "",
@@ -128,12 +129,6 @@ const DEFAULT_CONTENT = {
   juryName3: "Илья Сомов",
   juryRegalia3: "Ресторатор, автор фестивалей локальной кухни.",
   juryPhoto3: "",
-  juryName4: "Екатерина Ярова",
-  juryRegalia4: "Фуд-журналист, обозреватель гастрономических событий.",
-  juryPhoto4: "",
-  juryName5: "Денис Ладов",
-  juryRegalia5: "Бренд-шеф, судья кулинарных чемпионатов.",
-  juryPhoto5: "",
   partnersEyebrow: "Партнёры",
   partnersTitle: "Люди и компании, которые помогают фестивалю состояться.",
   partner1Name: "",
@@ -398,6 +393,37 @@ function parseBody(req) {
       return Object.fromEntries(new URLSearchParams(raw).entries());
     }
   })();
+}
+
+function sanitizeUploadFileName(name) {
+  const ext = path.extname(String(name || "")).toLowerCase();
+  const allowed = new Set([".png", ".jpg", ".jpeg", ".webp", ".gif"]);
+  if (!allowed.has(ext)) {
+    throw new Error("Допустимы только PNG, JPG, WEBP или GIF.");
+  }
+  return ext;
+}
+
+async function saveUploadedImage(dataUrl, originalName, prefix = "upload") {
+  const matched = String(dataUrl || "").match(/^data:(image\/(?:png|jpeg|jpg|webp|gif));base64,([a-z0-9+/=]+)$/i);
+  if (!matched) {
+    throw new Error("Не удалось прочитать изображение.");
+  }
+  const ext = sanitizeUploadFileName(originalName || matched[1].split("/")[1] || ".png");
+  const buffer = Buffer.from(matched[2], "base64");
+  if (!buffer.length) {
+    throw new Error("Файл изображения пустой.");
+  }
+  if (buffer.length > 8 * 1024 * 1024) {
+    throw new Error("Файл слишком большой. Максимум 8 МБ.");
+  }
+
+  const uploadDir = path.join(ROOT, "images", "uploads");
+  await fs.mkdir(uploadDir, { recursive: true });
+  const fileName = `${prefix}-${Date.now()}-${crypto.randomUUID().slice(0, 8)}${ext}`;
+  const filePath = path.join(uploadDir, fileName);
+  await fs.writeFile(filePath, buffer);
+  return `images/uploads/${fileName}`;
 }
 
 function sendJson(res, status, payload) {
@@ -1069,7 +1095,7 @@ function seedDefaultUsers(db) {
   if (db.prepare("SELECT COUNT(*) AS total FROM users").get().total > 0) return;
   createUser(db, "admin", ADMIN_USERNAME, ADMIN_PASSWORD);
   createUser(db, "checkin", CHECKIN_USERNAME, CHECKIN_PASSWORD);
-  for (let index = 1; index <= 5; index += 1) {
+  for (let index = 1; index <= JURY_COUNT; index += 1) {
     createUser(db, "jury", `jury${index}`, JURY_DEFAULT_PASSWORD);
   }
 }
@@ -1077,9 +1103,13 @@ function seedDefaultUsers(db) {
 function ensureDefaultJuryUsers(db) {
   const total = db.prepare("SELECT COUNT(*) AS total FROM users WHERE role = 'jury'").get().total;
   if (total > 0) return;
-  for (let index = 1; index <= 5; index += 1) {
+  for (let index = 1; index <= JURY_COUNT; index += 1) {
     createUser(db, "jury", `jury${index}`, JURY_DEFAULT_PASSWORD);
   }
+}
+
+function pruneDefaultJuryUsers(db) {
+  db.prepare("DELETE FROM users WHERE role = 'jury' AND username IN ('jury4', 'jury5')").run();
 }
 
 function ensureTeamApplicationsSchema(db) {
@@ -1150,6 +1180,13 @@ function seedContentDefaults(db) {
   runTransaction(db, () => {
     Object.entries(DEFAULT_CONTENT).forEach(([key, value]) => {
       statement.run(key, String(value ?? ""));
+    });
+    const currentJuryTitle = db.prepare("SELECT value FROM content WHERE key = 'juryTitle'").get()?.value;
+    if (!currentJuryTitle || currentJuryTitle === "Пять экспертов оценивают команды и фестивальные подачи.") {
+      upsert.run("juryTitle", DEFAULT_CONTENT.juryTitle);
+    }
+    ["juryName4", "juryRegalia4", "juryPhoto4", "juryName5", "juryRegalia5", "juryPhoto5"].forEach((key) => {
+      db.prepare("DELETE FROM content WHERE key = ?").run(key);
     });
     upsert.run("mapLat", STATIC_MAP.lat);
     upsert.run("mapLon", STATIC_MAP.lon);
@@ -1829,6 +1866,7 @@ async function ensureDatabase() {
     seedContentDefaults(db);
     seedDefaultUsers(db);
     ensureDefaultJuryUsers(db);
+    pruneDefaultJuryUsers(db);
     database = db;
     return db;
   })();
@@ -1892,6 +1930,17 @@ async function handleApi(req, res, pathname) {
     if (!requireRole(req, res, "admin")) return;
     const body = await parseBody(req);
     return sendJson(res, 200, { content: saveContent(db, body.content) });
+  }
+
+  if (req.method === "POST" && pathname === "/api/admin/upload-image") {
+    if (!requireRole(req, res, "admin")) return;
+    const body = await parseBody(req);
+    try {
+      const storedPath = await saveUploadedImage(body.fileData, body.fileName, body.prefix || "admin");
+      return sendJson(res, 201, { path: storedPath });
+    } catch (error) {
+      return sendError(res, 400, error.message || "Не удалось загрузить изображение.");
+    }
   }
 
   if (req.method === "DELETE" && pathname === "/api/content") {

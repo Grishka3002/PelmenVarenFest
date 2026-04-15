@@ -4,6 +4,7 @@ const PELMEN_SESSION_KEY = "pelmen_game_seen_v1";
 const STATIC_MAP = { lat: 43.174647, lon: 132.713618, zoom: 12 };
 const PELMEN_STAGE_TOTAL = 7;
 const TEAMS = ["Команда Северный пар", "Команда Жар-печь", "Команда Морской дым"];
+const JURY_COUNT = 3;
 const pelmenFrameCache = new Map();
 const QUIZ_RESULTS = {
   pelmeni: {
@@ -111,7 +112,7 @@ const DEFAULT_CONTENT = {
   galleryImage4: "",
   galleryImage5: "",
   juryEyebrow: "Жюри",
-  juryTitle: "Пять экспертов оценивают команды и фестивальные подачи.",
+  juryTitle: "Три эксперта оценивают команды и фестивальные подачи.",
   juryName1: "Александр Невский",
   juryRegalia1: "Шеф-повар, эксперт по региональной кухне Дальнего Востока.",
   juryPhoto1: "",
@@ -121,12 +122,6 @@ const DEFAULT_CONTENT = {
   juryName3: "Илья Сомов",
   juryRegalia3: "Ресторатор, автор фестивалей локальной кухни.",
   juryPhoto3: "",
-  juryName4: "Екатерина Ярова",
-  juryRegalia4: "Фуд-журналист, обозреватель гастрономических событий.",
-  juryPhoto4: "",
-  juryName5: "Денис Ладов",
-  juryRegalia5: "Бренд-шеф, судья кулинарных чемпионатов.",
-  juryPhoto5: "",
   partnersEyebrow: "Партнёры",
   partnersTitle: "Люди и компании, которые помогают фестивалю состояться.",
   partner1Name: "",
@@ -428,10 +423,6 @@ const CONTENT_BINDINGS = {
   juryRegalia2: { id: "content-jury-regalia2", html: false },
   juryName3: { id: "content-jury-name3", html: false },
   juryRegalia3: { id: "content-jury-regalia3", html: false },
-  juryName4: { id: "content-jury-name4", html: false },
-  juryRegalia4: { id: "content-jury-regalia4", html: false },
-  juryName5: { id: "content-jury-name5", html: false },
-  juryRegalia5: { id: "content-jury-regalia5", html: false },
   partnersEyebrow: { id: "content-partners-eyebrow", html: false },
   partnersTitle: { id: "content-partners-title", html: false },
   teamsEyebrow: { id: "content-teams-eyebrow", html: false },
@@ -845,6 +836,7 @@ const api = {
   getContent: async () => (await requestJson("/api/content")).content,
   saveContent: async (content) => (await requestJson("/api/content", { method: "PUT", body: JSON.stringify({ content }) })).content,
   resetContent: async () => (await requestJson("/api/content", { method: "DELETE" })).content,
+  uploadAdminImage: async (payload) => requestJson("/api/admin/upload-image", { method: "POST", body: JSON.stringify(payload) }),
   getTickets: async () => (await requestJson("/api/tickets")).tickets,
   createOrder: async (order) => requestJson("/api/orders", { method: "POST", body: JSON.stringify(order) }),
   getOrder: async (orderId) => requestJson(`/api/orders/${encodeURIComponent(orderId)}`),
@@ -1278,7 +1270,7 @@ function applyGalleryImages(content) {
 }
 
 function applyJuryPhotos(content) {
-  for (let index = 1; index <= 5; index += 1) {
+  for (let index = 1; index <= JURY_COUNT; index += 1) {
     const photo = document.querySelector(`[data-jury-photo-slot="${index}"]`);
     if (!photo) continue;
     const path = sanitizeAssetPath(content[`juryPhoto${index}`]);
@@ -1412,6 +1404,15 @@ function openExternalUrl(rawUrl) {
   if (!normalizedUrl) return false;
   const popup = window.open(normalizedUrl, "_blank", "noopener,noreferrer");
   return Boolean(popup);
+}
+
+function readFileAsDataUrl(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(String(reader.result || ""));
+    reader.onerror = () => reject(new Error("Не удалось прочитать файл."));
+    reader.readAsDataURL(file);
+  });
 }
 
 function setStep(step) {
@@ -2462,6 +2463,33 @@ function initCheckinFlow() {
 
 function initAdminPanel() {
   if (!adminContentForm) return;
+
+  adminContentForm.addEventListener("change", async (event) => {
+    const target = event.target;
+    if (!(target instanceof HTMLInputElement) || target.type !== "file" || !target.classList.contains("admin-upload-input")) return;
+
+    const file = target.files?.[0];
+    const targetFieldName = String(target.dataset.uploadTarget || "").trim();
+    if (!file || !targetFieldName) return;
+
+    const targetField = adminContentForm.elements.namedItem(targetFieldName);
+    if (!(targetField instanceof HTMLInputElement || targetField instanceof HTMLTextAreaElement)) return;
+
+    try {
+      const fileData = await readFileAsDataUrl(file);
+      const response = await api.uploadAdminImage({
+        fileName: file.name,
+        fileData,
+        prefix: String(target.dataset.uploadPrefix || "admin").trim(),
+      });
+      targetField.value = response.path;
+      setAdminMessage("<strong>Фото загружено.</strong><br>Путь подставлен в форму. Нажмите «Сохранить контент», чтобы применить изменения на сайте.", "ok");
+    } catch (error) {
+      setAdminMessage(`<strong>Ошибка загрузки.</strong><br>${error.message}`, "warn");
+    } finally {
+      target.value = "";
+    }
+  });
 
   adminContentForm.addEventListener("submit", async (event) => {
     event.preventDefault();

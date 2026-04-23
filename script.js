@@ -1847,6 +1847,10 @@ async function restorePaidOrderFromQuery() {
 
 function applyContent(content) {
   const merged = { ...DEFAULT_CONTENT, ...(content || {}) };
+  if (!String(merged.ticketOldPriceValue || "").trim()) merged.ticketOldPriceValue = DEFAULT_CONTENT.ticketOldPriceValue;
+  if (!String(merged.ticketPromoDeadline || "").trim()) merged.ticketPromoDeadline = DEFAULT_CONTENT.ticketPromoDeadline;
+  if (!String(merged.ticketPromoText || "").trim()) merged.ticketPromoText = DEFAULT_CONTENT.ticketPromoText;
+  if (!String(merged.showTicketPromo || "").trim()) merged.showTicketPromo = DEFAULT_CONTENT.showTicketPromo;
   window.__appContent = merged;
   document.title = merged.seoTitle || DEFAULT_CONTENT.seoTitle;
   const metaDescription = document.querySelector('meta[name="description"]');

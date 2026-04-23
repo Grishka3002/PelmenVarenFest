@@ -1215,6 +1215,12 @@ function seedContentDefaults(db) {
     if (!currentJuryCriteria || String(currentJuryCriteria).includes("Презентация")) {
       upsert.run("juryScoringCriteria", DEFAULT_CONTENT.juryScoringCriteria);
     }
+    ["ticketOldPriceValue", "ticketPromoDeadline", "ticketPromoText", "showTicketPromo"].forEach((key) => {
+      const currentValue = db.prepare("SELECT value FROM content WHERE key = ?").get(key)?.value;
+      if (!String(currentValue || "").trim()) {
+        upsert.run(key, DEFAULT_CONTENT[key]);
+      }
+    });
     ["juryName4", "juryRegalia4", "juryPhoto4", "juryName5", "juryRegalia5", "juryPhoto5"].forEach((key) => {
       db.prepare("DELETE FROM content WHERE key = ?").run(key);
     });

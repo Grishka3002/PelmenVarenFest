@@ -1137,13 +1137,32 @@ iframe {
   gap: 16px;
 }
 
+.price-card__prices {
+  display: flex;
+  align-items: flex-end;
+  gap: 18px;
+  flex-wrap: wrap;
+  margin: 4px 0 10px;
+}
+
 .price-card__old-price {
-  margin: 0 0 6px;
-  color: var(--muted);
+  margin: 0;
+  color: rgba(108, 85, 71, 0.56);
   text-decoration: line-through;
-  text-decoration-thickness: 2px;
-  font-size: 1.05rem;
+  text-decoration-thickness: 3px;
+  text-decoration-color: rgba(108, 85, 71, 0.62);
+  font-size: clamp(1.8rem, 4vw, 2.6rem);
+  line-height: 0.92;
   font-weight: 700;
+  letter-spacing: -0.03em;
+}
+
+#content-ticket-price-value {
+  color: var(--accent);
+  margin: 0;
+  font-size: clamp(2.9rem, 6vw, 5.2rem);
+  line-height: 0.9;
+  letter-spacing: -0.04em;
 }
 
 .ticket-promo-card {

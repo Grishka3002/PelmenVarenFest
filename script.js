@@ -165,7 +165,7 @@ const DEFAULT_CONTENT = {
   partner10Description: "",
   partner10Logo: "",
   juryScoringTeams: "Команда Северный пар\nКоманда Жар-печь\nКоманда Морской дым",
-  juryScoringCriteria: "Вкус\nПодача\nОригинальность\nТехника\nПрезентация",
+  juryScoringCriteria: "Вкус\nПодача\nОригинальность\nТехника",
   teamsEyebrow: "Командам",
   teamsTitle: "Подайте заявку на участие в конкурсе фестиваля.",
   teamsLead: "Заполните форму: заявка уходит организаторам и фиксируется в системе.",
@@ -201,11 +201,15 @@ const DEFAULT_CONTENT = {
   ticketsTitle: "Оплата, персональные QR-коды и готовность к контролю на входе.",
   ticketPriceLabel: "Стандарт",
   ticketPriceValue: "600 ₽",
+  ticketOldPriceValue: "800 ₽",
+  ticketPromoDeadline: "2026-05-01T00:00:00+10:00",
+  ticketPromoText: "До повышения цены остались считанные дни — успей купить.",
+  showTicketPromo: "true",
   ticketPriceText: "Доступ на все площадки фестиваля, концерт и вечерний огненный круг.",
   ticketFeature1: "Каждый билет получает собственный код и QR",
   ticketFeature2: "После оплаты билет сразу доступен на странице",
   ticketFeature3: "После сканирования билет можно использовать для голосования",
-  ticketNote: "Оплата реализована как клиентский checkout внутри проекта. Для боевого запуска потребуется подключение настоящего эквайринга и серверной базы билетов.",
+  ticketNote: "Оплата проходит через ЮKassa, а электронные билеты после подтверждения автоматически становятся доступны на этой странице.",
   ticketsClosedDisclaimer: "Продажа билетов сейчас временно закрыта. Вся актуальная информация о старте продажи билетов будет на сайте.",
   ticketsClosedCtaText: "Подписаться на Маори-Лукьяновка",
   ticketsClosedCtaUrl: "https://t.me/maori_lukyanovka",
@@ -452,6 +456,8 @@ const CONTENT_BINDINGS = {
   ticketsTitle: { id: "content-tickets-title", html: false },
   ticketPriceLabel: { id: "content-ticket-price-label", html: false },
   ticketPriceValue: { id: "content-ticket-price-value", html: false },
+  ticketOldPriceValue: { id: "content-ticket-old-price-value", html: false },
+  ticketPromoText: { id: "content-ticket-promo-text", html: false },
   ticketPriceText: { id: "content-ticket-price-text", html: false },
   ticketFeature1: { id: "content-ticket-feature1", html: false },
   ticketFeature2: { id: "content-ticket-feature2", html: false },
@@ -586,6 +592,13 @@ const countdownNodes = {
   minutes: document.querySelector("#countdown-minutes"),
   seconds: document.querySelector("#countdown-seconds"),
 };
+const ticketPromoNodes = {
+  block: document.querySelector("#ticket-promo-block"),
+  days: document.querySelector("#ticket-promo-days"),
+  hours: document.querySelector("#ticket-promo-hours"),
+  minutes: document.querySelector("#ticket-promo-minutes"),
+  seconds: document.querySelector("#ticket-promo-seconds"),
+};
 
 const checkinForm = document.querySelector("#checkin-form");
 const checkinResult = document.querySelector("#checkin-result");
@@ -644,6 +657,7 @@ let pendingOrder = null;
 let lastCreatedOrderTickets = [];
 let protectedModulesInitialized = false;
 let countdownTimerId = null;
+let ticketPromoTimerId = null;
 let centerDisclaimerTimerId = null;
 let teamRegisteredPopupClickHandler = null;
 let teamRegisteredPopupTimerId = null;
@@ -881,6 +895,27 @@ function parseMultilineList(value) {
     .split(/\r?\n|;/)
     .map((item) => item.trim())
     .filter(Boolean);
+}
+
+function normalizeJuryCriteriaValue(value) {
+  return parseMultilineList(value)
+    .filter((criterion) => {
+      const normalized = String(criterion || "").trim().toLowerCase();
+      return !["презентация", "представление", "выступление"].includes(normalized);
+    });
+}
+
+function parseTicketPrice(value) {
+  const normalized = String(value || "")
+    .replace(/\s+/g, "")
+    .replace(",", ".")
+    .match(/\d+(?:\.\d{1,2})?/);
+  const amount = normalized ? Number(normalized[0]) : NaN;
+  return Number.isFinite(amount) && amount > 0 ? amount : TICKET_PRICE;
+}
+
+function getCurrentTicketPrice(content = window.__appContent || DEFAULT_CONTENT) {
+  return parseTicketPrice(content.ticketPriceValue || DEFAULT_CONTENT.ticketPriceValue);
 }
 
 function getVotingTeams(content) {
@@ -1252,6 +1287,51 @@ function startCountdown(content) {
 
   update();
   countdownTimerId = window.setInterval(update, 1000);
+}
+
+function startTicketPromoCountdown(content) {
+  if (ticketPromoTimerId) {
+    clearInterval(ticketPromoTimerId);
+    ticketPromoTimerId = null;
+  }
+  if (!ticketPromoNodes.block) return;
+  if (!isEnabled(content.showTicketPromo, true)) {
+    ticketPromoNodes.block.hidden = true;
+    return;
+  }
+
+  const targetDate = new Date(String(content.ticketPromoDeadline || DEFAULT_CONTENT.ticketPromoDeadline));
+  if (Number.isNaN(targetDate.getTime())) {
+    ticketPromoNodes.block.hidden = true;
+    return;
+  }
+
+  const update = () => {
+    const diffMs = targetDate.getTime() - Date.now();
+    if (diffMs <= 0) {
+      ticketPromoNodes.block.hidden = true;
+      if (ticketPromoTimerId) {
+        clearInterval(ticketPromoTimerId);
+        ticketPromoTimerId = null;
+      }
+      return;
+    }
+
+    const totalSeconds = Math.floor(diffMs / 1000);
+    const days = Math.floor(totalSeconds / 86400);
+    const hours = Math.floor((totalSeconds % 86400) / 3600);
+    const minutes = Math.floor((totalSeconds % 3600) / 60);
+    const seconds = totalSeconds % 60;
+
+    ticketPromoNodes.block.hidden = false;
+    ticketPromoNodes.days.textContent = String(days);
+    ticketPromoNodes.hours.textContent = String(hours).padStart(2, "0");
+    ticketPromoNodes.minutes.textContent = String(minutes).padStart(2, "0");
+    ticketPromoNodes.seconds.textContent = String(seconds).padStart(2, "0");
+  };
+
+  update();
+  ticketPromoTimerId = window.setInterval(update, 1000);
 }
 
 function applyGalleryImages(content) {
@@ -1687,7 +1767,7 @@ function renderOrderTickets(orderTickets) {
 
 function renderPaymentSummary(order) {
   if (!paymentSummary) return;
-  const total = Number(order.quantity) * TICKET_PRICE;
+  const total = Number(order.quantity) * getCurrentTicketPrice();
   paymentSummary.innerHTML = `
     <strong>${order.name}</strong><br>
     ${order.quantity} билет(а) • ${formatPrice(total)}<br>
@@ -1798,6 +1878,10 @@ function applyContent(content) {
       node.textContent = merged[key];
     }
   });
+  const oldPriceNode = document.querySelector("#content-ticket-old-price-value");
+  if (oldPriceNode) {
+    oldPriceNode.hidden = !String(merged.ticketOldPriceValue || "").trim();
+  }
   const offerLink = document.querySelector("#content-ticket-offer-link");
   if (offerLink) {
     const href = String(merged.ticketOfferLinkUrl || "").trim();
@@ -1865,6 +1949,7 @@ function applyContent(content) {
   renderPartners(merged);
   renderVoteTeamCards(merged);
   startCountdown(merged);
+  startTicketPromoCountdown(merged);
 }
 
 function fillAdminContentForm(content) {
@@ -2037,7 +2122,7 @@ function initJuryFlow() {
       teams = getVotingTeams(content).map((item) => item.name);
     }
     if (!criteria.length) {
-      criteria = parseMultilineList(DEFAULT_CONTENT.juryScoringCriteria);
+      criteria = normalizeJuryCriteriaValue(DEFAULT_CONTENT.juryScoringCriteria);
     }
     const scoreMap = new Map((Array.isArray(config.myScores) ? config.myScores : [])
       .map((item) => [`${item.teamName}::${item.criterionName}`, String(item.score)]));
@@ -2767,4 +2852,5 @@ init();
 window.addEventListener("beforeunload", () => {
   if (scannerState.active) stopScanner();
   if (countdownTimerId) clearInterval(countdownTimerId);
+  if (ticketPromoTimerId) clearInterval(ticketPromoTimerId);
 });

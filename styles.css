@@ -1137,6 +1137,19 @@ iframe {
   gap: 16px;
 }
 
+.price-card__old-price {
+  margin: 0 0 6px;
+  color: var(--muted);
+  text-decoration: line-through;
+  text-decoration-thickness: 2px;
+  font-size: 1.05rem;
+  font-weight: 700;
+}
+
+.ticket-promo-card {
+  margin-top: 14px;
+}
+
 .ticket-result__top {
   display: flex;
   align-items: start;

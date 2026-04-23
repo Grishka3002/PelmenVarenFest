@@ -172,7 +172,7 @@ const DEFAULT_CONTENT = {
   partner10Description: "",
   partner10Logo: "",
   juryScoringTeams: "Команда Северный пар\nКоманда Жар-печь\nКоманда Морской дым",
-  juryScoringCriteria: "Вкус\nПодача\nОригинальность\nТехника\nПрезентация",
+  juryScoringCriteria: "Вкус\nПодача\nОригинальность\nТехника",
   teamsEyebrow: "Командам",
   teamsTitle: "Подайте заявку на участие в конкурсе фестиваля.",
   teamsLead: "Заполните форму: заявка уходит организаторам и фиксируется в системе.",
@@ -208,11 +208,15 @@ const DEFAULT_CONTENT = {
   ticketsTitle: "Оплата, персональные QR-коды и готовность к контролю на входе.",
   ticketPriceLabel: "Стандарт",
   ticketPriceValue: "600 ₽",
+  ticketOldPriceValue: "800 ₽",
+  ticketPromoDeadline: "2026-05-01T00:00:00+10:00",
+  ticketPromoText: "До повышения цены остались считанные дни — успей купить.",
+  showTicketPromo: "true",
   ticketPriceText: "Доступ на все площадки фестиваля, концерт и вечерний огненный круг.",
   ticketFeature1: "Каждый билет получает собственный код и QR",
   ticketFeature2: "После оплаты билет сразу доступен на странице",
   ticketFeature3: "После сканирования билет можно использовать для голосования",
-  ticketNote: "Оплата реализована как клиентский checkout внутри проекта. Для боевого запуска потребуется подключение настоящего эквайринга и серверной базы билетов.",
+  ticketNote: "Оплата проходит через ЮKassa, а электронные билеты после подтверждения автоматически становятся доступны на этой странице.",
   ticketsClosedDisclaimer: "Продажа билетов сейчас временно закрыта. Вся актуальная информация о старте продажи билетов будет на сайте.",
   ticketsClosedCtaText: "Подписаться на Маори-Лукьяновка",
   ticketsClosedCtaUrl: "https://t.me/maori_lukyanovka",
@@ -520,6 +524,27 @@ function formatStoredPaymentReference(paymentReference) {
   const raw = String(paymentReference || "").trim();
   if (!raw) return "";
   return raw.includes("#") ? raw : `YooKassa #${raw}`;
+}
+
+function parseTicketPrice(value) {
+  const matched = String(value || "")
+    .replace(/\s+/g, "")
+    .replace(",", ".")
+    .match(/\d+(?:\.\d{1,2})?/);
+  const amount = matched ? Number(matched[0]) : NaN;
+  return Number.isFinite(amount) && amount > 0 ? amount : TICKET_PRICE;
+}
+
+function getTicketUnitPrice(content) {
+  return parseTicketPrice(content?.ticketPriceValue || DEFAULT_CONTENT.ticketPriceValue);
+}
+
+function normalizeJuryCriteriaValue(value) {
+  return normalizeListValue(value)
+    .filter((criterion) => {
+      const normalized = String(criterion || "").trim().toLowerCase();
+      return !["презентация", "представление", "выступление"].includes(normalized);
+    });
 }
 
 async function requestYooKassa(endpoint, options = {}) {
@@ -907,6 +932,7 @@ function issueTicketsForPaidOrder(db, order) {
   if (existingTickets.length) return existingTickets;
 
   const paidAt = order.paidAt || new Date().toISOString();
+  const unitPrice = Math.round(Number(order.totalAmount || 0) / Math.max(1, Number(order.quantity || 1))) || TICKET_PRICE;
   const tickets = [];
   for (let index = 0; index < order.quantity; index += 1) {
     const ticket = {
@@ -918,7 +944,7 @@ function issueTicketsForPaidOrder(db, order) {
       phone: order.phone,
       quantityInOrder: order.quantity,
       orderIndex: index + 1,
-      price: TICKET_PRICE,
+      price: unitPrice,
       orderTotal: order.totalAmount,
       paymentStatus: "paid",
       accessStatus: "new",
@@ -1168,9 +1194,9 @@ function getVotingTeamsFromContent(content) {
 
 function getJuryConfig(content) {
   const teams = getVotingTeamsFromContent(content);
-  const criteria = normalizeListValue(content.juryScoringCriteria).length
-    ? normalizeListValue(content.juryScoringCriteria)
-    : normalizeListValue(DEFAULT_CONTENT.juryScoringCriteria);
+  const criteria = normalizeJuryCriteriaValue(content.juryScoringCriteria).length
+    ? normalizeJuryCriteriaValue(content.juryScoringCriteria)
+    : normalizeJuryCriteriaValue(DEFAULT_CONTENT.juryScoringCriteria);
   return { teams, criteria };
 }
 
@@ -1184,6 +1210,10 @@ function seedContentDefaults(db) {
     const currentJuryTitle = db.prepare("SELECT value FROM content WHERE key = 'juryTitle'").get()?.value;
     if (!currentJuryTitle || currentJuryTitle === "Пять экспертов оценивают команды и фестивальные подачи.") {
       upsert.run("juryTitle", DEFAULT_CONTENT.juryTitle);
+    }
+    const currentJuryCriteria = db.prepare("SELECT value FROM content WHERE key = 'juryScoringCriteria'").get()?.value;
+    if (!currentJuryCriteria || String(currentJuryCriteria).includes("Презентация")) {
+      upsert.run("juryScoringCriteria", DEFAULT_CONTENT.juryScoringCriteria);
     }
     ["juryName4", "juryRegalia4", "juryPhoto4", "juryName5", "juryRegalia5", "juryPhoto5"].forEach((key) => {
       db.prepare("DELETE FROM content WHERE key = ?").run(key);
@@ -2031,6 +2061,8 @@ async function handleApi(req, res, pathname) {
   if (req.method === "POST" && pathname === "/api/orders") {
     const body = await parseBody(req);
     const quantity = Number(body.quantity);
+    const content = getContent(db);
+    const unitPrice = getTicketUnitPrice(content);
 
     if (!body.name || !body.email || !body.phone || !quantity || quantity < 1 || quantity > 4) {
       return sendError(res, 400, "Некорректные данные заказа.");
@@ -2047,7 +2079,7 @@ async function handleApi(req, res, pathname) {
       email: String(body.email).trim(),
       phone: String(body.phone).trim(),
       quantity,
-      totalAmount: quantity * TICKET_PRICE,
+      totalAmount: quantity * unitPrice,
       status: "pending",
       paymentReference: "",
       createdAt,

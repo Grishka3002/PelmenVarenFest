@@ -382,7 +382,7 @@
             <label class="admin-wide"><textarea name="juryTitle" placeholder="Подзаголовок секции"></textarea></label>
             <label class="admin-wide">
               Критерии (по одной строке)
-              <textarea name="juryScoringCriteria" placeholder="Вкус&#10;Подача&#10;Оригинальность&#10;Техника&#10;Презентация"></textarea>
+              <textarea name="juryScoringCriteria" placeholder="Вкус&#10;Подача&#10;Оригинальность&#10;Техника"></textarea>
             </label>
             <label><input type="text" name="juryName1" placeholder="ФИО 1"></label>
             <label><input type="text" name="juryRegalia1" placeholder="Регалии 1"></label>
@@ -494,6 +494,10 @@
             <label class="admin-wide"><textarea name="ticketsTitle" placeholder="Подзаголовок секции"></textarea></label>
             <label><input type="text" name="ticketPriceLabel" placeholder="Label цены"></label>
             <label><input type="text" name="ticketPriceValue" placeholder="Цена"></label>
+            <label><input type="text" name="ticketOldPriceValue" placeholder="Старая цена, например 800 ₽"></label>
+            <label><input type="text" name="ticketPromoDeadline" placeholder="Дата повышения, например 2026-05-01T00:00:00+10:00"></label>
+            <label class="admin-toggle"><input type="checkbox" name="showTicketPromo"> <span>Показывать таймер акции</span></label>
+            <label class="admin-wide"><textarea name="ticketPromoText" placeholder="Текст под таймером до повышения цены"></textarea></label>
             <label class="admin-wide"><textarea name="ticketPriceText" placeholder="Описание тарифа"></textarea></label>
             <label><input type="text" name="ticketFeature1" placeholder="Преимущество 1"></label>
             <label><input type="text" name="ticketFeature2" placeholder="Преимущество 2"></label>

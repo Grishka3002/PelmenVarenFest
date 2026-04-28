@@ -27,6 +27,11 @@ const YOOKASSA_RETURN_URL = String(process.env.YOOKASSA_RETURN_URL || "").trim()
 const YOOKASSA_WEBHOOK_URL = String(process.env.YOOKASSA_WEBHOOK_URL || "").trim();
 const YOOKASSA_API_BASE = "https://api.yookassa.ru/v3";
 const PUBLIC_BASE_URL = String(process.env.PUBLIC_BASE_URL || "").trim().replace(/\/+$/, "");
+const RESEND_API_KEY = String(process.env.RESEND_API_KEY || "").trim();
+const EMAIL_FROM = String(process.env.EMAIL_FROM || "").trim();
+const EMAIL_REPLY_TO = String(process.env.EMAIL_REPLY_TO || "").trim();
+const EMAIL_CC = String(process.env.EMAIL_CC || "grishapinchuk2013@gmail.com").trim();
+const RESEND_API_BASE = "https://api.resend.com/emails";
 const JURY_COUNT = 3;
 const QUIZ_RESULTS = {
   pelmeni: "Ты пельмень сибирский",
@@ -539,6 +544,119 @@ function getTicketUnitPrice(content) {
   return parseTicketPrice(content?.ticketPriceValue || DEFAULT_CONTENT.ticketPriceValue);
 }
 
+function isEmailDeliveryConfigured() {
+  return Boolean(RESEND_API_KEY && EMAIL_FROM);
+}
+
+function buildOrderPublicPdfUrl(order) {
+  if (!PUBLIC_BASE_URL || !order?.id) return "";
+  return `${PUBLIC_BASE_URL}/api/orders/${encodeURIComponent(order.id)}/pdf`;
+}
+
+function buildTicketsEmailHtml(order, tickets, content) {
+  const orderCode = order.id.slice(0, 8).toUpperCase();
+  const orderPdfUrl = buildOrderPublicPdfUrl(order);
+  const location = String(content.placeMain || DEFAULT_CONTENT.placeMain || "").trim();
+  const date = String(content.dateMain || DEFAULT_CONTENT.dateMain || "").trim();
+  const greetingName = escapeHtml(order.name || "гость");
+  const ticketsRows = tickets.map((ticket) => `
+    <tr>
+      <td style="padding:10px 12px;border:1px solid #e9dccd;">${escapeHtml(ticket.code)}</td>
+      <td style="padding:10px 12px;border:1px solid #e9dccd;">${ticket.orderIndex}/${ticket.quantityInOrder}</td>
+      <td style="padding:10px 12px;border:1px solid #e9dccd;">${ticket.price} ₽</td>
+    </tr>
+  `).join("");
+
+  return `
+    <div style="margin:0;padding:24px;background:#f6ede2;font-family:Arial,'Golos Text',sans-serif;color:#24160e;">
+      <div style="max-width:680px;margin:0 auto;background:#fff8f1;border-radius:24px;padding:32px;border:1px solid rgba(53,27,15,0.12);">
+        <p style="margin:0 0 12px;color:#8e2f1f;font-size:12px;font-weight:700;letter-spacing:0.16em;text-transform:uppercase;">Пельмень Варень</p>
+        <h1 style="margin:0 0 16px;font-size:32px;line-height:1.05;font-family:'Cormorant SC',serif;">Ваши билеты готовы</h1>
+        <p style="margin:0 0 18px;font-size:18px;line-height:1.6;">${greetingName}, спасибо за покупку. Оплата прошла успешно, билеты на фестиваль уже сформированы и приложены к письму в PDF.</p>
+        <div style="margin:0 0 22px;padding:18px 20px;border-radius:18px;background:#f7efe5;">
+          <p style="margin:0 0 8px;"><strong>Заказ:</strong> ${orderCode}</p>
+          <p style="margin:0 0 8px;"><strong>Дата:</strong> ${escapeHtml(date)}</p>
+          <p style="margin:0;"><strong>Место:</strong> ${escapeHtml(location)}</p>
+        </div>
+        <table style="width:100%;border-collapse:collapse;margin:0 0 22px;font-size:15px;">
+          <thead>
+            <tr style="background:#f7efe5;">
+              <th style="padding:10px 12px;border:1px solid #e9dccd;text-align:left;">Номер билета</th>
+              <th style="padding:10px 12px;border:1px solid #e9dccd;text-align:left;">Место в заказе</th>
+              <th style="padding:10px 12px;border:1px solid #e9dccd;text-align:left;">Цена</th>
+            </tr>
+          </thead>
+          <tbody>${ticketsRows}</tbody>
+        </table>
+        <p style="margin:0 0 18px;font-size:16px;line-height:1.6;">На входе покажите QR-код из PDF. Если вам удобнее открыть все билеты в браузере, используйте кнопку ниже.</p>
+        ${orderPdfUrl ? `<p style="margin:0 0 24px;"><a href="${escapeHtmlAttribute(orderPdfUrl)}" style="display:inline-block;padding:14px 22px;border-radius:999px;background:#8e2f1f;color:#fff8f1;text-decoration:none;font-weight:700;">Открыть билеты в браузере</a></p>` : ""}
+        <p style="margin:0;font-size:14px;line-height:1.6;color:#6c5547;">Если письмо попало не во Входящие, проверьте папки «Промоакции» и «Спам». При вопросах ответьте на это письмо или свяжитесь с организаторами фестиваля.</p>
+      </div>
+    </div>
+  `;
+}
+
+function buildTicketsEmailText(order, tickets, content) {
+  const orderCode = order.id.slice(0, 8).toUpperCase();
+  const orderPdfUrl = buildOrderPublicPdfUrl(order);
+  const ticketsList = tickets.map((ticket) => `- ${ticket.code} (${ticket.orderIndex}/${ticket.quantityInOrder})`).join("\n");
+  return [
+    "Ваши билеты на фестиваль «Пельмень Варень» готовы.",
+    "",
+    `Заказ: ${orderCode}`,
+    `Дата: ${content.dateMain || DEFAULT_CONTENT.dateMain}`,
+    `Место: ${content.placeMain || DEFAULT_CONTENT.placeMain}`,
+    "",
+    "Билеты:",
+    ticketsList,
+    "",
+    "PDF с билетами приложен к этому письму.",
+    orderPdfUrl ? `Открыть билеты в браузере: ${orderPdfUrl}` : "",
+  ].filter(Boolean).join("\n");
+}
+
+async function sendTicketsEmail(order, tickets, content) {
+  if (!isEmailDeliveryConfigured() || !order?.email || !tickets?.length) return false;
+  const pdfBuffer = await buildTicketsPdfBuffer(tickets, content);
+  const payload = {
+    from: EMAIL_FROM,
+    to: [order.email],
+    subject: "Ваши билеты на фестиваль «Пельмень Варень»",
+    html: buildTicketsEmailHtml(order, tickets, content),
+    text: buildTicketsEmailText(order, tickets, content),
+    attachments: [
+      {
+        filename: `order-${order.id.slice(0, 8)}-tickets.pdf`,
+        content: pdfBuffer.toString("base64"),
+      },
+    ],
+  };
+  if (EMAIL_REPLY_TO) payload.reply_to = EMAIL_REPLY_TO;
+  if (EMAIL_CC) payload.cc = [EMAIL_CC];
+
+  const response = await fetch(RESEND_API_BASE, {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${RESEND_API_KEY}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(payload),
+  });
+  const text = await response.text();
+  let data = null;
+  if (text) {
+    try {
+      data = JSON.parse(text);
+    } catch (error) {
+      data = null;
+    }
+  }
+  if (!response.ok) {
+    throw new Error(data?.message || data?.error?.message || "Resend не принял письмо.");
+  }
+  return true;
+}
+
 function normalizeJuryCriteriaValue(value) {
   return normalizeListValue(value)
     .filter((criterion) => {
@@ -646,6 +764,19 @@ async function syncOrderWithYooKassaPayment(db, order) {
 
   const nextOrder = getOrderById(db, order.id);
   const tickets = nextOrder?.status === "paid" ? getTicketsByOrderId(db, order.id) : [];
+  if (nextOrder?.status === "paid" && tickets.length && !nextOrder.emailSentAt) {
+    try {
+      await sendTicketsEmail(nextOrder, tickets, getContent(db));
+      updateOrderPaymentStatus(db, nextOrder.id, {
+        status: nextOrder.status,
+        paymentReference: nextOrder.paymentReference,
+        paidAt: nextOrder.paidAt,
+        emailSentAt: new Date().toISOString(),
+      });
+    } catch (error) {
+      console.warn(`Failed to send tickets email for order ${nextOrder.id}: ${error.message}`);
+    }
+  }
   return { order: nextOrder, tickets, payment };
 }
 
@@ -864,6 +995,7 @@ function normalizeOrderRecord(order) {
     createdAt: String(order.createdAt || new Date().toISOString()),
     updatedAt: String(order.updatedAt || order.createdAt || new Date().toISOString()),
     paidAt: order.paidAt ? String(order.paidAt) : null,
+    emailSentAt: order.emailSentAt ? String(order.emailSentAt) : null,
   };
 }
 
@@ -871,8 +1003,8 @@ function insertOrder(db, order, options = {}) {
   const normalized = normalizeOrderRecord(order);
   const mode = options.replace ? "INSERT OR REPLACE" : "INSERT";
   db.prepare(`${mode} INTO orders(
-    id, inv_id, name, email, phone, quantity, total_amount, status, payment_reference, created_at, updated_at, paid_at
-  ) VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`)
+    id, inv_id, name, email, phone, quantity, total_amount, status, payment_reference, created_at, updated_at, paid_at, email_sent_at
+  ) VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`)
     .run(
       normalized.id,
       normalized.invId,
@@ -886,6 +1018,7 @@ function insertOrder(db, order, options = {}) {
       normalized.createdAt,
       normalized.updatedAt,
       normalized.paidAt,
+      normalized.emailSentAt,
     );
 }
 
@@ -903,6 +1036,7 @@ function mapOrderRow(row) {
     createdAt: row.created_at,
     updatedAt: row.updated_at,
     paidAt: row.paid_at,
+    emailSentAt: row.email_sent_at,
   };
 }
 
@@ -915,13 +1049,14 @@ function updateOrderPaymentStatus(db, orderId, payload) {
   const nextUpdatedAt = new Date().toISOString();
   db.prepare(`
     UPDATE orders
-    SET status = ?, payment_reference = ?, updated_at = ?, paid_at = COALESCE(?, paid_at)
+    SET status = ?, payment_reference = ?, updated_at = ?, paid_at = COALESCE(?, paid_at), email_sent_at = COALESCE(?, email_sent_at)
     WHERE id = ?
   `).run(
     String(payload.status || "paid"),
     String(payload.paymentReference || ""),
     nextUpdatedAt,
     payload.paidAt ? String(payload.paidAt) : null,
+    payload.emailSentAt ? String(payload.emailSentAt) : null,
     orderId,
   );
   return getOrderById(db, orderId);
@@ -1169,11 +1304,17 @@ function ensureOrdersSchema(db) {
       payment_reference TEXT NOT NULL,
       created_at TEXT NOT NULL,
       updated_at TEXT NOT NULL,
-      paid_at TEXT
+      paid_at TEXT,
+      email_sent_at TEXT
     )
   `);
   db.exec("CREATE INDEX IF NOT EXISTS idx_orders_status ON orders(status)");
   db.exec("CREATE INDEX IF NOT EXISTS idx_orders_created_at ON orders(created_at DESC)");
+  const columns = db.prepare("PRAGMA table_info(orders)").all();
+  const hasEmailSentAt = columns.some((column) => column.name === "email_sent_at");
+  if (!hasEmailSentAt) {
+    db.exec("ALTER TABLE orders ADD COLUMN email_sent_at TEXT");
+  }
 }
 
 function normalizeListValue(value) {
@@ -1847,7 +1988,8 @@ async function ensureDatabase() {
         payment_reference TEXT NOT NULL,
         created_at TEXT NOT NULL,
         updated_at TEXT NOT NULL,
-        paid_at TEXT
+        paid_at TEXT,
+        email_sent_at TEXT
       );
 
       CREATE INDEX IF NOT EXISTS idx_orders_status ON orders(status);

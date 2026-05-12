@@ -922,12 +922,23 @@ function getVotingTeams(content) {
   const teams = [];
   for (let index = 1; index <= 20; index += 1) {
     const name = String(content[`team${index}Name`] || "").trim();
+    const desc = String(content[`team${index}Desc`] || "").trim();
+    if (!desc) continue;
     teams.push({
       name: name || `Команда ${index}`,
-      desc: String(content[`team${index}Desc`] || "").trim(),
+      desc,
     });
   }
   return teams;
+}
+
+function escapeHtml(value) {
+  return String(value || "")
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
 }
 
 function getPartners(content) {
@@ -1199,9 +1210,9 @@ function renderVoteTeamCards(content) {
   const voteMap = new Map(fullResults.map((item) => [item.team, Number(item.votes || 0)]));
   voteTeamGrid.innerHTML = teams.map((team, index) => `
     <label class="team-card team-card--scroll">
-      <input type="radio" name="team" value="${team.name}" ${index === 0 ? "required" : ""} ${selectedTeam === team.name ? "checked" : ""}>
-      <span>${team.name}</span>
-      <small>${team.desc || "Без описания"}</small>
+      <input type="radio" name="team" value="${escapeHtml(team.name)}" ${index === 0 ? "required" : ""} ${selectedTeam === team.name ? "checked" : ""}>
+      <span>${escapeHtml(team.name)}</span>
+      <small class="team-card__desc">${escapeHtml(team.desc)}</small>
       <em class="team-card__votes">${Number(voteMap.get(team.name) || 0)} голосов</em>
     </label>
   `).join("");
@@ -1977,7 +1988,7 @@ async function renderVoteResults() {
   window.__voteResults = fullResults;
   renderVoteTeamCards(content);
   voteResults.innerHTML = fullResults
-    .map((item) => `<li><strong>${item.team}</strong><span>${item.votes} голосов</span></li>`)
+    .map((item) => `<li><strong>${escapeHtml(item.team)}</strong><span>${item.votes} голосов</span></li>`)
     .join("");
 }
 
@@ -2009,7 +2020,7 @@ async function renderAdminStats() {
     const content = window.__appContent || DEFAULT_CONTENT;
     const fullResults = buildVoteResultsForAllTeams(stats.voteResults, content);
     adminStats.votesList.innerHTML = fullResults
-      .map((item) => `<li><strong>${item.team}</strong><span>${item.votes} голосов</span></li>`)
+      .map((item) => `<li><strong>${escapeHtml(item.team)}</strong><span>${item.votes} голосов</span></li>`)
       .join("");
   }
 
@@ -2090,8 +2101,8 @@ function renderJuryScoreForm() {
     const current = scoreMap.get(key) || "";
     return `
       <label class="jury-score-row">
-        <span>${criterion}</span>
-        <select data-criterion="${criterion}" name="jury-criterion-${index}" required>
+        <span>${escapeHtml(criterion)}</span>
+        <select data-criterion="${escapeHtml(criterion)}" name="jury-criterion-${index}" required>
           <option value="">Оценка</option>
           ${options.replace(`value="${current}"`, `value="${current}" selected`)}
         </select>
@@ -2103,11 +2114,11 @@ function renderJuryScoreForm() {
     <label class="jury-score-row">
       <span>Команда</span>
       <select id="jury-team-select">
-        ${teams.map((team) => `<option value="${team}" ${team === selected ? "selected" : ""}>${team}</option>`).join("")}
+        ${teams.map((team) => `<option value="${escapeHtml(team)}" ${team === selected ? "selected" : ""}>${escapeHtml(team)}</option>`).join("")}
       </select>
     </label>
     <article class="jury-team-card">
-      <h3>${selected}</h3>
+      <h3>${escapeHtml(selected)}</h3>
       ${rows}
     </article>
   `;

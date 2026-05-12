@@ -1239,8 +1239,9 @@ iframe {
 }
 
 .team-card--scroll {
-  min-width: min(300px, 86vw);
-  flex: 0 0 auto;
+  width: clamp(260px, 27vw, 360px);
+  max-width: 86vw;
+  flex: 0 0 clamp(260px, 27vw, 360px);
   scroll-snap-align: start;
 }
 
@@ -1260,6 +1261,23 @@ iframe {
   color: var(--muted);
   display: block;
   margin-top: 4px;
+}
+
+.team-card__desc {
+  line-height: 1.35;
+  white-space: normal;
+  overflow-wrap: anywhere;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.team-card:has(input:checked) .team-card__desc,
+.team-card:focus-within .team-card__desc {
+  display: block;
+  -webkit-line-clamp: unset;
+  overflow: visible;
 }
 
 .team-card__votes {

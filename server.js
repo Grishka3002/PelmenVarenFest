@@ -1328,6 +1328,8 @@ function getVotingTeamsFromContent(content) {
   const teams = [];
   for (let index = 1; index <= 20; index += 1) {
     const name = String(content[`team${index}Name`] || "").trim();
+    const description = String(content[`team${index}Desc`] || "").trim();
+    if (!description) continue;
     teams.push(name || `Команда ${index}`);
   }
   return teams;

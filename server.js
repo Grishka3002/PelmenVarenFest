@@ -109,10 +109,13 @@ const DEFAULT_CONTENT = {
   programItem9Time: "19:00",
   programItem9Title: "Награждение победителей",
   galleryEyebrow: "Фотоальбом",
-  galleryTitle: "Блок можно наполнить реальными кадрами без изменения структуры страницы.",
+  galleryTitle: "Итоговое видео фестиваля и полный фотоальбом по ссылке.",
   galleryMoreNote: "Со всеми фотографиями можете ознакомиться по ссылке:",
   galleryMoreLinkText: "Смотреть все фото",
   galleryMoreLinkUrl: "#",
+  galleryVideoPath: "images/IMG_3559.MOV",
+  galleryVideoPoster: "images/photo_1.jpg",
+  galleryVideoCaption: "Итоговое видео фестиваля",
   galleryCap1: "Береговая сцена",
   galleryCap2: "Ремесленный двор",
   galleryCap3: "Огненный круг",
@@ -376,6 +379,9 @@ const MIME_TYPES = {
   ".jpeg": "image/jpeg",
   ".svg": "image/svg+xml",
   ".ico": "image/x-icon",
+  ".mov": "video/quicktime",
+  ".mp4": "video/mp4",
+  ".webm": "video/webm",
 };
 
 let database = null;
@@ -1357,6 +1363,15 @@ function seedContentDefaults(db) {
     const currentJuryCriteria = db.prepare("SELECT value FROM content WHERE key = 'juryScoringCriteria'").get()?.value;
     if (!currentJuryCriteria || String(currentJuryCriteria).includes("Презентация")) {
       upsert.run("juryScoringCriteria", DEFAULT_CONTENT.juryScoringCriteria);
+    }
+    const oldGalleryTitle = "Блок можно наполнить реальными кадрами без изменения структуры страницы.";
+    const currentGalleryTitle = db.prepare("SELECT value FROM content WHERE key = 'galleryTitle'").get()?.value;
+    if (!currentGalleryTitle || currentGalleryTitle === oldGalleryTitle) {
+      upsert.run("galleryTitle", DEFAULT_CONTENT.galleryTitle);
+    }
+    const currentGalleryPoster = db.prepare("SELECT value FROM content WHERE key = 'galleryVideoPoster'").get()?.value;
+    if (!String(currentGalleryPoster || "").trim()) {
+      upsert.run("galleryVideoPoster", DEFAULT_CONTENT.galleryVideoPoster);
     }
     ["ticketPromoDeadline", "ticketPromoText", "showTicketPromo"].forEach((key) => {
       const currentValue = db.prepare("SELECT value FROM content WHERE key = ?").get(key)?.value;
@@ -2494,7 +2509,45 @@ async function handleApi(req, res, pathname) {
   return sendError(res, 404, "Маршрут не найден.");
 }
 
-async function serveStatic(res, pathname) {
+function serveMediaFile(req, res, resolved, mime) {
+  const stat = fsNative.statSync(resolved);
+  const range = String(req.headers.range || "");
+  if (!range) {
+    res.writeHead(200, {
+      "Content-Type": mime,
+      "Content-Length": stat.size,
+      "Accept-Ranges": "bytes",
+    });
+    fsNative.createReadStream(resolved).pipe(res);
+    return true;
+  }
+
+  const match = range.match(/bytes=(\d*)-(\d*)/);
+  if (!match) {
+    res.writeHead(416, { "Content-Range": `bytes */${stat.size}` });
+    res.end();
+    return true;
+  }
+
+  const start = match[1] ? Number(match[1]) : 0;
+  const end = match[2] ? Number(match[2]) : stat.size - 1;
+  if (!Number.isFinite(start) || !Number.isFinite(end) || start > end || end >= stat.size) {
+    res.writeHead(416, { "Content-Range": `bytes */${stat.size}` });
+    res.end();
+    return true;
+  }
+
+  res.writeHead(206, {
+    "Content-Type": mime,
+    "Content-Length": end - start + 1,
+    "Content-Range": `bytes ${start}-${end}/${stat.size}`,
+    "Accept-Ranges": "bytes",
+  });
+  fsNative.createReadStream(resolved, { start, end }).pipe(res);
+  return true;
+}
+
+async function serveStatic(req, res, pathname) {
   const routeMap = {
     "/": "index.html",
     "/admin": "admin.html",
@@ -2547,8 +2600,11 @@ async function serveStatic(res, pathname) {
       return;
     }
 
+    const mime = MIME_TYPES[ext] || "application/octet-stream";
+    if (mime.startsWith("video/") && serveMediaFile(req, res, resolved, mime)) return;
+
     const file = await fs.readFile(resolved);
-    res.writeHead(200, { "Content-Type": MIME_TYPES[ext] || "application/octet-stream" });
+    res.writeHead(200, { "Content-Type": mime });
     res.end(file);
   } catch (error) {
     sendError(res, 404, "Файл не найден.");
@@ -2562,7 +2618,7 @@ const server = http.createServer(async (req, res) => {
       await handleApi(req, res, url.pathname);
       return;
     }
-    await serveStatic(res, url.pathname);
+    await serveStatic(req, res, url.pathname);
   } catch (error) {
     console.error(error);
     sendError(res, 500, "Внутренняя ошибка сервера.");

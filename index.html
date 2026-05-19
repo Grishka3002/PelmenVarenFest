@@ -212,20 +212,13 @@
             </a>
           </p>
         </div>
-        <div class="gallery-carousel" id="gallery-carousel">
-          <button class="gallery-nav gallery-nav--prev" type="button" aria-label="Предыдущее фото" data-gallery-prev>‹</button>
-          <div class="gallery-viewport">
-            <div class="gallery-track">
-              <figure class="gallery-card gallery-slide" data-gallery-slot="1"><figcaption id="content-gallery-cap1">Береговая сцена</figcaption></figure>
-              <figure class="gallery-card gallery-slide" data-gallery-slot="2"><figcaption id="content-gallery-cap2">Ремесленный двор</figcaption></figure>
-              <figure class="gallery-card gallery-slide" data-gallery-slot="3"><figcaption id="content-gallery-cap3">Огненный круг</figcaption></figure>
-              <figure class="gallery-card gallery-slide" data-gallery-slot="4"><figcaption id="content-gallery-cap4">Ярмарка мастеров</figcaption></figure>
-              <figure class="gallery-card gallery-slide" data-gallery-slot="5"><figcaption id="content-gallery-cap5">Семейные мастер-классы</figcaption></figure>
-            </div>
-          </div>
-          <button class="gallery-nav gallery-nav--next" type="button" aria-label="Следующее фото" data-gallery-next>›</button>
-          <div class="gallery-dots" data-gallery-dots></div>
-        </div>
+        <figure class="gallery-video-card ornament-card">
+          <video id="gallery-video" class="gallery-video" controls preload="none" playsinline poster="images/festival-final-poster.jpg">
+            <source id="gallery-video-source" src="images/festival-final-web.mp4" type="video/mp4">
+            Ваш браузер не поддерживает воспроизведение видео.
+          </video>
+          <figcaption id="content-gallery-video-caption">Итоговое видео фестиваля</figcaption>
+        </figure>
       </section>
 
       <section class="section" id="jury" data-section-key="jury">

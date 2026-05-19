@@ -97,10 +97,13 @@ const DEFAULT_CONTENT = {
   programItem9Time: "19:00",
   programItem9Title: "Награждение победителей",
   galleryEyebrow: "Фотоальбом",
-  galleryTitle: "Блок можно наполнить реальными кадрами без изменения структуры страницы.",
+  galleryTitle: "Итоговое видео фестиваля и полный фотоальбом по ссылке.",
   galleryMoreNote: "Со всеми фотографиями можете ознакомиться по ссылке:",
   galleryMoreLinkText: "Смотреть все фото",
   galleryMoreLinkUrl: "#",
+  galleryVideoPath: "images/IMG_3559.MOV",
+  galleryVideoPoster: "images/photo_1.jpg",
+  galleryVideoCaption: "Итоговое видео фестиваля",
   galleryCap1: "Береговая сцена",
   galleryCap2: "Ремесленный двор",
   galleryCap3: "Огненный круг",
@@ -414,6 +417,7 @@ const CONTENT_BINDINGS = {
   galleryTitle: { id: "content-gallery-title", html: false },
   galleryMoreNote: { id: "content-gallery-more-note", html: false },
   galleryMoreLinkText: { id: "content-gallery-more-link-text", html: false },
+  galleryVideoCaption: { id: "content-gallery-video-caption", html: false },
   galleryCap1: { id: "content-gallery-cap1", html: false },
   galleryCap2: { id: "content-gallery-cap2", html: false },
   galleryCap3: { id: "content-gallery-cap3", html: false },
@@ -1360,6 +1364,38 @@ function applyGalleryImages(content) {
   }
 }
 
+function getVideoMimeType(path) {
+  const normalized = String(path || "").toLowerCase();
+  if (normalized.endsWith(".mp4")) return "video/mp4";
+  if (normalized.endsWith(".webm")) return "video/webm";
+  if (normalized.endsWith(".mov")) return "video/quicktime";
+  return "";
+}
+
+function applyGalleryVideo(content) {
+  const video = document.querySelector("#gallery-video");
+  const source = document.querySelector("#gallery-video-source");
+  if (!(video instanceof HTMLVideoElement) || !(source instanceof HTMLSourceElement)) return;
+  const path = sanitizeAssetPath(content.galleryVideoPath || DEFAULT_CONTENT.galleryVideoPath);
+  if (!path) {
+    video.closest(".gallery-video-card")?.setAttribute("hidden", "");
+    return;
+  }
+  video.closest(".gallery-video-card")?.removeAttribute("hidden");
+  const posterPath = sanitizeAssetPath(content.galleryVideoPoster || DEFAULT_CONTENT.galleryVideoPoster);
+  if (posterPath) video.setAttribute("poster", posterPath);
+  else video.removeAttribute("poster");
+  const nextType = getVideoMimeType(path);
+  if (source.getAttribute("src") !== path) {
+    source.setAttribute("src", path);
+    if (nextType) source.setAttribute("type", nextType);
+    else source.removeAttribute("type");
+    video.load();
+  } else if (nextType) {
+    source.setAttribute("type", nextType);
+  }
+}
+
 function applyJuryPhotos(content) {
   for (let index = 1; index <= JURY_COUNT; index += 1) {
     const photo = document.querySelector(`[data-jury-photo-slot="${index}"]`);
@@ -1959,6 +1995,7 @@ function applyContent(content) {
   }
   applySectionVisibility(merged);
   applyGalleryImages(merged);
+  applyGalleryVideo(merged);
   applyJuryPhotos(merged);
   renderPartners(merged);
   renderVoteTeamCards(merged);

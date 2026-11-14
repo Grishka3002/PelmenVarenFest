@@ -9,8 +9,12 @@ const QRCode = require("qrcode");
 
 const PORT = Number(process.env.PORT || 3000);
 const ROOT = __dirname;
+// Information-first season. Legacy code remains in the backup.
+const INFORMATION_MODE = true;
 const DATA_ROOT = process.env.RAILWAY_VOLUME_MOUNT_PATH || process.env.DATA_ROOT || ROOT;
 const SQLITE_PATH = process.env.SQLITE_PATH || path.join(DATA_ROOT, "festival.sqlite");
+const information = require('./information.cjs');
+const informationStore = information.createStore(path.join(path.dirname(SQLITE_PATH), 'information.json'));
 const LEGACY_DB_PATH = path.join(ROOT, "db.json");
 const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || "admin123";
 const CHECKIN_PASSWORD = process.env.CHECKIN_PASSWORD || "checkin123";
@@ -2070,6 +2074,30 @@ async function ensureDatabase() {
 }
 
 async function handleApi(req, res, pathname) {
+  if (pathname === '/api/information' || pathname === '/api/information/preview') {
+    if (!requireRole(req, res, 'admin')) return;
+    res.setHeader('Cache-Control', 'no-store');
+    if (req.method === 'GET' && pathname === '/api/information') return sendJson(res, 200, {content:informationStore.read()});
+    if ((req.method === 'PUT' && pathname === '/api/information') || (req.method === 'POST' && pathname === '/api/information/preview')) {
+      // Same-origin JSON requests only; reject oversized content before parsing.
+      if (!String(req.headers['content-type'] || '').startsWith('application/json') || req.headers['sec-fetch-site'] === 'cross-site') return sendError(res, 403, 'Запрос запрещён.');
+      try {
+        const chunks = []; let bytes = 0;
+        for await (const chunk of req) {bytes += chunk.length; if (bytes > 1024*1024) return sendError(res, 413, 'Материал слишком большой.'); chunks.push(chunk);}
+        const body = JSON.parse(Buffer.concat(chunks).toString('utf8'));
+        if (pathname.endsWith('/preview')) {
+          const html = information.render(information.validate(body.content), String(body.route || '/'), PUBLIC_BASE_URL);
+          if (!html) return sendError(res, 404, 'Страница не найдена.');
+          return sendJson(res, 200, {html});
+        }
+        return sendJson(res, 200, {content:informationStore.save(body.content)});
+      } catch (error) {return sendError(res, error.status || 400, error.message || 'Не удалось сохранить.');}
+    }
+    return sendError(res, 405, 'Метод не поддерживается.');
+  }
+  if (INFORMATION_MODE && req.method === "POST" && pathname === "/api/orders") {
+    sendError(res, 410, "Билеты продаются только на площадке фестиваля."); return;
+  }
   const db = await ensureDatabase();
 
   if (req.method === "POST" && pathname === "/api/auth/login") {
@@ -2548,18 +2576,29 @@ function serveMediaFile(req, res, resolved, mime) {
 }
 
 async function serveStatic(req, res, pathname) {
+  if (INFORMATION_MODE && (pathname === '/' || pathname === '/index.html' || pathname.startsWith('/articles/'))) {
+    const html = information.render(informationStore.read(), pathname === '/index.html' ? '/' : pathname, PUBLIC_BASE_URL);
+    if (!html) return sendError(res, 404, 'Страница не найдена.');
+    res.writeHead(200, {'Content-Type':'text/html; charset=utf-8', 'Cache-Control':'no-cache'});
+    return res.end(html);
+  }
   const routeMap = {
     "/": "index.html",
-    "/admin": "admin.html",
+    "/admin": "information-admin.html",
     "/checkin": "checkin.html",
     "/jury": "jury.html",
     "/offer": "offer.html",
     "/privacy": "privacy.html",
   };
-  const target = routeMap[pathname] || pathname.slice(1);
+  const articleRoutes = { "/articles/": "articles/index.html", "/articles/tickets-on-site/": "articles/tickets-on-site/index.html" };
+  const target = articleRoutes[pathname] || routeMap[pathname] || pathname.slice(1);
+  const allowed = new Set([...Object.values(routeMap), ...Object.values(articleRoutes), "information-admin.js", "information-admin.css", "styles.css", "information.css", "script.js", "robots.txt"]);
+  if (!allowed.has(target) && !/^images\/[a-zA-Z0-9_./ -]+\.(?:png|webp|jpe?g|gif|svg|mov|mp4)$/i.test(target)) {
+    sendError(res, 404, "Файл не найден."); return;
+  }
   const resolved = path.normalize(path.join(ROOT, target));
 
-  if (!resolved.startsWith(ROOT)) {
+  if (!resolved.startsWith(ROOT + path.sep)) {
     sendError(res, 403, "Доступ запрещён.");
     return;
   }
@@ -2567,7 +2606,7 @@ async function serveStatic(req, res, pathname) {
   try {
     const ext = path.extname(resolved).toLowerCase();
 
-    if (target === "index.html") {
+    if (target === "index.html" && !INFORMATION_MODE) {
       const db = await ensureDatabase();
       const content = getContent(db);
       let html = await fs.readFile(resolved, "utf8");

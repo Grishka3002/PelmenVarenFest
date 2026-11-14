@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<meta name="theme-color" content="#5c1220">
+<title>Редактор сайта — Пельмень Варень</title>
+<link rel="icon" href="/images/logo.webp">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Golos+Text:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="/information-admin.css">
+</head>
+<body>
+<header class="bar">
+  <span class="bar__brand"><img src="/images/season/mascot-pelmeshka.webp" alt=""><span>Редактор сайта</span></span>
+  <span class="bar__actions" id="bar-actions" hidden>
+    <a href="/" target="_blank" rel="noopener">Открыть сайт</a>
+    <button type="button" id="logout" class="link-button">Выйти</button>
+  </span>
+</header>
+
+<main class="main">
+  <section id="login" class="login" aria-labelledby="login-title">
+    <span class="wordmark" role="img" aria-label="Пельмень Варень"></span>
+    <h1 id="login-title">Вход в редактор</h1>
+    <form id="login-form" class="card">
+      <label class="field"><span class="field__label">Логин</span><input name="username" autocomplete="username" required></label>
+      <label class="field"><span class="field__label">Пароль</span><input name="password" type="password" autocomplete="current-password" required></label>
+      <button class="btn btn--primary btn--wide">Войти</button>
+      <p id="login-error" class="form-error" role="alert"></p>
+    </form>
+  </section>
+
+  <div id="editor" hidden>
+    <div id="restore" class="banner" hidden>
+      <p id="restore-text"></p>
+      <div class="banner__actions">
+        <button type="button" class="btn btn--primary" id="restore-yes">Восстановить</button>
+        <button type="button" class="btn btn--ghost" id="restore-no">Не нужно</button>
+      </div>
+    </div>
+    <nav class="tabs" role="tablist" aria-label="Разделы редактора" id="tabs"></nav>
+    <div id="panel" class="panel" role="tabpanel"></div>
+  </div>
+</main>
+
+<footer class="savebar" id="savebar" hidden>
+  <p id="status" class="status" role="status" aria-live="polite"></p>
+  <div class="savebar__actions">
+    <button type="button" class="btn btn--ghost" id="preview-btn">Предпросмотр</button>
+    <button type="button" class="btn btn--primary" id="save-btn">Сохранить</button>
+  </div>
+</footer>
+
+<dialog id="preview" class="preview" aria-labelledby="preview-title">
+  <div class="preview__head">
+    <h2 id="preview-title">Предпросмотр</h2>
+    <div class="segmented" role="group" aria-label="Размер экрана">
+      <button type="button" data-device="phone" aria-pressed="true">Телефон</button>
+      <button type="button" data-device="desktop" aria-pressed="false">Компьютер</button>
+    </div>
+    <button type="button" class="btn btn--ghost" id="preview-close">Закрыть</button>
+  </div>
+  <p class="preview__note">Так страница будет выглядеть после сохранения. Пока вы не нажали «Сохранить», на сайте ничего не меняется.</p>
+  <div class="preview__stage"><iframe id="preview-frame" title="Предпросмотр страницы" sandbox="allow-same-origin" data-device="phone"></iframe></div>
+</dialog>
+
+<script src="/information-admin.js"></script>
+</body>
+</html>

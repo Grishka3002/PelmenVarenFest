@@ -2592,7 +2592,7 @@ async function serveStatic(req, res, pathname) {
   };
   const articleRoutes = { "/articles/": "articles/index.html", "/articles/tickets-on-site/": "articles/tickets-on-site/index.html" };
   const target = articleRoutes[pathname] || routeMap[pathname] || pathname.slice(1);
-  const allowed = new Set([...Object.values(routeMap), ...Object.values(articleRoutes), "information-admin.js", "information-admin.css", "styles.css", "information.css", "script.js", "robots.txt"]);
+  const allowed = new Set([...Object.values(routeMap), ...Object.values(articleRoutes), "information-admin.js", "information-gallery.js", "information-admin.css", "styles.css", "information.css", "script.js", "robots.txt"]);
   if (!allowed.has(target) && !/^images\/[a-zA-Z0-9_./ -]+\.(?:png|webp|jpe?g|gif|svg|mov|mp4)$/i.test(target)) {
     sendError(res, 404, "Файл не найден."); return;
   }

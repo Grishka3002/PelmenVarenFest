@@ -8,8 +8,8 @@ const defaults = {
   lead: 'Команды лепят и варят на костре, гости пробуют, жюри выбирает лучших. Первый фестиваль прошёл 16 мая 2026 года в Лукьяновке у подножия Пидана. Сейчас готовим новый сезон: дату и место объявим здесь.',
   sections: [
     {id:'about', title:'О фестивале', text:'«Пельмень Варень» — праздник домашней кухни под открытым небом. Команды из Приморья — семьи, друзья, коллеги, кафе — привозят свои рецепты и готовят пельмени и вареники прямо на поляне, в котлах на костре. Гости пробуют, болеют за команды, играют на станциях, слушают концерт и гуляют по ярмарке.\n\nВ новом сезоне сохраняем идею первого фестиваля, а программу и организацию обновляем.'},
-    {id:'program', title:'Новый сезон', text:'Программа нового сезона формируется. Когда она будет утверждена, здесь появятся дата, время, номинации, участники и развлечения.'},
-    {id:'past', title:'Как это было в 2026', text:'Первый Приморский гастрофестиваль «Пельмень Варень» прошёл 16 мая 2026 года в деревне Лукьяновке Шкотовского района, на территории центра активного отдыха «Подножие Пидана». Команды соревновались в шести номинациях, гости пробовали пельмени и вареники, играли на станциях и фотографировались в двух фотозонах.\n\nФотоотчёт фестиваля — ниже. Все материалы доступны в альбоме на Яндекс Диске.'},
+    {id:'program', title:'Новый сезон', text:'Дата — [дата]. Место проведения — [место]. Программа нового сезона формируется.'},
+    {id:'past', title:'Как это было в 2026', text:'Первый Приморский гастрофестиваль «Пельмень Варень» прошёл 16 мая 2026 года в деревне Лукьяновке Шкотовского района, на территории центра активного отдыха «Подножие Пидана». Команды соревновались в шести номинациях, гости пробовали пельмени и вареники, играли на станциях и фотографировались в двух фотозонах.'},
     {id:'visit', title:'Информация гостям', text:'Билеты будут продаваться только на площадке фестиваля. Дату, адрес, стоимость входа, способы оплаты и возрастные условия объявим отдельно.'}
   ],
   // Прошлый фестиваль: по положению 2026 и материалам оргкомитета.
@@ -23,8 +23,10 @@ const defaults = {
     gallery: [
       {src:'/images/report-2026/IMG_3132.jpg', alt:'Баннер «Пельмень Варень» на лесной поляне'},
       {src:'/images/report-2026/B62A3284.jpg', alt:'Пельмени с маслом в подносе'},
-      {src:'/images/report-2026/IMG_3188.jpg', alt:'Котлы над костром в лесу'},
-      {src:'/images/report-2026/IMG_3152.jpg', alt:'Изделия в форме пельменей на деревянной подставке'}
+      {src:'/images/report-2026/IMG_3188.jpg', alt:'Котёл над костром в лесу'},
+      {src:'/images/report-2026/IMG_3152.jpg', alt:'Изделия в форме пельменей на деревянной подставке'},
+      {src:'/images/report-2026/B62A2773.jpg', alt:'Украшения в виде кокошников и матрёшек на ярмарке'},
+      {src:'/images/report-2026/IMG_3137.jpg', alt:'Ярмарочные нашивки с вышитыми надписями'}
     ],
     albumUrl: 'https://yadi.sk/d/q1wA7-uUI-yGsA',
     day: [
@@ -111,8 +113,8 @@ function validateArchive(a) {
   return {
     facts: list(a.facts, 4, 'Факты', (f,n)=>({value:str(f.value,40,`Факт ${n}: крупно`), text:str(f.text,160,`Факт ${n}: пояснение`)})),
     photo: {src:image(photo.src,'Главное фото',true), alt:str(photo.alt,300,'Описание главного фото',true), caption:str(photo.caption,300,'Подпись к главному фото',true)},
-    gallery: list(a.gallery, 40, 'Фотоальбом', (g,n)=>({src:image(g.src,`Фото ${n}`), alt:str(g.alt,300,`Фото ${n}: описание`,true)})),
-    albumUrl: link(a.albumUrl, 'Ссылка на все фото и видео'),
+    gallery: list(a.gallery ?? defaults.archive.gallery, 40, 'Фотоальбом', (g,n)=>({src:image(g.src,`Фото ${n}`), alt:str(g.alt,300,`Фото ${n}: описание`,true)})),
+    albumUrl: link(a.albumUrl ?? defaults.archive.albumUrl, 'Ссылка на все фото и видео'),
     day: list(a.day, 6, 'Как прошёл день', (d,n)=>({time:str(d.time,20,`День, пункт ${n}: время`), text:str(d.text,160,`День, пункт ${n}: что происходило`)})),
     nominations: list(a.nominations, 12, 'Номинации', (x,n)=>({title:str(x.title,80,`Номинация ${n}: название`), text:str(x.text,200,`Номинация ${n}: пояснение`,true)})),
     extras: list(a.extras, 12, 'Ещё в программе', (x,n)=>str(typeof x==='string'?x:'',200,`Программа, пункт ${n}`)),
@@ -140,15 +142,21 @@ function createStore(file) {
 const section = (data,id) => data.sections.find(s=>s.id===id);
 const articleCards = articles => articles.map(a=>`<li class="article-card"><a href="/articles/${a.slug}/"><span class="article-card__title">${esc(a.title)}</span><span class="article-card__text">${esc(a.description)}</span></a></li>`).join('');
 
+function renderReport(a) {
+  const gallery = a.gallery.length ? a.gallery : defaults.archive.gallery;
+  const album = a.albumUrl ? `<p class="album"><a class="button report__album" href="${esc(a.albumUrl)}">Все фото и видео на Яндекс Диске</a></p>` : '';
+  const photos = `<ul class="gallery">${gallery.map((g,i)=>`<li><a href="${esc(g.src)}" data-report-photo aria-label="Открыть фото ${i+1}: ${esc(g.alt)}"><img src="${esc(g.src)}" alt="${esc(g.alt)}" loading="lazy" decoding="async"><span class="report__caption">${esc(g.alt)}</span></a></li>`).join('')}</ul>`;
+  const viewer = `<dialog class="photo-viewer" aria-label="Просмотр фотоотчёта"><div class="photo-viewer__tools"><p class="photo-viewer__count" aria-live="polite"></p><button type="button" data-close autofocus>Закрыть ×</button></div><img class="photo-viewer__image" alt=""><div class="photo-viewer__navigation"><button type="button" data-previous aria-label="Предыдущее фото">← Назад</button><a data-original target="_blank" rel="noopener">Открыть снимок</a><button type="button" data-next aria-label="Следующее фото">Далее →</button></div></dialog><script src="/information-gallery.js" defer></script>`;
+  return `<section class="block report-block" id="photo-report" aria-labelledby="report-title"><div class="report"><h2 id="report-title">Фотоотчёт 2026</h2><p class="report__date">16 мая · Лукьяновка, у подножия Пидана</p>${photos}${album}${viewer}</div></section>`;
+}
+
 function renderPast(past, a) {
   const facts = a.facts.length ? `<dl class="facts">${a.facts.map(f=>`<div><dt>${esc(f.value)}</dt><dd>${esc(f.text)}</dd></div>`).join('')}</dl>` : '';
   const photo = a.photo.src ? `<figure class="photo"><img src="${esc(a.photo.src)}" alt="${esc(a.photo.alt)}" loading="lazy">${a.photo.caption?`<figcaption>${esc(a.photo.caption)}</figcaption>`:''}</figure>` : '';
-  const gallery = a.gallery.length ? `<section class="report" aria-labelledby="report-title"><div class="report__heading"><h3 id="report-title">Фотоотчёт 2026</h3><p class="note">Нажмите на снимок, чтобы рассмотреть его.</p></div><ul class="gallery">${a.gallery.map((g,i)=>`<li><a href="${esc(g.src)}" data-report-photo aria-label="Открыть фото ${i+1}: ${esc(g.alt)}"><img src="${esc(g.src)}" alt="${esc(g.alt)}" loading="lazy" decoding="async"></a></li>`).join('')}</ul><dialog class="photo-viewer" aria-label="Просмотр фотоотчёта"><div class="photo-viewer__tools"><p class="photo-viewer__count" aria-live="polite"></p><button type="button" data-close autofocus>Закрыть ×</button></div><img class="photo-viewer__image" alt=""><div class="photo-viewer__navigation"><button type="button" data-previous aria-label="Предыдущее фото">← Назад</button><a data-original target="_blank" rel="noopener">Открыть файл</a><button type="button" data-next aria-label="Следующее фото">Далее →</button></div></dialog><script src="/information-gallery.js" defer></script></section>` : '';
-  const album = a.albumUrl ? `<p class="album"><a class="button button--bordo" href="${esc(a.albumUrl)}" rel="noopener">Все фото и видео фестиваля</a></p>` : '';
   const day = a.day.length ? `<h3 class="sub">Как прошёл день</h3><p class="note">Пока команды лепили, день складывался, как пельмень: от начинки до последнего защипа.</p><ol class="day">${a.day.map((d,i)=>`<li><img src="/images/season/stage-${i+1}.webp" width="420" height="286" alt="" loading="lazy"><time>${esc(d.time)}</time><span>${esc(d.text)}</span></li>`).join('')}</ol>` : '';
   const noms = a.nominations.length ? `<div><h3 class="sub">Номинации</h3><ul class="nominations">${a.nominations.map(n=>`<li><strong>${esc(n.title)}</strong>${n.text?` — ${esc(n.text)}`:''}</li>`).join('')}</ul></div>` : '';
   const extras = a.extras.length ? `<div><h3 class="sub">Ещё в программе</h3><ul class="extras">${a.extras.map(e=>`<li>${esc(e)}</li>`).join('')}</ul></div>` : '';
-  return `<section class="block past" id="past"><div class="past__intro"><h2>${esc(past.title)}</h2>${paragraphs(past.text)}</div>${facts}${photo}${gallery}${album}${day}${noms||extras?`<div class="past__columns">${noms}${extras}</div>`:''}</section>`;
+  return `<section class="block past" id="past"><div class="past__intro"><h2>${esc(past.title)}</h2>${paragraphs(past.text)}</div>${facts}${photo}${day}${noms||extras?`<div class="past__columns">${noms}${extras}</div>`:''}</section>`;
 }
 
 function renderHome(data, published) {
@@ -163,7 +171,7 @@ function renderHome(data, published) {
       <h1 id="hero-title">${esc(data.heading)}</h1>
       <p class="hero__lead">${esc(data.lead)}</p>
       <div class="hero__actions">
-        <a class="button button--milk" href="#past">${esc(past.title)}</a>
+        <a class="button button--milk" href="#photo-report">Фотоотчёт 2026</a>
         <a class="button button--line" href="#visit">Информация гостям</a>
       </div>
     </div>
@@ -171,6 +179,8 @@ function renderHome(data, published) {
   </div>
 </section>
 <div class="rushnik" aria-hidden="true"></div>
+
+${renderReport(a)}
 
 <section class="block about" id="about">
   <div class="about__text">
@@ -228,6 +238,6 @@ function render(data,route,base='') {
     const more=published.filter(a=>a!==article).slice(0,3);
     body=`<article class="block article"><p class="crumbs"><a href="/articles/">Все статьи</a></p><h1>${esc(article.title)}</h1><p class="article__lead">${esc(article.description)}</p><div class="article__body">${richText(article.text)}</div></article>${more.length?`<section class="block articles"><h2>Ещё почитать</h2><ul class="article-list">${articleCards(more)}</ul></section>`:''}`;
   }
-  return `<!doctype html><html lang="ru"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${esc(title)}</title><meta name="description" content="${esc(description)}"><meta name="theme-color" content="#284137"><meta property="og:title" content="${esc(title)}"><meta property="og:description" content="${esc(description)}">${base?`<link rel="canonical" href="${esc(base+route)}"><meta property="og:image" content="${esc(base+'/images/season/mascot-pelmeshka.webp')}">`:''}<link rel="icon" href="/images/logo.webp"><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Golos+Text:wght@400;500;600;700&family=Cormorant+SC:wght@400;600;700&display=swap"><link rel="stylesheet" href="/information.css"></head><body${route==='/'?' class="home"':''}><a class="skip-link" href="#main">К содержимому</a><header class="topbar"><a class="brand" href="/"><img src="/images/season/mascot-pelmeshka.webp" width="420" height="604" alt=""><span>Пельмень Варень</span></a><nav class="nav" aria-label="Главная навигация"><a href="/#about">О фестивале</a><a href="/#past">Как это было</a><a href="/#program">Новый сезон</a><a href="/#visit">Гостям</a><a href="/articles/">Статьи</a></nav></header><main id="main">${body}</main><footer class="footer"><div class="rushnik" aria-hidden="true"></div><div class="footer__inner"><span class="wordmark wordmark--small" role="img" aria-label="Пельмень Варень"></span><p>Приморский гастрофестиваль пельменей и вареников. Билеты продаются только на площадке фестиваля.</p><nav aria-label="Ссылки в подвале"><a href="/#past">Как это было</a><a href="/#visit">Гостям</a><a href="/articles/">Статьи</a></nav></div></footer></body></html>`;
+  return `<!doctype html><html lang="ru"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${esc(title)}</title><meta name="description" content="${esc(description)}"><meta name="theme-color" content="#f2eadf"><meta property="og:title" content="${esc(title)}"><meta property="og:description" content="${esc(description)}">${base?`<link rel="canonical" href="${esc(base+route)}"><meta property="og:image" content="${esc(base+'/images/season/mascot-pelmeshka.webp')}">`:''}<link rel="icon" href="/images/logo.webp"><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Golos+Text:wght@400;500;600;700&family=Cormorant+SC:wght@400;600;700&display=swap"><link rel="stylesheet" href="/information.css"></head><body${route==='/'?' class="home"':''}><a class="skip-link" href="#main">К содержимому</a><header class="topbar"><a class="brand" href="/"><img src="/images/season/mascot-pelmeshka.webp" width="420" height="604" alt=""><span>Пельмень Варень</span></a><nav class="nav" aria-label="Главная навигация"><a class="nav__report" href="/#photo-report">Фотоотчёт</a><a href="/#about">О фестивале</a><a href="/#past">Как это было</a><a href="/#program">Новый сезон</a><a href="/#visit">Гостям</a><a href="/articles/">Статьи</a></nav></header><main id="main">${body}</main><footer class="footer"><div class="rushnik" aria-hidden="true"></div><div class="footer__inner"><span class="wordmark wordmark--small" role="img" aria-label="Пельмень Варень"></span><p>Приморский гастрофестиваль пельменей и вареников. Билеты продаются только на площадке фестиваля.</p><nav aria-label="Ссылки в подвале"><a href="/#past">Как это было</a><a href="/#visit">Гостям</a><a href="/articles/">Статьи</a></nav></div></footer></body></html>`;
 }
 module.exports={defaults,validate,createStore,render,richText};

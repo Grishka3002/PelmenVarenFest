@@ -1,11 +1,10 @@
-/* Информационный сайт «Пельмень Варень»: тёплый фон, зелёный и золотой. */
+/* Информационный сайт «Пельмень Варень»: тёплый фон, кирпичный акцент и золото. */
 :root{
   --milk:#f2eadf;
   --milk-2:#f9f1e7;
   --ink:#24160e;
   --muted:#6b5047;
-  --bordo:#284137;
-  --bordo-2:#284137;
+  --accent:#8e2f1f;
   --straw:#b98a3b;
   --line:#e2d3bf;
   --display:"Cormorant SC","Golos Text",serif;
@@ -18,45 +17,45 @@ html{scroll-behavior:smooth;scroll-padding-top:84px}
 @media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
 body{margin:0;background:var(--milk);color:var(--ink);font:400 1.0625rem/1.65 var(--text);-webkit-font-smoothing:antialiased}
 img{max-width:100%;height:auto;display:block}
-a{color:var(--bordo-2);text-underline-offset:3px;text-decoration-thickness:1px}
+a{color:var(--accent);text-underline-offset:3px;text-decoration-thickness:1px}
 a:hover{text-decoration-thickness:2px}
 :focus-visible{outline:3px solid var(--straw);outline-offset:3px;border-radius:4px}
 h1,h2,h3{line-height:1.15;margin:0 0 .5em}
-h2{font:400 clamp(1.9rem,4vw,2.8rem)/1.1 var(--display);color:var(--bordo-2);letter-spacing:.01em}
+h2{font:400 clamp(1.9rem,4vw,2.8rem)/1.1 var(--display);color:var(--accent);letter-spacing:.01em}
 p{margin:0 0 1em}
 .skip-link{position:absolute;left:12px;top:-100px;padding:12px 16px;background:var(--milk-2);color:var(--ink);z-index:50}
 .skip-link:focus{top:12px}
 
 /* Шапка */
-.topbar{position:sticky;top:0;z-index:20;display:flex;align-items:center;justify-content:space-between;gap:16px;padding:10px var(--gutter);background:var(--bordo);color:var(--milk)}
-.brand{display:flex;align-items:center;gap:10px;color:var(--milk);text-decoration:none;font-weight:600;white-space:nowrap}
+.topbar{position:sticky;top:0;z-index:20;display:flex;align-items:center;justify-content:space-between;gap:16px;padding:10px var(--gutter);background:var(--milk-2);color:var(--ink)}
+.brand{display:flex;align-items:center;gap:10px;color:var(--ink);text-decoration:none;font-weight:600;white-space:nowrap}
 .brand img{width:34px;height:auto}
 .nav{display:flex;gap:4px;overflow-x:auto;scrollbar-width:none}
 .nav::-webkit-scrollbar{display:none}
-.nav a{color:var(--milk);text-decoration:none;padding:8px 12px;border-radius:999px;white-space:nowrap;font-size:.95rem}
-.nav a:hover{background:rgba(246,238,226,.12)}
+.nav a{color:var(--ink);text-decoration:none;padding:8px 12px;border-radius:999px;white-space:nowrap;font-size:.95rem}
+.nav a:hover{background:rgba(142,47,31,.08)}
 
 /* Фирменная надпись: маска из макета, цвет задаётся через background */
-.wordmark{display:block;aspect-ratio:848/214;width:min(100%,620px);background:var(--milk);-webkit-mask:url(/images/season/wordmark.webp) center/contain no-repeat;mask:url(/images/season/wordmark.webp) center/contain no-repeat}
+.wordmark{display:block;aspect-ratio:848/214;width:min(100%,620px);background:var(--accent);-webkit-mask:url(/images/season/wordmark.webp) center/contain no-repeat;mask:url(/images/season/wordmark.webp) center/contain no-repeat}
 .wordmark--small{width:220px}
 
 /* Первый экран */
-.hero{position:relative;overflow:hidden;background:var(--bordo);color:var(--milk)}
-.hero__flowers{position:absolute;right:-40px;top:-30px;width:min(46vw,520px);aspect-ratio:420/410;background:var(--milk);opacity:.16;-webkit-mask:url(/images/season/hohloma-corner.webp) center/contain no-repeat;mask:url(/images/season/hohloma-corner.webp) center/contain no-repeat}
+.hero{position:relative;overflow:hidden;background:var(--milk-2);color:var(--ink)}
+.hero__flowers{position:absolute;right:-40px;top:-30px;width:min(46vw,520px);aspect-ratio:420/410;background:var(--accent);opacity:.10;-webkit-mask:url(/images/season/hohloma-corner.webp) center/contain no-repeat;mask:url(/images/season/hohloma-corner.webp) center/contain no-repeat}
 .hero__inner{position:relative;max-width:var(--wrap);margin:auto;padding:clamp(32px,6vw,72px) var(--gutter) 0;display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,.85fr);gap:clamp(16px,4vw,48px);align-items:end}
 .hero__text{padding-bottom:clamp(32px,6vw,72px)}
-.hero h1{font:600 clamp(1.25rem,2.4vw,1.6rem)/1.3 var(--text);margin:18px 0 14px;color:#f2d9b3;max-width:30ch}
-.hero__lead{max-width:56ch;font-size:1.1rem;color:rgba(246,238,226,.9)}
+.hero h1{font:600 clamp(1.25rem,2.4vw,1.6rem)/1.3 var(--text);margin:18px 0 14px;color:var(--ink);max-width:30ch}
+.hero__lead{max-width:56ch;font-size:1.1rem;color:var(--muted)}
 .hero__actions{display:flex;flex-wrap:wrap;gap:12px;margin-top:26px}
 .hero__mascot{width:100%;max-width:470px;justify-self:center;filter:drop-shadow(0 18px 30px rgba(0,0,0,.35))}
 .button{display:inline-flex;align-items:center;min-height:48px;padding:12px 22px;border-radius:999px;font-weight:600;text-decoration:none;transition:background-color .2s,color .2s}
-.button--milk{background:var(--milk);color:var(--bordo)}
+.button--milk{background:var(--milk);color:var(--accent);border:1px solid var(--accent)}
 .button--milk:hover{background:#fff}
-.button--line{color:var(--milk);box-shadow:inset 0 0 0 1.5px rgba(246,238,226,.6)}
-.button--line:hover{background:rgba(246,238,226,.1)}
+.button--line{color:var(--accent);box-shadow:inset 0 0 0 1.5px var(--line)}
+.button--line:hover{background:rgba(142,47,31,.08)}
 
 /* Рушник: вышитая лента между разделами */
-.rushnik{height:30px;background:var(--milk-2) url("data:image/svg+xml,%3Csvg%20xmlns%3D'http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg'%20width%3D'32'%20height%3D'24'%3E%3Cpath%20d%3D'M14.4%202.4l3.2%203.2m0-3.2l-3.2%203.2M10.4%206.4l3.2%203.2m0-3.2l-3.2%203.2M18.4%206.4l3.2%203.2m0-3.2l-3.2%203.2M6.4%2010.4l3.2%203.2m0-3.2l-3.2%203.2M22.4%2010.4l3.2%203.2m0-3.2l-3.2%203.2M10.4%2014.4l3.2%203.2m0-3.2l-3.2%203.2M18.4%2014.4l3.2%203.2m0-3.2l-3.2%203.2M14.4%2018.4l3.2%203.2m0-3.2l-3.2%203.2M14.4%2010.4l3.2%203.2m0-3.2l-3.2%203.2M-1.6%2010.4l3.2%203.2m0-3.2l-3.2%203.2M30.4%2010.4l3.2%203.2m0-3.2l-3.2%203.2M-1.6%202.4l3.2%203.2m0-3.2l-3.2%203.2M-1.6%2018.4l3.2%203.2m0-3.2l-3.2%203.2M30.4%202.4l3.2%203.2m0-3.2l-3.2%203.2M30.4%2018.4l3.2%203.2m0-3.2l-3.2%203.2'%20stroke%3D'%23b98a3b'%20stroke-width%3D'1.5'%20fill%3D'none'%2F%3E%3C%2Fsvg%3E") center/32px 24px repeat-x;border-block:3px solid var(--bordo-2)}
+.rushnik{height:30px;background:var(--milk-2) url("data:image/svg+xml,%3Csvg%20xmlns%3D'http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg'%20width%3D'32'%20height%3D'24'%3E%3Cpath%20d%3D'M14.4%202.4l3.2%203.2m0-3.2l-3.2%203.2M10.4%206.4l3.2%203.2m0-3.2l-3.2%203.2M18.4%206.4l3.2%203.2m0-3.2l-3.2%203.2M6.4%2010.4l3.2%203.2m0-3.2l-3.2%203.2M22.4%2010.4l3.2%203.2m0-3.2l-3.2%203.2M10.4%2014.4l3.2%203.2m0-3.2l-3.2%203.2M18.4%2014.4l3.2%203.2m0-3.2l-3.2%203.2M14.4%2018.4l3.2%203.2m0-3.2l-3.2%203.2M14.4%2010.4l3.2%203.2m0-3.2l-3.2%203.2M-1.6%2010.4l3.2%203.2m0-3.2l-3.2%203.2M30.4%2010.4l3.2%203.2m0-3.2l-3.2%203.2M-1.6%202.4l3.2%203.2m0-3.2l-3.2%203.2M-1.6%2018.4l3.2%203.2m0-3.2l-3.2%203.2M30.4%202.4l3.2%203.2m0-3.2l-3.2%203.2M30.4%2018.4l3.2%203.2m0-3.2l-3.2%203.2'%20stroke%3D'%23b98a3b'%20stroke-width%3D'1.5'%20fill%3D'none'%2F%3E%3C%2Fsvg%3E") center/32px 24px repeat-x;border-block:1px solid var(--line)}
 
 /* Разделы */
 .block{max-width:var(--wrap);margin:auto;padding:clamp(48px,8vw,96px) var(--gutter) 0}
@@ -70,7 +69,7 @@ p{margin:0 0 1em}
 .facts{display:grid;grid-template-columns:repeat(3,1fr);gap:0;margin:32px 0;border-block:1px solid var(--line)}
 .facts div{padding:22px 24px 22px 0}
 .facts div+div{padding-left:24px;border-left:1px solid var(--line)}
-.facts dt{font:400 clamp(1.5rem,3vw,2rem)/1.1 var(--display);color:var(--bordo-2);margin-bottom:6px}
+.facts dt{font:400 clamp(1.5rem,3vw,2rem)/1.1 var(--display);color:var(--accent);margin-bottom:6px}
 .facts dd{margin:0;color:var(--muted)}
 
 .photo{margin:0}
@@ -82,21 +81,21 @@ p{margin:0 0 1em}
 .day::before{content:"";position:absolute;left:4%;right:4%;top:62px;border-top:2px dashed var(--straw);z-index:0}
 .day li{position:relative;z-index:1;display:flex;flex-direction:column;gap:6px}
 .day img{height:110px;width:100%;object-fit:contain;background:var(--milk);padding:0 6px}
-.day time{font-weight:700;color:var(--bordo-2);font-variant-numeric:tabular-nums}
+.day time{font-weight:700;color:var(--accent);font-variant-numeric:tabular-nums}
 .day span{font-size:.95rem;line-height:1.45}
 
 .past__columns{display:grid;grid-template-columns:1fr 1fr;gap:clamp(24px,5vw,64px)}
 .nominations,.extras{list-style:none;padding:0;margin:0}
 .nominations li,.extras li{padding:12px 0;border-bottom:1px solid var(--line)}
-.nominations strong{color:var(--bordo-2)}
+.nominations strong{color:var(--accent)}
 .extras li{padding-left:22px;position:relative}
-.extras li::before{content:"";position:absolute;left:2px;top:21px;width:9px;height:9px;transform:rotate(45deg);border:1.5px solid var(--bordo-2)}
+.extras li::before{content:"";position:absolute;left:2px;top:21px;width:9px;height:9px;transform:rotate(45deg);border:1.5px solid var(--accent)}
 
 /* Персонажи */
 .mascots{list-style:none;padding:0;margin:28px 0 0;display:grid;grid-template-columns:repeat(5,1fr);gap:16px}
 .mascots li{display:flex;flex-direction:column;align-items:center;text-align:center;gap:4px;padding:20px 12px 18px;background:var(--milk-2);border-radius:120px 120px 14px 14px}
 .mascots img{height:150px;width:auto;object-fit:contain;margin-bottom:8px}
-.mascots strong{color:var(--bordo-2);font-size:1.05rem}
+.mascots strong{color:var(--accent);font-size:1.05rem}
 .mascots span{color:var(--muted);font-size:.92rem;line-height:1.4}
 
 .season{border-top:0}
@@ -106,9 +105,9 @@ p{margin:0 0 1em}
 
 /* Статьи */
 .article-list{list-style:none;margin:24px 0 0;padding:0;display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px}
-.article-card a{display:flex;flex-direction:column;gap:8px;height:100%;padding:22px 22px 24px;background:var(--milk-2);border-top:4px solid var(--bordo-2);color:var(--ink);text-decoration:none;border-radius:0 0 8px 8px}
+.article-card a{display:flex;flex-direction:column;gap:8px;height:100%;padding:22px 22px 24px;background:var(--milk-2);border-top:2px solid var(--accent);color:var(--ink);text-decoration:none;border-radius:0 0 8px 8px}
 .article-card a:hover .article-card__title{text-decoration:underline}
-.article-card__title{font-weight:700;font-size:1.12rem;line-height:1.3;color:var(--bordo-2)}
+.article-card__title{font-weight:700;font-size:1.12rem;line-height:1.3;color:var(--accent)}
 .article-card__text{color:var(--muted);font-size:.95rem}
 .more{font-weight:600}
 
@@ -118,7 +117,7 @@ p{margin:0 0 1em}
 .partner-list img{max-height:78px;width:auto;object-fit:contain}
 
 /* Страница статьи */
-.page-head h1,.article h1{font:400 clamp(2rem,5vw,3.2rem)/1.12 var(--display);color:var(--bordo-2);max-width:20ch}
+.page-head h1,.article h1{font:400 clamp(2rem,5vw,3.2rem)/1.12 var(--display);color:var(--accent);max-width:20ch}
 .crumbs{font-size:.95rem}
 .article{max-width:800px}
 .article__lead{font-size:1.2rem;color:var(--muted);max-width:60ch}
@@ -127,21 +126,21 @@ p{margin:0 0 1em}
 .article__body h2{font:700 1.4rem/1.3 var(--text);color:var(--ink);margin:40px 0 12px}
 .article__body ul{padding-left:1.2em;margin:0 0 1em}
 .article__body li{margin:4px 0}
-.article__body li::marker{color:var(--bordo-2)}
+.article__body li::marker{color:var(--accent)}
 .gallery{list-style:none;padding:0;margin:20px 0 0;display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:10px}
 .gallery img{width:100%;aspect-ratio:4/3;object-fit:cover;border-radius:4px}
 .gallery a:hover img{opacity:.9}
 .album{margin-top:24px}
-.button--bordo{background:var(--bordo-2);color:var(--milk)}
-.button--bordo:hover{background:var(--bordo)}
+.button--bordo{background:var(--milk-2);color:var(--ink)}
+.button--bordo:hover{background:var(--milk)}
 .article h1{font:700 clamp(1.9rem,4.5vw,2.9rem)/1.15 var(--text);letter-spacing:-.01em;max-width:24ch}
 
 /* Подвал */
-.footer{margin-top:clamp(64px,10vw,120px);background:var(--bordo);color:var(--milk)}
+.footer{margin-top:clamp(64px,10vw,120px);background:var(--milk-2);color:var(--ink)}
 .footer__inner{max-width:var(--wrap);margin:auto;padding:40px var(--gutter) 48px;display:grid;gap:16px}
-.footer p{margin:0;color:rgba(246,238,226,.85);max-width:60ch}
+.footer p{margin:0;color:var(--muted);max-width:60ch}
 .footer nav{display:flex;flex-wrap:wrap;gap:18px}
-.footer a{color:var(--milk)}
+.footer a{color:var(--accent)}
 
 /* Адаптив */
 @media (max-width:980px){
@@ -173,22 +172,22 @@ p{margin:0 0 1em}
 }
 
 /* Фотоотчёт: сетка и просмотр фотографий. */
-.report{margin-top:40px;padding:clamp(18px,3vw,32px);background:var(--milk-2);border:1px solid var(--line);border-radius:24px}
+.report{margin:24px 0 40px;padding:clamp(18px,3vw,32px);background:var(--milk-2);border:1px solid var(--line);border-top:2px solid var(--accent);border-radius:24px}
 .report__heading h3{font:600 clamp(1.8rem,4vw,2.6rem)/1.15 var(--display);color:var(--ink)}
 .report__heading .note{margin-bottom:0}
 .report .gallery{grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;margin-top:24px}
 .report .gallery a{display:block;overflow:hidden;border-radius:14px;background:var(--milk);color:var(--ink);text-decoration:none}
-.report .gallery img{aspect-ratio:4/3;object-fit:cover}
+.report .gallery img{width:100%;aspect-ratio:4/3;object-fit:cover}
 .report .gallery a:hover img{opacity:1}
 .report .gallery a:hover .report__caption{text-decoration:underline}
 .report__caption{display:block;padding:10px 14px;font-size:.95rem}
 .report .album{margin:24px 0 0}
-.report__album{background:var(--ink);color:var(--milk-2);text-align:center}
+.report__album{background:var(--milk);color:var(--accent);border:1px solid var(--accent);text-align:center}
 .photo-viewer{width:min(1100px,96vw);max-width:96vw;max-height:94dvh;padding:16px;border:1px solid var(--straw);border-radius:18px;background:var(--milk-2);color:var(--ink)}
 .photo-viewer::backdrop{background:rgba(36,22,14,.88)}
 .photo-viewer__tools,.photo-viewer__navigation{display:flex;align-items:center;justify-content:space-between;gap:12px}
 .photo-viewer__count{margin:0}
-.photo-viewer button{font:500 .95rem var(--text);border:1px solid var(--line);border-radius:24px;background:var(--milk);color:var(--ink);min-height:44px;padding:8px 16px;cursor:pointer}
+.photo-viewer button{font:500 .95rem var(--text);border:1px solid var(--line);border-top:2px solid var(--accent);border-radius:24px;background:var(--milk);color:var(--ink);min-height:44px;padding:8px 16px;cursor:pointer}
 .photo-viewer button:hover{background:var(--line)}
 .photo-viewer__image{width:100%;height:calc(94dvh - 160px);object-fit:contain;margin:12px 0}
 .photo-viewer__navigation a{color:var(--ink);font-size:.9rem}

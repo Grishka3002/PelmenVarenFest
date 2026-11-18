@@ -172,11 +172,11 @@ p{margin:0 0 1em}
 }
 
 /* Фотоотчёт: сетка и просмотр фотографий. */
-.report{margin:24px 0 40px;padding:clamp(18px,3vw,32px);background:var(--milk-2);border:1px solid var(--line);border-top:2px solid var(--accent);border-radius:24px}
-.report__heading h3{font:600 clamp(1.8rem,4vw,2.6rem)/1.15 var(--display);color:var(--ink)}
-.report__heading .note{margin-bottom:0}
-.report .gallery{grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;margin-top:24px}
-.report .gallery a{display:block;overflow:hidden;border-radius:14px;background:var(--milk);color:var(--ink);text-decoration:none}
+.report-block{padding-top:clamp(24px,4vw,48px)}
+.report{padding:clamp(18px,3vw,32px);background:var(--milk-2);border:1px solid var(--line);border-top:2px solid var(--accent);border-radius:24px}
+.report h2{font:600 clamp(1.8rem,4vw,2.6rem)/1.15 var(--display);color:var(--ink);margin-bottom:0}
+.report .gallery{grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;margin-top:24px}
+.report .gallery a{display:block;height:100%;overflow:hidden;border-radius:14px;background:var(--milk);color:var(--ink);text-decoration:none}
 .report .gallery img{width:100%;aspect-ratio:4/3;object-fit:cover}
 .report .gallery a:hover img{opacity:1}
 .report .gallery a:hover .report__caption{text-decoration:underline}
@@ -192,4 +192,5 @@ p{margin:0 0 1em}
 .photo-viewer__image{width:100%;height:calc(94dvh - 160px);object-fit:contain;margin:12px 0}
 .photo-viewer__navigation a{color:var(--ink);font-size:.9rem}
 body:has(.photo-viewer[open]){overflow:hidden}
+@media(max-width:840px){.report .gallery{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:540px){.report .gallery{grid-template-columns:1fr}.photo-viewer{padding:10px}.photo-viewer button{padding:8px 10px}}

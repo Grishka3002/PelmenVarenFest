@@ -33,6 +33,7 @@ p{margin:0 0 1em}
 .nav{display:flex;gap:4px;overflow-x:auto;scrollbar-width:none}
 .nav::-webkit-scrollbar{display:none}
 .nav a{color:var(--ink);text-decoration:none;padding:8px 12px;border-radius:999px;white-space:nowrap;font-size:.95rem}
+.nav .nav__report{color:var(--accent);font-weight:600}
 .nav a:hover{background:rgba(142,47,31,.08)}
 
 /* Фирменная надпись: маска из макета, цвет задаётся через background */
@@ -175,9 +176,11 @@ p{margin:0 0 1em}
 .report-block{padding-top:clamp(24px,4vw,48px)}
 .report{padding:clamp(18px,3vw,32px);background:var(--milk-2);border:1px solid var(--line);border-top:2px solid var(--accent);border-radius:24px}
 .report h2{font:600 clamp(1.8rem,4vw,2.6rem)/1.15 var(--display);color:var(--ink);margin-bottom:0}
+.report__date{color:var(--muted);margin:6px 0 0}
 .report .gallery{grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;margin-top:24px}
 .report .gallery a{display:block;height:100%;overflow:hidden;border-radius:14px;background:var(--milk);color:var(--ink);text-decoration:none}
 .report .gallery img{width:100%;aspect-ratio:4/3;object-fit:cover}
+.report .gallery img[src="/images/report-2026/IMG_3188.jpg"]{object-position:center 80%}
 .report .gallery a:hover img{opacity:1}
 .report .gallery a:hover .report__caption{text-decoration:underline}
 .report__caption{display:block;padding:10px 14px;font-size:.95rem}

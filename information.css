@@ -174,20 +174,23 @@ p{margin:0 0 1em}
 
 /* Фотоотчёт: сетка и просмотр фотографий. */
 .report{margin-top:40px;padding:clamp(18px,3vw,32px);background:var(--milk-2);border:1px solid var(--line);border-radius:24px}
-.report__heading h3{font:600 clamp(1.8rem,4vw,2.6rem)/1.15 var(--display);color:var(--bordo)}
+.report__heading h3{font:600 clamp(1.8rem,4vw,2.6rem)/1.15 var(--display);color:var(--ink)}
 .report__heading .note{margin-bottom:0}
 .report .gallery{grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;margin-top:24px}
-.report .gallery a{display:block;overflow:hidden;border-radius:14px;background:var(--milk)}
-.report .gallery img{aspect-ratio:4/3;object-fit:cover;border-radius:14px;transition:transform .2s}
-.report .gallery a:hover img{transform:scale(1.025);opacity:1}
+.report .gallery a{display:block;overflow:hidden;border-radius:14px;background:var(--milk);color:var(--ink);text-decoration:none}
+.report .gallery img{aspect-ratio:4/3;object-fit:cover}
+.report .gallery a:hover img{opacity:1}
+.report .gallery a:hover .report__caption{text-decoration:underline}
+.report__caption{display:block;padding:10px 14px;font-size:.95rem}
+.report .album{margin:24px 0 0}
+.report__album{background:var(--ink);color:var(--milk-2);text-align:center}
 .photo-viewer{width:min(1100px,96vw);max-width:96vw;max-height:94dvh;padding:16px;border:1px solid var(--straw);border-radius:18px;background:var(--milk-2);color:var(--ink)}
-.photo-viewer::backdrop{background:rgba(20,32,27,.88)}
+.photo-viewer::backdrop{background:rgba(36,22,14,.88)}
 .photo-viewer__tools,.photo-viewer__navigation{display:flex;align-items:center;justify-content:space-between;gap:12px}
 .photo-viewer__count{margin:0}
-.photo-viewer button{font:500 .95rem var(--text);border:1px solid var(--line);border-radius:24px;background:var(--milk);color:var(--bordo);min-height:44px;padding:8px 16px;cursor:pointer}
+.photo-viewer button{font:500 .95rem var(--text);border:1px solid var(--line);border-radius:24px;background:var(--milk);color:var(--ink);min-height:44px;padding:8px 16px;cursor:pointer}
 .photo-viewer button:hover{background:var(--line)}
 .photo-viewer__image{width:100%;height:calc(94dvh - 160px);object-fit:contain;margin:12px 0}
-.photo-viewer__navigation a{font-size:.9rem}
+.photo-viewer__navigation a{color:var(--ink);font-size:.9rem}
 body:has(.photo-viewer[open]){overflow:hidden}
 @media(max-width:540px){.report .gallery{grid-template-columns:1fr}.photo-viewer{padding:10px}.photo-viewer button{padding:8px 10px}}
-@media(prefers-reduced-motion:reduce){.report .gallery img{transition:none}}

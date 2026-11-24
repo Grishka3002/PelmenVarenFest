@@ -1,6 +1,7 @@
 'use strict';
 // Редактор информационного сайта. Данные редактируются прямо в объекте data; «Сохранить» отправляет его на сервер.
 const $ = id => document.getElementById(id);
+const MAX_GALLERY_PHOTOS = 500;
 const DRAFT_KEY = 'pelmenvaren-admin-draft';
 let data = null, saved = '', tab = 'home', articleIndex = null, saving = false, draftTimer = null;
 
@@ -143,7 +144,7 @@ function pastPanel() {
     const progress = h('span', {class: 'progress', role: 'status'});
     const input = h('input', {type: 'file', accept: 'image/*', multiple: true, 'aria-label': 'Добавить фото в альбом'});
     input.addEventListener('change', async () => {
-      const files = [...input.files].slice(0, 40 - a.gallery.length);
+      const files = [...input.files].slice(0, MAX_GALLERY_PHOTOS - a.gallery.length);
       for (let i = 0; i < files.length; i++) {
         progress.textContent = `Загружаю ${i + 1} из ${files.length}…`;
         try { a.gallery.push({src: await upload(files[i], 1600), alt: ''}); changed(); }
@@ -158,7 +159,7 @@ function pastPanel() {
         h('button', {type: 'button', class: 'icon-btn', 'aria-label': 'Раньше', disabled: i === 0, onclick: () => { [a.gallery[i - 1], a.gallery[i]] = [a.gallery[i], a.gallery[i - 1]]; changed(); drawGallery(); }}, '←'),
         h('button', {type: 'button', class: 'icon-btn', 'aria-label': 'Позже', disabled: i === a.gallery.length - 1, onclick: () => { [a.gallery[i + 1], a.gallery[i]] = [a.gallery[i], a.gallery[i + 1]]; changed(); drawGallery(); }}, '→'),
         h('button', {type: 'button', class: 'btn btn--danger btn--small', onclick: () => { if (confirm('Убрать фото из альбома?')) { a.gallery.splice(i, 1); changed(); drawGallery(); } }}, 'Убрать')))));
-    gallery.replaceChildren(grid, a.gallery.length < 40 ? h('div', {class: 'image-field__actions'}, h('span', {class: 'btn btn--ghost file-btn'}, '+ Добавить фото', input), progress) : h('p', {class: 'hint'}, 'В альбоме уже 40 фото.'));
+    gallery.replaceChildren(grid, a.gallery.length < MAX_GALLERY_PHOTOS ? h('div', {class: 'image-field__actions'}, h('span', {class: 'btn btn--ghost file-btn'}, '+ Добавить фото', input), progress) : h('p', {class: 'hint'}, `В альбоме уже ${MAX_GALLERY_PHOTOS} фото.`));
   };
   drawGallery();
   return [
